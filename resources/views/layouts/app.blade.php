@@ -291,11 +291,12 @@
                 </li>
                 @endif
                 
-                <!-- Caja y Bancos Placeholder -->
+                <!-- Caja y Bancos -->
                 <li>
-                    <a href="#"><i class="fas fa-building-columns"></i> Caja y Bancos</a>
+                    <a href="{{ route('caja-bancos.dashboard') }}" class="{{ request()->routeIs('caja-bancos.*') ? 'active' : '' }}">
+                        <i class="fas fa-building-columns"></i> Caja y Bancos
+                    </a>
                 </li>
-                
                 @if(auth()->user()->hasPermission('produccion'))
                 <li>
                     <a href="{{ route('ordenes-produccion.index') }}" class="{{ request()->routeIs('ordenes-produccion.*') || request()->routeIs('tareas-produccion.*') ? 'active' : '' }}">

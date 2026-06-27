@@ -12,6 +12,7 @@ use App\Http\Controllers\TareaProduccionController;
 use App\Http\Controllers\ConsumoMaterialController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\RolController;
+use App\Http\Controllers\CajaBancosController;
 
 // Ruta de bienvenida
 Route::get('/', function () {
@@ -81,6 +82,13 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     
     // Consumo de Materiales
     Route::post('/ordenes-produccion/{ordenProduccion}/consumo', [ConsumoMaterialController::class, 'store'])->name('consumos-material.store');
+
+    // ========== GESTIÓN DE CAJA Y BANCOS (TESORERÍA) ==========
+    Route::get('/caja-bancos', [CajaBancosController::class, 'dashboard'])->name('caja-bancos.dashboard');
+    Route::post('/caja-bancos/cuentas', [CajaBancosController::class, 'storeCuenta'])->name('caja-bancos.store-cuenta');
+    Route::get('/caja-bancos/cuentas/{cuenta}', [CajaBancosController::class, 'showCuenta'])->name('caja-bancos.show-cuenta');
+    Route::post('/caja-bancos/cuentas/{cuenta}/movimiento', [CajaBancosController::class, 'registrarMovimiento'])->name('caja-bancos.movimiento');
+    Route::post('/caja-bancos/cuentas/{cuentaOrigen}/transferencia', [CajaBancosController::class, 'registrarTransferencia'])->name('caja-bancos.transferencia');
 
     // ========== GESTIÓN ADMINISTRATIVA ==========
     Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy']);
