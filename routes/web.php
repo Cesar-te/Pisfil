@@ -68,6 +68,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     ]);
     Route::post('/entradas-compra/{entradaCompra}/cambiar-estado', [EntradaCompraController::class, 'cambiarEstado'])->name('entradas-compra.cambiar-estado');
     Route::post('/entradas-compra/{entradaCompra}/agregar-detalle', [EntradaCompraController::class, 'agregarDetalle'])->name('entradas-compra.agregar-detalle');
+    Route::post('/entradas-compra/{entradaCompra}/registrar-pago', [EntradaCompraController::class, 'registrarPago'])->name('entradas-compra.registrar-pago');
 
     // ========== GESTIÓN DE PRODUCCIÓN ==========
     

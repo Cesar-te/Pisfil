@@ -6,10 +6,13 @@ use App\Models\EntradaCompra;
 use App\Models\DetalleEntradaCompra;
 use App\Models\Proveedor;
 use App\Models\Producto;
+use App\Models\Kardex;
+use App\Services\KardexService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Exception;
 
 class EntradaCompraController extends Controller
 {
@@ -96,15 +99,72 @@ class EntradaCompraController extends Controller
     /**
      * Cambiar estado de la entrada
      */
-    public function cambiarEstado(Request $request, EntradaCompra $entradaCompra): RedirectResponse
+    public function cambiarEstado(Request $request, EntradaCompra $entradaCompra, KardexService $kardexService): RedirectResponse
     {
         $validated = $request->validate([
             'estado' => 'required|in:pendiente,recibida,validada,rechazada',
         ]);
 
-        $entradaCompra->update($validated);
+        try {
+            // Si pasa a 'validada', ingresar los materiales al Kárdex
+            if ($validated['estado'] === EntradaCompra::ESTADO_VALIDADA && $entradaCompra->estado !== EntradaCompra::ESTADO_VALIDADA) {
+                
+                // Asegurar que tiene detalles
+                if ($entradaCompra->detalles()->count() === 0) {
+                    return back()->withErrors(['error' => 'No se puede validar una compra sin detalles (productos).']);
+                }
 
-        return back()->with('success', 'Estado actualizado');
+                foreach ($entradaCompra->detalles as $detalle) {
+                    $kardexService->registrarMovimiento(
+                        $detalle->producto_id,
+                        Kardex::TIPO_ENTRADA,
+                        $detalle->cantidad_solicitada,
+                        $detalle->precio_unitario,
+                        Auth::id(),
+                        'EntradaCompra',
+                        $entradaCompra->id,
+                        'Recepción de compra N° ' . $entradaCompra->numero_documento
+                    );
+                }
+                
+                $entradaCompra->fecha_recepcion = now();
+            }
+
+            $entradaCompra->update(['estado' => $validated['estado']]);
+
+            return back()->with('success', 'Estado actualizado y Kárdex procesado (si aplica).');
+        } catch (Exception $e) {
+            return back()->withErrors(['error' => 'Error al procesar el Kárdex: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Registrar un pago a la cuenta por pagar
+     */
+    public function registrarPago(Request $request, EntradaCompra $entradaCompra): RedirectResponse
+    {
+        $validated = $request->validate([
+            'monto' => 'required|numeric|min:0.01',
+        ]);
+
+        $totalFactura = $entradaCompra->detalles()->sum('costo_total');
+        $nuevoMontoPagado = $entradaCompra->monto_pagado + $validated['monto'];
+
+        if ($nuevoMontoPagado > $totalFactura) {
+            return back()->withErrors(['error' => 'El monto de pago excede la deuda total de la factura.']);
+        }
+
+        $estadoPago = EntradaCompra::PAGO_PARCIAL;
+        if (abs($totalFactura - $nuevoMontoPagado) < 0.01) {
+            $estadoPago = EntradaCompra::PAGO_PAGADO;
+        }
+
+        $entradaCompra->update([
+            'monto_pagado' => $nuevoMontoPagado,
+            'estado_pago' => $estadoPago
+        ]);
+
+        return back()->with('success', 'Pago registrado exitosamente.');
     }
 
     /**

@@ -285,7 +285,7 @@
 
                 @if(auth()->user()->hasPermission('compras') || auth()->user()->hasPermission('ventas'))
                 <li>
-                    <a href="{{ route('proveedores.index') }}" class="{{ request()->routeIs('proveedores.*') || request()->routeIs('entradas-compra.*') ? 'active' : '' }}">
+                    <a href="{{ route('entradas-compra.index') }}" class="{{ request()->routeIs('proveedores.*') || request()->routeIs('entradas-compra.*') ? 'active' : '' }}">
                         <i class="fas fa-file-invoice-dollar"></i> Compras y Ventas
                     </a>
                 </li>

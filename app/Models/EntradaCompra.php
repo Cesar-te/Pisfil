@@ -21,6 +21,8 @@ class EntradaCompra extends Model
         'estado',
         'observaciones',
         'usuario_id',
+        'estado_pago',
+        'monto_pagado',
     ];
 
     protected $casts = [
@@ -29,12 +31,19 @@ class EntradaCompra extends Model
     ];
 
     /**
-     * Estados
+     * Estados Logísticos
      */
     public const ESTADO_PENDIENTE = 'pendiente';
     public const ESTADO_RECIBIDA = 'recibida';
     public const ESTADO_VALIDADA = 'validada';
     public const ESTADO_RECHAZADA = 'rechazada';
+
+    /**
+     * Estados de Pago
+     */
+    public const PAGO_PENDIENTE = 'pendiente';
+    public const PAGO_PARCIAL = 'parcial';
+    public const PAGO_PAGADO = 'pagado';
 
     /**
      * Relación con Proveedor
