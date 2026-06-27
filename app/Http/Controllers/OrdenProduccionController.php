@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\OrdenProduccion;
 use App\Models\User;
+use App\Models\ProcesoProduccion;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -11,123 +12,68 @@ use Illuminate\Support\Facades\Auth;
 
 class OrdenProduccionController extends Controller
 {
-    /**
-     * Mostrar lista de órdenes de producción
-     */
     public function index(): View
     {
-        $ordenes = OrdenProduccion::with(['usuarioCreador', 'usuarioAsignado'])
+        $ordenes = OrdenProduccion::with('usuarioCreador', 'usuarioAsignado')
             ->orderByDesc('created_at')
             ->paginate(15);
 
-        return view('ordenes_produccion.index', compact('ordenes'));
+        return view('produccion.ordenes.index', compact('ordenes'));
     }
 
-    /**
-     * Mostrar formulario para crear orden
-     */
     public function create(): View
     {
-        $usuarios = User::where('estado', true)
-            ->whereHas('rol', function($q) {
-                $q->whereIn('codigo', ['gerente', 'operario']);
-            })
-            ->get();
-
-        return view('ordenes_produccion.create', compact('usuarios'));
+        // Usuarios con rol de operario o gerente
+        $usuarios = User::where('estado', true)->get();
+        return view('produccion.ordenes.create', compact('usuarios'));
     }
 
-    /**
-     * Guardar nueva orden
-     */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'numero_orden' => 'required|string|max:50|unique:ordenes_produccion',
-            'cliente' => 'required|string|max:150',
+            'cliente' => 'required|string|max:255',
             'descripcion_trabajo' => 'required|string',
             'fecha_inicio_planificada' => 'required|date',
-            'fecha_fin_planificada' => 'required|date|after:fecha_inicio_planificada',
+            'fecha_fin_planificada' => 'required|date|after_or_equal:fecha_inicio_planificada',
             'usuario_asignado_id' => 'nullable|exists:users,id',
         ]);
 
         $validated['usuario_creador_id'] = Auth::id();
-        $validated['estado'] = 'planificada';
+        $validated['estado'] = OrdenProduccion::ESTADO_PLANIFICADA;
 
         OrdenProduccion::create($validated);
 
         return redirect()->route('ordenes-produccion.index')
-            ->with('success', 'Orden de producción creada exitosamente');
+            ->with('success', 'Orden de Producción creada exitosamente');
     }
 
-    /**
-     * Mostrar detalles de la orden
-     */
     public function show(OrdenProduccion $ordenProduccion): View
     {
-        $ordenProduccion->load([
-            'usuarioCreador',
-            'usuarioAsignado',
-            'tareas',
-            'consumoMateriales.producto',
-        ]);
-
-        return view('ordenes_produccion.show', compact('ordenProduccion'));
-    }
-
-    /**
-     * Mostrar formulario para editar orden
-     */
-    public function edit(OrdenProduccion $ordenProduccion): View
-    {
+        $ordenProduccion->load(['tareas.usuarioResponsable', 'tareas.proceso', 'consumoMateriales.producto', 'usuarioCreador', 'usuarioAsignado']);
+        
         $usuarios = User::where('estado', true)->get();
+        $procesos = ProcesoProduccion::where('estado', true)->get();
+        // Aquí deberíamos pasar los productos disponibles para consumir, pero lo podemos hacer vía AJAX o pasarlos todos si no son muchos
+        $productos = \App\Models\Producto::where('estado', true)->get();
 
-        return view('ordenes_produccion.edit', compact('ordenProduccion', 'usuarios'));
+        return view('produccion.ordenes.show', compact('ordenProduccion', 'usuarios', 'procesos', 'productos'));
     }
 
-    /**
-     * Actualizar orden
-     */
-    public function update(Request $request, OrdenProduccion $ordenProduccion): RedirectResponse
-    {
-        $validated = $request->validate([
-            'numero_orden' => 'required|string|max:50|unique:ordenes_produccion,numero_orden,' . $ordenProduccion->id,
-            'cliente' => 'required|string|max:150',
-            'descripcion_trabajo' => 'required|string',
-            'estado' => 'required|in:planificada,en_proceso,pausada,completada,cancelada',
-            'fecha_inicio_planificada' => 'required|date',
-            'fecha_fin_planificada' => 'required|date|after:fecha_inicio_planificada',
-            'usuario_asignado_id' => 'nullable|exists:users,id',
-        ]);
-
-        $ordenProduccion->update($validated);
-
-        return redirect()->route('ordenes-produccion.index')
-            ->with('success', 'Orden actualizada exitosamente');
-    }
-
-    /**
-     * Cambiar estado de la orden
-     */
-    public function cambiarEstado(Request $request, OrdenProduccion $ordenProduccion): RedirectResponse
+    public function updateEstado(Request $request, OrdenProduccion $ordenProduccion): RedirectResponse
     {
         $validated = $request->validate([
             'estado' => 'required|in:planificada,en_proceso,pausada,completada,cancelada',
         ]);
 
-        $ordenProduccion->update($validated);
+        if ($validated['estado'] === OrdenProduccion::ESTADO_EN_PROCESO && !$ordenProduccion->fecha_inicio_real) {
+            $ordenProduccion->fecha_inicio_real = now();
+        } elseif ($validated['estado'] === OrdenProduccion::ESTADO_COMPLETADA && !$ordenProduccion->fecha_fin_real) {
+            $ordenProduccion->fecha_fin_real = now();
+        }
 
-        return back()->with('success', 'Estado actualizado');
-    }
+        $ordenProduccion->update(['estado' => $validated['estado']]);
 
-    /**
-     * Eliminar orden
-     */
-    public function destroy(OrdenProduccion $ordenProduccion): RedirectResponse
-    {
-        $ordenProduccion->delete();
-
-        return redirect()->route('ordenes-produccion.index')
-            ->with('success', 'Orden eliminada exitosamente');
+        return back()->with('success', 'Estado de la orden actualizado.');
     }
 }
