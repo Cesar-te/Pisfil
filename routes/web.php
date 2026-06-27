@@ -9,7 +9,8 @@ use App\Http\Controllers\EntradaCompraController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\OrdenProduccionController;
 use App\Http\Controllers\TareaProduccionController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\ConsumoMaterialController;
+use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\RolController;
 
 // Ruta de bienvenida
@@ -71,33 +72,18 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::post('/entradas-compra/{entradaCompra}/registrar-pago', [EntradaCompraController::class, 'registrarPago'])->name('entradas-compra.registrar-pago');
 
     // ========== GESTIÓN DE PRODUCCIÓN ==========
+    Route::resource('ordenes-produccion', OrdenProduccionController::class);
+    Route::post('/ordenes-produccion/{ordenProduccion}/estado', [OrdenProduccionController::class, 'updateEstado'])->name('ordenes-produccion.estado');
     
-    // Órdenes de Producción
-    Route::resource('ordenes-produccion', OrdenProduccionController::class, [
-        'names' => [
-            'index' => 'ordenes-produccion.index',
-            'create' => 'ordenes-produccion.create',
-            'store' => 'ordenes-produccion.store',
-            'show' => 'ordenes-produccion.show',
-            'edit' => 'ordenes-produccion.edit',
-            'update' => 'ordenes-produccion.update',
-            'destroy' => 'ordenes-produccion.destroy',
-        ]
-    ]);
-    Route::post('/ordenes-produccion/{ordenProduccion}/cambiar-estado', [OrdenProduccionController::class, 'cambiarEstado'])->name('ordenes-produccion.cambiar-estado');
+    // Tareas
+    Route::post('/ordenes-produccion/{ordenProduccion}/tareas', [TareaProduccionController::class, 'store'])->name('tareas-produccion.store');
+    Route::post('/tareas-produccion/{tareaProduccion}/avance', [TareaProduccionController::class, 'updateAvance'])->name('tareas-produccion.avance');
+    
+    // Consumo de Materiales
+    Route::post('/ordenes-produccion/{ordenProduccion}/consumo', [ConsumoMaterialController::class, 'store'])->name('consumos-material.store');
 
-    // Tareas de Producción
-    Route::resource('tareas-produccion', TareaProduccionController::class, [
-        'names' => [
-            'index' => 'tareas-produccion.index',
-            'create' => 'tareas-produccion.create',
-            'store' => 'tareas-produccion.store',
-            'show' => 'tareas-produccion.show',
-            'edit' => 'tareas-produccion.edit',
-            'update' => 'tareas-produccion.update',
-            'destroy' => 'tareas-produccion.destroy',
-        ]
-    ]);
-    Route::post('/tareas-produccion/{tareaProduccion}/cambiar-estado', [TareaProduccionController::class, 'cambiarEstado'])->name('tareas-produccion.cambiar-estado');
-    Route::post('/tareas-produccion/{tareaProduccion}/actualizar-avance', [TareaProduccionController::class, 'actualizarAvance'])->name('tareas-produccion.actualizar-avance');
+    // ========== GESTIÓN ADMINISTRATIVA ==========
+    Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy']);
+    Route::resource('roles', RolController::class)->only(['index', 'edit', 'update']);
+
 });
