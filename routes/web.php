@@ -13,6 +13,9 @@ use App\Http\Controllers\ConsumoMaterialController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\CajaBancosController;
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\VentaController;
+use App\Http\Controllers\ReporteController;
 
 // Ruta de bienvenida
 Route::get('/', function () {
@@ -89,6 +92,13 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/caja-bancos/cuentas/{cuenta}', [CajaBancosController::class, 'showCuenta'])->name('caja-bancos.show-cuenta');
     Route::post('/caja-bancos/cuentas/{cuenta}/movimiento', [CajaBancosController::class, 'registrarMovimiento'])->name('caja-bancos.movimiento');
     Route::post('/caja-bancos/cuentas/{cuentaOrigen}/transferencia', [CajaBancosController::class, 'registrarTransferencia'])->name('caja-bancos.transferencia');
+
+    // ========== VENTAS Y CLIENTES ==========
+    Route::resource('clientes', ClienteController::class)->except(['show', 'create', 'edit', 'destroy']);
+    Route::resource('ventas', VentaController::class)->only(['index', 'create', 'store', 'show']);
+
+    // ========== REPORTES GERENCIALES ==========
+    Route::get('/reportes', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
 
     // ========== GESTIÓN ADMINISTRATIVA ==========
     Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy']);

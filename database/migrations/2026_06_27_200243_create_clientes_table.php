@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('clientes', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre', 255);
+            $table->string('documento_identidad', 20)->unique(); // RUC / DNI
+            $table->string('direccion', 255)->nullable();
+            $table->string('telefono', 20)->nullable();
+            $table->string('email', 100)->nullable();
+            $table->boolean('estado')->default(true);
             $table->timestamps();
         });
     }

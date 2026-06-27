@@ -283,10 +283,18 @@
                 </li>
                 @endif
 
-                @if(auth()->user()->hasPermission('compras') || auth()->user()->hasPermission('ventas'))
+                @if(auth()->user()->hasPermission('compras'))
                 <li>
                     <a href="{{ route('entradas-compra.index') }}" class="{{ request()->routeIs('proveedores.*') || request()->routeIs('entradas-compra.*') ? 'active' : '' }}">
-                        <i class="fas fa-file-invoice-dollar"></i> Compras y Ventas
+                        <i class="fas fa-file-invoice-dollar"></i> Compras
+                    </a>
+                </li>
+                @endif
+                
+                @if(auth()->user()->hasPermission('ventas'))
+                <li>
+                    <a href="{{ route('ventas.index') }}" class="{{ request()->routeIs('ventas.*') || request()->routeIs('clientes.*') ? 'active' : '' }}">
+                        <i class="fas fa-shopping-cart"></i> Ventas
                     </a>
                 </li>
                 @endif
@@ -310,7 +318,9 @@
             <ul>
                 @if(auth()->user()->hasPermission('reportes'))
                 <li>
-                    <a href="#"><i class="fas fa-chart-pie"></i> Reportes Gerenciales</a>
+                    <a href="{{ route('reportes.dashboard') }}" class="{{ request()->routeIs('reportes.*') ? 'active' : '' }}">
+                        <i class="fas fa-chart-pie"></i> Reportes Gerenciales
+                    </a>
                 </li>
                 @endif
                 
