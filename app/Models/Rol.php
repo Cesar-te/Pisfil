@@ -38,9 +38,15 @@ class Rol extends Model
      */
     public function hasPermission(string $permiso): bool
     {
-        if (empty($this->permisos_json)) {
-            return false;
+        $permisos = $this->permisos_json;
+        if (is_string($permisos)) {
+            $permisos = json_decode($permisos, true);
         }
-        return in_array($permiso, (array) $this->permisos_json);
+        $permisos = (array) $permisos;
+        
+        if (in_array('*', $permisos)) {
+            return true;
+        }
+        return in_array($permiso, $permisos);
     }
 }

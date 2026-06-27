@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Kardex;
 use App\Models\Producto;
 use App\Models\EntradaCompra;
+use App\Services\KardexService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Builder;
 
 class InventarioController extends Controller
@@ -140,5 +142,52 @@ class InventarioController extends Controller
         }
 
         return view('inventario.clasificacion_abc', compact('productos'));
+    }
+
+    /**
+     * Formulario para registrar movimiento manual
+     */
+    public function createMovimiento(): View
+    {
+        $productos = Producto::where('estado', 'activo')->orderBy('nombre')->get();
+        return view('inventario.create_movimiento', compact('productos'));
+    }
+
+    /**
+     * Guardar un movimiento manual en Kardex
+     */
+    public function storeMovimiento(Request $request, KardexService $kardexService): RedirectResponse
+    {
+        $validated = $request->validate([
+            'producto_id' => 'required|exists:productos,id',
+            'tipo_movimiento' => 'required|in:entrada,salida,ajuste',
+            'cantidad' => 'required|numeric|min:0.01',
+            'precio_unitario' => 'nullable|numeric|min:0',
+            'observaciones' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            // Validar que en entrada el precio sea obligatorio (en nuestra lógica de Ajuste o Entrada)
+            if ($validated['tipo_movimiento'] === Kardex::TIPO_ENTRADA && !isset($validated['precio_unitario'])) {
+                return back()->withInput()->withErrors(['precio_unitario' => 'El precio unitario es obligatorio para entradas.']);
+            }
+
+            $kardexService->registrarMovimiento(
+                $validated['producto_id'],
+                $validated['tipo_movimiento'],
+                $validated['cantidad'],
+                $validated['precio_unitario'] ?? null,
+                auth()->id(),
+                'Ajuste Manual', // Referencia tipo genérica
+                null, // Referencia ID
+                $validated['observaciones']
+            );
+
+            return redirect()->route('inventario.movimientos_kardex')
+                ->with('success', 'Movimiento registrado correctamente en el Kárdex.');
+
+        } catch (\Exception $e) {
+            return back()->withInput()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 }

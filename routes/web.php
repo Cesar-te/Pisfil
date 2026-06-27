@@ -40,6 +40,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('/reporte-stock', [InventarioController::class, 'reporteStock'])->name('reporte_stock');
         Route::get('/stock-bajo', [InventarioController::class, 'stockBajo'])->name('stock_bajo');
         Route::get('/clasificacion-abc', [InventarioController::class, 'clasificacionABC'])->name('clasificacion_abc');
+        
+        // Movimientos Manuales Kardex
+        Route::get('/create-movimiento', [InventarioController::class, 'createMovimiento'])->name('create_movimiento');
+        Route::post('/store-movimiento', [InventarioController::class, 'storeMovimiento'])->name('store_movimiento');
     });
 
     // Gestión de Productos
