@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Nuevo Producto - PISFIL SIG')
-@section('header_title', 'Registrar Nuevo Producto')
+@section('title', 'Editar Producto - PISFIL SIG')
+@section('header_title', 'Editar Producto')
 
 @section('content')
 <div class="panel-head mb-4" style="display: flex; gap: 10px;">
@@ -13,7 +13,7 @@
 <div class="panel stagger-1" style="max-width: 800px;">
     <span class="panel-tag">Formulario</span>
     <div class="panel-head mb-6">
-        <h2>Detalles del Nuevo Producto/Material</h2>
+        <h2>Editar Producto: {{ $producto->nombre }}</h2>
     </div>
 
     @if($errors->any())
@@ -26,23 +26,24 @@
         </div>
     @endif
 
-    <form action="{{ route('productos.store') }}" method="POST">
+    <form action="{{ route('productos.update', $producto) }}" method="POST">
         @csrf
+        @method('PUT')
         
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Código (SKU)</label>
-                <input type="text" name="codigo" required placeholder="Ej. MAT-001" value="{{ old('codigo') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); font-family: var(--font-mono); outline: none;">
+                <input type="text" name="codigo" required value="{{ old('codigo', $producto->codigo) }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); font-family: var(--font-mono); outline: none;">
             </div>
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Nombre del Producto</label>
-                <input type="text" name="nombre" required placeholder="Ej. Plancha de Acero Inox..." value="{{ old('nombre') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                <input type="text" name="nombre" required value="{{ old('nombre', $producto->nombre) }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
             </div>
         </div>
 
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Descripción Detallada (Opcional)</label>
-            <textarea name="descripcion" rows="3" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">{{ old('descripcion') }}</textarea>
+            <textarea name="descripcion" rows="3" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">{{ old('descripcion', $producto->descripcion) }}</textarea>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
@@ -52,7 +53,7 @@
                     <option value="">-- Seleccione categoría --</option>
                     @if(isset($categorias))
                         @foreach($categorias as $cat)
-                            <option value="{{ $cat->id }}" {{ old('categoria_id') == $cat->id ? 'selected' : '' }}>{{ $cat->nombre }}</option>
+                            <option value="{{ $cat->id }}" {{ old('categoria_id', $producto->categoria_id) == $cat->id ? 'selected' : '' }}>{{ $cat->nombre }}</option>
                         @endforeach
                     @endif
                 </select>
@@ -63,7 +64,7 @@
                     <option value="">-- Seleccione unidad --</option>
                     @if(isset($unidades))
                         @foreach($unidades as $uni)
-                            <option value="{{ $uni->id }}" {{ old('unidad_medida_id') == $uni->id ? 'selected' : '' }}>{{ $uni->nombre }} ({{ $uni->abreviatura }})</option>
+                            <option value="{{ $uni->id }}" {{ old('unidad_medida_id', $producto->unidad_medida_id) == $uni->id ? 'selected' : '' }}>{{ $uni->nombre }} ({{ $uni->abreviatura }})</option>
                         @endforeach
                     @endif
                 </select>
@@ -75,22 +76,34 @@
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Precio Unitario</label>
                 <div style="display: flex; align-items: center; background: var(--surface-1); border: 1px solid var(--line); border-radius: 8px; padding-left: 15px;">
                     <span style="color: var(--muted);">S/</span>
-                    <input type="number" step="0.01" name="precio_unitario" value="{{ old('precio_unitario', 0.00) }}" style="width: 100%; padding: 10px; border: none; background: transparent; color: var(--text); outline: none;">
+                    <input type="number" step="0.01" name="precio_unitario" value="{{ old('precio_unitario', $producto->precio_unitario) }}" style="width: 100%; padding: 10px; border: none; background: transparent; color: var(--text); outline: none;">
                 </div>
             </div>
             <div>
-                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Stock Inicial</label>
-                <input type="number" step="0.01" name="stock_actual" value="{{ old('stock_actual', 0) }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                @php $tieneMovimientos = $producto->movimientosKardex()->exists(); @endphp
+                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Stock Actual</label>
+                <input type="number" step="0.01" name="stock_actual" value="{{ old('stock_actual', $producto->stock_actual) }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;" {{ $tieneMovimientos ? 'readonly' : '' }}>
+                @if($tieneMovimientos)
+                    <div style="font-size: 11px; color: var(--warning); margin-top: 4px;"><i class="fas fa-lock"></i> Gestionado por Kárdex</div>
+                @endif
             </div>
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Stock Mín. (Alerta)</label>
-                <input type="number" step="0.01" name="stock_minimo" value="{{ old('stock_minimo', 5) }}" required style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                <input type="number" step="0.01" name="stock_minimo" value="{{ old('stock_minimo', $producto->stock_minimo) }}" required style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
             </div>
+        </div>
+        
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Estado</label>
+            <select name="estado" required style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                <option value="activo" {{ old('estado', $producto->estado) == 'activo' ? 'selected' : '' }}>Activo</option>
+                <option value="inactivo" {{ old('estado', $producto->estado) == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+            </select>
         </div>
 
         <div style="display: flex; gap: 15px; justify-content: flex-end; border-top: 1px solid var(--line); padding-top: 20px;">
             <button type="submit" class="pill ok cursor-pointer text-decoration-none" style="border: none; font-size: 14px; padding: 10px 20px;">
-                <i class="fas fa-save"></i> GUARDAR PRODUCTO
+                <i class="fas fa-save"></i> ACTUALIZAR PRODUCTO
             </button>
         </div>
     </form>
