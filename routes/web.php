@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
@@ -13,6 +14,11 @@ use App\Http\Controllers\TareaProduccionController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Rutas de Autenticación
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
+Route::post('/login', [AuthController::class, 'login'])->middleware('guest');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Rutas autenticadas
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
