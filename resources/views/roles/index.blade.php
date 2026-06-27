@@ -11,9 +11,11 @@
 </div>
 
 <section class="panel table-panel stagger-1">
-    <span class="panel-tag">Seguridad</span>
-    <div class="panel-head">
-        <h2>Listado de Roles</h2>
+    <div class="panel-head mb-4" style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="panel-tag">Seguridad</span>
+        <a href="{{ route('roles.create') }}" class="pill ok text-decoration-none" style="border: none;">
+            <i class="fas fa-plus"></i> Crear Nuevo Rol
+        </a>
     </div>
 
     @if(session('success'))

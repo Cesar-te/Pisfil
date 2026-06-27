@@ -34,9 +34,6 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // ========== GESTIÓN DE USUARIOS Y ROLES ==========
-    Route::resource('usuarios', UserController::class);
-    Route::resource('roles', RolController::class);
 
     // ========== GESTIÓN DE INVENTARIO ==========
     Route::group(['prefix' => 'inventario', 'as' => 'inventario.'], function () {
@@ -105,7 +102,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/contabilidad', [ContabilidadController::class, 'index'])->name('contabilidad.index');
 
     // ========== GESTIÓN ADMINISTRATIVA ==========
-    Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy']);
-    Route::resource('roles', RolController::class)->only(['index', 'edit', 'update']);
+    Route::resource('usuarios', App\Http\Controllers\UsuarioController::class)->except(['show', 'destroy']);
+    Route::resource('roles', RolController::class)->except(['show', 'destroy']);
 
 });

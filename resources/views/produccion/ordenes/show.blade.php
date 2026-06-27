@@ -10,7 +10,7 @@
     </a>
     
     <div style="display: flex; gap: 10px;">
-        <form action="{{ route('ordenes-produccion.estado', $ordenProduccion) }}" method="POST">
+        <form action="{{ route('ordenes-produccion.estado', ['ordenProduccion' => $ordenProduccion->id]) }}" method="POST">
             @csrf
             <select name="estado" onchange="this.form.submit()" style="padding: 8px 15px; border-radius: 20px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none; font-size: 13px;">
                 <option value="planificada" {{ $ordenProduccion->estado === 'planificada' ? 'selected' : '' }}>Planificada</option>
@@ -94,7 +94,7 @@
                             <td>{{ $tarea->usuarioResponsable->name ?? 'N/A' }}</td>
                             <td>{{ $tarea->proceso->nombre ?? '-' }}</td>
                             <td style="min-width: 150px;">
-                                <form action="{{ route('tareas-produccion.avance', $tarea) }}" method="POST" style="display: flex; gap: 10px; align-items: center;">
+                                <form action="{{ route('tareas-produccion.avance', ['tarea' => $tarea->id]) }}" method="POST" style="display: flex; gap: 10px; align-items: center;">
                                     @csrf
                                     <input type="range" name="porcentaje_avance" min="0" max="100" value="{{ $tarea->porcentaje_avance }}" onchange="this.form.submit()" style="flex: 1; accent-color: var(--primary);">
                                     <span style="font-size: 12px; font-family: var(--font-mono); width: 35px; text-align: right;">{{ $tarea->porcentaje_avance }}%</span>

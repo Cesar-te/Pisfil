@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <form action="{{ route('roles.update', $rol) }}" method="POST">
+    <form action="{{ route('roles.update', ['role' => $rol->id]) }}" method="POST">
         @csrf
         @method('PUT')
         

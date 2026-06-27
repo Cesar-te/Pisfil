@@ -28,13 +28,48 @@ class RolController extends Controller
         return view('roles.index', compact('roles'));
     }
 
-    public function edit(Rol $rol): View
+    public function create(): View
     {
         $permisosDisponibles = self::PERMISOS_SISTEMA;
-        return view('roles.edit', compact('rol', 'permisosDisponibles'));
+        return view('roles.create', compact('permisosDisponibles'));
     }
 
-    public function update(Request $request, Rol $rol): RedirectResponse
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:100|unique:roles,nombre',
+            'descripcion' => 'nullable|string',
+            'estado' => 'required|boolean',
+            'permisos' => 'nullable|array',
+            'permiso_total' => 'nullable|boolean'
+        ]);
+
+        if ($request->has('permiso_total') && $request->permiso_total == '1') {
+            $permisosJson = ['*'];
+        } else {
+            $permisosJson = $request->input('permisos', []);
+        }
+
+        $codigo = strtolower(str_replace(' ', '_', $validated['nombre']));
+
+        Rol::create([
+            'codigo' => $codigo,
+            'nombre' => $validated['nombre'],
+            'descripcion' => $validated['descripcion'],
+            'estado' => $validated['estado'],
+            'permisos_json' => json_encode($permisosJson)
+        ]);
+
+        return redirect()->route('roles.index')->with('success', 'Rol creado exitosamente.');
+    }
+
+    public function edit(Rol $role): View
+    {
+        $permisosDisponibles = self::PERMISOS_SISTEMA;
+        return view('roles.edit', ['rol' => $role, 'permisosDisponibles' => $permisosDisponibles]);
+    }
+
+    public function update(Request $request, Rol $role): RedirectResponse
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:100',
@@ -50,7 +85,7 @@ class RolController extends Controller
             $permisosJson = $request->input('permisos', []);
         }
 
-        $rol->update([
+        $role->update([
             'nombre' => $validated['nombre'],
             'descripcion' => $validated['descripcion'],
             'estado' => $validated['estado'],
