@@ -32,4 +32,15 @@ class Rol extends Model
     {
         return $this->hasMany(User::class, 'rol_id');
     }
+
+    /**
+     * Comprueba si el rol tiene un permiso específico
+     */
+    public function hasPermission(string $permiso): bool
+    {
+        if (empty($this->permisos_json)) {
+            return false;
+        }
+        return in_array($permiso, (array) $this->permisos_json);
+    }
 }

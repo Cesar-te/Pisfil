@@ -9,6 +9,8 @@ use App\Http\Controllers\EntradaCompraController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\OrdenProduccionController;
 use App\Http\Controllers\TareaProduccionController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RolController;
 
 // Ruta de bienvenida
 Route::get('/', function () {
@@ -25,6 +27,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // ========== GESTIÓN DE USUARIOS Y ROLES ==========
+    Route::resource('usuarios', UserController::class);
+    Route::resource('roles', RolController::class);
 
     // ========== GESTIÓN DE INVENTARIO ==========
     Route::group(['prefix' => 'inventario', 'as' => 'inventario.'], function () {

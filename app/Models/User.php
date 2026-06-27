@@ -42,6 +42,17 @@ class User extends Authenticatable
     }
 
     /**
+     * Comprueba si el usuario tiene un permiso específico
+     */
+    public function hasPermission(string $permiso): bool
+    {
+        if (!$this->rol || !$this->rol->estado) {
+            return false;
+        }
+        return $this->rol->hasPermission($permiso);
+    }
+
+    /**
      * Relación con Órdenes de Producción creadas
      */
     public function ordenesCreadas(): HasMany
