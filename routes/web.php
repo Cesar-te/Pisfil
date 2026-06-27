@@ -54,27 +54,23 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/productos-activos', [ProductoController::class, 'activos'])->name('productos.activos');
 
     // Gestión de Proveedores
-    Route::resource('proveedores', ProveedorController::class);
+    Route::resource('proveedores', ProveedorController::class)->parameters([
+        'proveedores' => 'proveedor'
+    ]);
     Route::get('/proveedores-activos', [ProveedorController::class, 'activos'])->name('proveedores.activos');
 
     // Entradas de Compra
-    Route::resource('entradas-compra', EntradaCompraController::class, [
-        'names' => [
-            'index' => 'entradas-compra.index',
-            'create' => 'entradas-compra.create',
-            'store' => 'entradas-compra.store',
-            'show' => 'entradas-compra.show',
-            'edit' => 'entradas-compra.edit',
-            'update' => 'entradas-compra.update',
-            'destroy' => 'entradas-compra.destroy',
-        ]
+    Route::resource('entradas-compra', EntradaCompraController::class)->parameters([
+        'entradas-compra' => 'entradaCompra'
     ]);
     Route::post('/entradas-compra/{entradaCompra}/cambiar-estado', [EntradaCompraController::class, 'cambiarEstado'])->name('entradas-compra.cambiar-estado');
     Route::post('/entradas-compra/{entradaCompra}/agregar-detalle', [EntradaCompraController::class, 'agregarDetalle'])->name('entradas-compra.agregar-detalle');
     Route::post('/entradas-compra/{entradaCompra}/registrar-pago', [EntradaCompraController::class, 'registrarPago'])->name('entradas-compra.registrar-pago');
 
     // ========== GESTIÓN DE PRODUCCIÓN ==========
-    Route::resource('ordenes-produccion', OrdenProduccionController::class);
+    Route::resource('ordenes-produccion', OrdenProduccionController::class)->parameters([
+        'ordenes-produccion' => 'ordenProduccion'
+    ]);
     Route::post('/ordenes-produccion/{ordenProduccion}/estado', [OrdenProduccionController::class, 'updateEstado'])->name('ordenes-produccion.estado');
     
     // Tareas

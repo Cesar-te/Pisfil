@@ -28,7 +28,7 @@
 <div class="kpi-grid stagger-1 mb-8" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
     <div class="kpi-card">
         <span class="kpi-label">Proveedor</span>
-        <span class="kpi-value" style="font-size: 20px;">{{ $entradaCompra->proveedor->razon_social ?? 'N/A' }}</span>
+        <span class="kpi-value" style="font-size: 20px;">{{ $entradaCompra->proveedor->nombre_empresa ?? 'N/A' }}</span>
         <span class="kpi-delta"><i class="fas fa-id-card"></i> RUC: {{ $entradaCompra->proveedor->ruc ?? '-' }}</span>
     </div>
     

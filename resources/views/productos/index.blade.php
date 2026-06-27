@@ -1,68 +1,93 @@
 @extends('layouts.app')
 
-@section('title', 'Productos')
+@section('title', 'Catálogo de Productos - PISFIL SIG')
+@section('header_title', 'Catálogo de Productos y Almacén')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">Gestión de Productos</h1>
-        <a href="{{ route('productos.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            + Nuevo Producto
-        </a>
+<div class="panel-head mb-4" style="display: flex; gap: 10px;">
+    <a href="{{ route('productos.create') }}" class="pill ok hover:opacity-80 cursor-pointer text-decoration-none" style="font-size: 13px; padding: 8px 16px;">
+        <i class="fas fa-plus"></i> Registrar Nuevo Producto
+    </a>
+    <a href="{{ route('inventario.dashboard') }}" class="pill hover:opacity-80 cursor-pointer text-decoration-none" style="font-size: 13px; padding: 8px 16px; border: 1px solid var(--line); color: var(--text);">
+        <i class="fas fa-arrow-left"></i> Volver a Kárdex
+    </a>
+</div>
+
+<div class="panel table-panel stagger-1">
+    <div class="panel-head mb-4" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Catálogo de Materiales y Productos</h2>
     </div>
 
     @if(session('success'))
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-        {{ session('success') }}
-    </div>
+        <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: rgba(79, 174, 122, 0.1); border: 1px solid rgba(79, 174, 122, 0.3); color: var(--success);">
+            {{ session('success') }}
+        </div>
     @endif
 
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="w-full text-sm">
-            <thead class="bg-gray-100 border-b">
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
                 <tr>
-                    <th class="text-left px-4 py-3">Código</th>
-                    <th class="text-left px-4 py-3">Nombre</th>
-                    <th class="text-left px-4 py-3">Categoría</th>
-                    <th class="text-right px-4 py-3">Stock Actual</th>
-                    <th class="text-right px-4 py-3">Precio Unitario</th>
-                    <th class="text-center px-4 py-3">Acciones</th>
+                    <th style="width: 50px;">Cod.</th>
+                    <th>Nombre del Producto</th>
+                    <th>Unidad</th>
+                    <th>Stock Actual</th>
+                    <th>Stock Min.</th>
+                    <th>Precio Ref.</th>
+                    <th>Estado</th>
+                    <th style="text-align: right;">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($productos as $producto)
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="px-4 py-3 font-monospace">{{ $producto->codigo }}</td>
-                    <td class="px-4 py-3">{{ $producto->nombre }}</td>
-                    <td class="px-4 py-3">{{ $producto->categoria->nombre }}</td>
-                    <td class="px-4 py-3 text-right">
-                        @if($producto->stock_actual <= $producto->stock_minimo)
-                            <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-bold">{{ $producto->stock_actual }}</span>
-                        @else
-                            {{ $producto->stock_actual }}
+                @forelse($productos as $prod)
+                <tr>
+                    <td class="font-mono text-muted">{{ $prod->codigo }}</td>
+                    <td style="font-weight: 500;">
+                        {{ $prod->nombre }}
+                        @if($prod->descripcion)
+                            <div style="font-size: 11px; color: var(--muted); font-weight: normal; margin-top: 2px;">{{ Str::limit($prod->descripcion, 30) }}</div>
                         @endif
                     </td>
-                    <td class="px-4 py-3 text-right">S/ {{ number_format($producto->precio_unitario, 2) }}</td>
-                    <td class="px-4 py-3 text-center">
-                        <a href="{{ route('productos.show', $producto) }}" class="text-blue-500 hover:text-blue-700 text-xs">Ver</a>
-                        <a href="{{ route('productos.edit', $producto) }}" class="text-green-500 hover:text-green-700 text-xs ml-2">Editar</a>
-                        <form method="POST" action="{{ route('productos.destroy', $producto) }}" style="display:inline;">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="text-red-500 hover:text-red-700 text-xs ml-2" onclick="return confirm('¿Estás seguro?')">Eliminar</button>
-                        </form>
+                    <td>{{ optional($prod->unidadMedida)->abreviatura ?? 'UN' }}</td>
+                    <td class="font-mono">
+                        @if($prod->stock_actual <= $prod->stock_minimo)
+                            <span style="color: var(--danger); font-weight: bold;">{{ number_format($prod->stock_actual, 2) }}</span>
+                            <i class="fas fa-exclamation-triangle" style="color: var(--danger); font-size: 10px; margin-left: 5px;"></i>
+                        @else
+                            {{ number_format($prod->stock_actual, 2) }}
+                        @endif
+                    </td>
+                    <td class="font-mono text-muted">{{ number_format($prod->stock_minimo, 2) }}</td>
+                    <td class="font-mono">S/ {{ number_format($prod->precio_unitario, 2) }}</td>
+                    <td>
+                        @if($prod->estado === 'activo')
+                            <span style="color: #10B981; background: rgba(16, 185, 129, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 11px;">Activo</span>
+                        @else
+                            <span style="color: #EF4444; background: rgba(239, 68, 68, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 11px;">Inactivo</span>
+                        @endif
+                    </td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <a href="{{ route('productos.edit', $prod) }}" class="pill hover:opacity-80 cursor-pointer text-decoration-none" style="font-size: 11px; padding: 4px 8px; display: inline-block;">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-4 py-3 text-center text-gray-500">No hay productos registrados</td>
+                    <td colspan="8" style="text-align: center; color: var(--muted); padding: 30px;">
+                        <i class="fas fa-boxes" style="font-size: 24px; margin-bottom: 10px; opacity: 0.5;"></i><br>
+                        No hay productos registrados en el almacén.
+                    </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
-    <div class="mt-4">
+    @if(isset($productos) && $productos->hasPages())
+    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--line);">
         {{ $productos->links() }}
     </div>
+    @endif
 </div>
 @endsection

@@ -11,7 +11,10 @@
 
 <!-- Acciones Rápidas -->
 <div class="panel-head mb-4" style="display: flex; gap: 10px;">
-    <a href="{{ route('inventario.create_movimiento') }}" class="pill ok hover:opacity-80 cursor-pointer text-decoration-none" style="font-size: 13px; padding: 8px 16px;">
+    <a href="{{ route('productos.index') }}" class="pill ok hover:opacity-80 cursor-pointer text-decoration-none" style="font-size: 13px; padding: 8px 16px;">
+        <i class="fas fa-boxes"></i> Catálogo de Productos
+    </a>
+    <a href="{{ route('inventario.create_movimiento') }}" class="pill hover:opacity-80 cursor-pointer text-decoration-none" style="font-size: 13px; padding: 8px 16px; border: 1px solid var(--line); color: var(--text);">
         <i class="fas fa-plus"></i> Registrar Movimiento Manual
     </a>
     <a href="{{ route('inventario.movimientos_kardex') }}" class="pill pending hover:opacity-80 cursor-pointer text-decoration-none" style="font-size: 13px; padding: 8px 16px;">

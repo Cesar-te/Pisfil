@@ -1,113 +1,105 @@
 @extends('layouts.app')
 
-@section('title', 'Crear Producto')
+@section('title', 'Nuevo Producto - PISFIL SIG')
+@section('header_title', 'Registrar Nuevo Producto')
 
 @section('content')
-<div class="container mx-auto px-4 py-8 max-w-2xl">
-    <h1 class="text-3xl font-bold mb-6">Crear Nuevo Producto</h1>
+<div class="panel-head mb-4" style="display: flex; gap: 10px;">
+    <a href="{{ route('productos.index') }}" class="pill hover:opacity-80 cursor-pointer text-decoration-none" style="font-size: 13px; padding: 8px 16px; border: 1px solid var(--line); color: var(--text);">
+        <i class="fas fa-arrow-left"></i> Volver al Catálogo
+    </a>
+</div>
 
-    @if ($errors->any())
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <ul>
-                @foreach ($errors->all() as $error)
+<div class="panel stagger-1" style="max-width: 800px;">
+    <span class="panel-tag">Formulario</span>
+    <div class="panel-head mb-6">
+        <h2>Detalles del Nuevo Producto/Material</h2>
+    </div>
+
+    @if($errors->any())
+        <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: var(--danger);">
+            <ul style="margin: 0; padding-left: 20px;">
+                @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
     @endif
 
-    <form action="{{ route('productos.store') }}" method="POST" class="bg-white rounded-lg shadow p-6 space-y-4">
+    <form action="{{ route('productos.store') }}" method="POST">
         @csrf
-
-        <div>
-            <label for="codigo" class="block text-sm font-semibold mb-2">Código *</label>
-            <input type="text" id="codigo" name="codigo" required 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500"
-                value="{{ old('codigo') }}">
-        </div>
-
-        <div>
-            <label for="nombre" class="block text-sm font-semibold mb-2">Nombre *</label>
-            <input type="text" id="nombre" name="nombre" required 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500"
-                value="{{ old('nombre') }}">
-        </div>
-
-        <div>
-            <label for="descripcion" class="block text-sm font-semibold mb-2">Descripción</label>
-            <textarea id="descripcion" name="descripcion" rows="3"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500">{{ old('descripcion') }}</textarea>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
+        
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 20px;">
             <div>
-                <label for="categoria_id" class="block text-sm font-semibold mb-2">Categoría *</label>
-                <select id="categoria_id" name="categoria_id" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500">
-                    <option value="">-- Selecciona una categoría --</option>
-                    @foreach($categorias as $categoria)
-                        <option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
-                            {{ $categoria->nombre }}
-                        </option>
-                    @endforeach
+                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Código (SKU)</label>
+                <input type="text" name="codigo" required placeholder="Ej. MAT-001" value="{{ old('codigo') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); font-family: var(--font-mono); outline: none;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Nombre del Producto</label>
+                <input type="text" name="nombre" required placeholder="Ej. Plancha de Acero Inox..." value="{{ old('nombre') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Descripción Detallada (Opcional)</label>
+            <textarea name="descripcion" rows="3" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">{{ old('descripcion') }}</textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Categoría (Opcional)</label>
+                <!-- Si tuvieras tabla categorías, sería un select, por ahora un input de texto si no aplica, o déjalo así -->
+                <select name="categoria_id" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                    <option value="">-- Sin categoría --</option>
+                    @if(isset($categorias))
+                        @foreach($categorias as $cat)
+                            <option value="{{ $cat->id }}" {{ old('categoria_id') == $cat->id ? 'selected' : '' }}>{{ $cat->nombre }}</option>
+                        @endforeach
+                    @endif
                 </select>
             </div>
-
             <div>
-                <label for="unidad_medida_id" class="block text-sm font-semibold mb-2">Unidad de Medida *</label>
-                <select id="unidad_medida_id" name="unidad_medida_id" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500">
-                    <option value="">-- Selecciona una unidad --</option>
-                    @foreach($unidades as $unidad)
-                        <option value="{{ $unidad->id }}" {{ old('unidad_medida_id') == $unidad->id ? 'selected' : '' }}>
-                            {{ $unidad->nombre }} ({{ $unidad->simbolo }})
-                        </option>
-                    @endforeach
+                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Unidad de Medida</label>
+                <select name="unidad_medida_id" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                    <option value="">-- Seleccione (Opcional) --</option>
+                    @if(isset($unidades))
+                        @foreach($unidades as $uni)
+                            <option value="{{ $uni->id }}" {{ old('unidad_medida_id') == $uni->id ? 'selected' : '' }}>{{ $uni->nombre }} ({{ $uni->abreviatura }})</option>
+                        @endforeach
+                    @endif
                 </select>
             </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
             <div>
-                <label for="precio_unitario" class="block text-sm font-semibold mb-2">Precio Unitario *</label>
-                <input type="number" id="precio_unitario" name="precio_unitario" step="0.01" min="0" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500"
-                    value="{{ old('precio_unitario') }}">
-            </div>
-
-            <div>
-                <label for="stock_minimo" class="block text-sm font-semibold mb-2">Stock Mínimo *</label>
-                <input type="number" id="stock_minimo" name="stock_minimo" min="0" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500"
-                    value="{{ old('stock_minimo') }}">
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label for="stock_maximo" class="block text-sm font-semibold mb-2">Stock Máximo *</label>
-                <input type="number" id="stock_maximo" name="stock_maximo" min="0" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500"
-                    value="{{ old('stock_maximo') }}">
-            </div>
-
-            <div>
-                <label for="estado" class="block text-sm font-semibold mb-2">Estado</label>
-                <select id="estado" name="estado"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500">
-                    <option value="activo" selected>Activo</option>
-                    <option value="inactivo">Inactivo</option>
+                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Tipo (Servicio/Producto)</label>
+                <select name="tipo" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                    <option value="producto" {{ old('tipo') == 'producto' ? 'selected' : '' }}>Producto / Material</option>
+                    <option value="servicio" {{ old('tipo') == 'servicio' ? 'selected' : '' }}>Servicio</option>
                 </select>
             </div>
         </div>
 
-        <div class="flex gap-2 pt-4">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Guardar Producto
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Precio Unitario (Ref.)</label>
+                <div style="display: flex; align-items: center; background: var(--surface-1); border: 1px solid var(--line); border-radius: 8px; padding-left: 15px;">
+                    <span style="color: var(--muted);">S/</span>
+                    <input type="number" step="0.01" name="precio_unitario" value="{{ old('precio_unitario', 0.00) }}" style="width: 100%; padding: 10px; border: none; background: transparent; color: var(--text); outline: none;">
+                </div>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Stock Inicial</label>
+                <input type="number" step="0.01" name="stock_actual" value="{{ old('stock_actual', 0) }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Stock Mínimo (Alerta)</label>
+                <input type="number" step="0.01" name="stock_minimo" value="{{ old('stock_minimo', 5) }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; justify-content: flex-end; border-top: 1px solid var(--line); padding-top: 20px;">
+            <button type="submit" class="pill ok cursor-pointer text-decoration-none" style="border: none; font-size: 14px; padding: 10px 20px;">
+                <i class="fas fa-save"></i> GUARDAR PRODUCTO
             </button>
-            <a href="{{ route('productos.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                Cancelar
-            </a>
         </div>
     </form>
 </div>

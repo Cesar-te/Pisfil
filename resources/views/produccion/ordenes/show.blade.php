@@ -65,7 +65,7 @@
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px;" class="stagger-2">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px;" class="stagger-2">
     
     <!-- Lado Izquierdo: Tareas de Producción -->
     <div style="display: flex; flex-direction: column; gap: 30px;">
@@ -94,7 +94,7 @@
                             <td>{{ $tarea->usuarioResponsable->name ?? 'N/A' }}</td>
                             <td>{{ $tarea->proceso->nombre ?? '-' }}</td>
                             <td style="min-width: 150px;">
-                                <form action="{{ route('tareas-produccion.avance', ['tarea' => $tarea->id]) }}" method="POST" style="display: flex; gap: 10px; align-items: center;">
+                                <form action="{{ route('tareas-produccion.avance', ['tareaProduccion' => $tarea->id]) }}" method="POST" style="display: flex; gap: 10px; align-items: center;">
                                     @csrf
                                     <input type="range" name="porcentaje_avance" min="0" max="100" value="{{ $tarea->porcentaje_avance }}" onchange="this.form.submit()" style="flex: 1; accent-color: var(--primary);">
                                     <span style="font-size: 12px; font-family: var(--font-mono); width: 35px; text-align: right;">{{ $tarea->porcentaje_avance }}%</span>
@@ -120,7 +120,7 @@
                 <h2 style="font-size: 16px;">Asignar Nueva Tarea</h2>
             </div>
             
-            <form action="{{ route('tareas-produccion.store', $ordenProduccion) }}" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+            <form action="{{ route('tareas-produccion.store', ['ordenProduccion' => $ordenProduccion->id]) }}" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
                 @csrf
                 <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 15px;">
                     <div>
@@ -215,7 +215,7 @@
             <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">
                 Esto generará una salida inmediata en el Kárdex calculando el Costo Promedio.
             </p>
-            <form action="{{ route('consumos-material.store', $ordenProduccion) }}" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+            <form action="{{ route('consumos-material.store', ['ordenProduccion' => $ordenProduccion->id]) }}" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
                 @csrf
                 <div>
                     <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Producto</label>

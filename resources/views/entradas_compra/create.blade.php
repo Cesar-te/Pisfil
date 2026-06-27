@@ -24,11 +24,14 @@
         @csrf
         
         <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Proveedor</label>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+                <label style="color: var(--muted); font-size: 13px;">Proveedor</label>
+                <a href="{{ route('proveedores.create') }}" style="font-size: 11px; color: var(--primary); text-decoration: none;"><i class="fas fa-plus"></i> Nuevo Proveedor</a>
+            </div>
             <select name="proveedor_id" required style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
                 <option value="">-- Seleccione el proveedor --</option>
                 @foreach($proveedores as $proveedor)
-                    <option value="{{ $proveedor->id }}">{{ $proveedor->razon_social }} (RUC: {{ $proveedor->ruc }})</option>
+                    <option value="{{ $proveedor->id }}">{{ $proveedor->nombre_empresa }} (RUC: {{ $proveedor->ruc }})</option>
                 @endforeach
             </select>
         </div>

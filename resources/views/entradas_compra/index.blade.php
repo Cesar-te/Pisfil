@@ -9,6 +9,9 @@
     <a href="{{ route('entradas-compra.create') }}" class="pill ok hover:opacity-80 cursor-pointer text-decoration-none" style="font-size: 13px; padding: 8px 16px;">
         <i class="fas fa-plus"></i> Nueva Orden de Compra
     </a>
+    <a href="{{ route('proveedores.index') }}" class="pill hover:opacity-80 cursor-pointer text-decoration-none" style="font-size: 13px; padding: 8px 16px; border: 1px solid var(--line); color: var(--text);">
+        <i class="fas fa-address-book"></i> Directorio de Proveedores
+    </a>
 </div>
 
 <!-- KPIs -->
@@ -77,7 +80,7 @@
                 @php $facturaTotal = $entrada->detalles()->sum('costo_total'); @endphp
                 <tr>
                     <td class="mono" style="font-size: 14px;">{{ $entrada->numero_documento }}</td>
-                    <td style="font-weight: 500;">{{ $entrada->proveedor->razon_social ?? 'N/A' }}</td>
+                    <td style="font-weight: 500;">{{ $entrada->proveedor->nombre_empresa ?? 'N/A' }}</td>
                     <td style="font-size: 13px; color: var(--muted);">{{ $entrada->fecha_emision->format('d/m/Y') }}</td>
                     <td style="font-family: var(--font-mono); color: var(--text);">S/ {{ number_format($facturaTotal, 2) }}</td>
                     <td>

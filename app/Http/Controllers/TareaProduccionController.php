@@ -12,7 +12,14 @@ class TareaProduccionController extends Controller
     public function store(Request $request, OrdenProduccion $ordenProduccion): RedirectResponse
     {
         $validated = $request->validate([
-            'numero_tarea' => 'required|string|max:50',
+            'numero_tarea' => [
+                'required',
+                'string',
+                'max:50',
+                \Illuminate\Validation\Rule::unique('tareas_produccion')->where(function ($query) use ($ordenProduccion) {
+                    return $query->where('orden_produccion_id', $ordenProduccion->id);
+                })
+            ],
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'proceso_produccion_id' => 'required|exists:procesos_produccion,id',
