@@ -16,6 +16,7 @@ use App\Http\Controllers\CajaBancosController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\ContabilidadController;
 
 // Ruta de bienvenida
 Route::get('/', function () {
@@ -99,6 +100,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
     // ========== REPORTES GERENCIALES ==========
     Route::get('/reportes', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
+
+    // ========== CONTABILIDAD ==========
+    Route::get('/contabilidad', [ContabilidadController::class, 'index'])->name('contabilidad.index');
 
     // ========== GESTIÓN ADMINISTRATIVA ==========
     Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy']);

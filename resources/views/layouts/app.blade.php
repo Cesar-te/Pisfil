@@ -326,7 +326,9 @@
                 
                 @if(auth()->user()->hasPermission('contabilidad'))
                 <li>
-                    <a href="#"><i class="fas fa-book-journal-whills"></i> Contabilidad</a>
+                    <a href="{{ route('contabilidad.index') }}" class="{{ request()->routeIs('contabilidad.*') ? 'active' : '' }}">
+                        <i class="fas fa-book-journal-whills"></i> Contabilidad
+                    </a>
                 </li>
                 @endif
 
