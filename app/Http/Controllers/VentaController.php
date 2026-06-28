@@ -28,10 +28,11 @@ class VentaController extends Controller
     {
         $clientes = Cliente::where('estado', true)->orderBy('nombre')->get();
         // Solo productos terminados o disponibles para la venta. Asumiremos todos por ahora.
-        $productos = Producto::where('estado', true)->get();
+        $productos = Producto::where('estado', 'activo')->get();
         $cuentas = CuentaFinanciera::where('estado', true)->get();
+        $cuentasContables = \App\Models\CuentaContable::orderBy('codigo')->get();
 
-        return view('ventas.create', compact('clientes', 'productos', 'cuentas'));
+        return view('ventas.create', compact('clientes', 'productos', 'cuentas', 'cuentasContables'));
     }
 
     public function store(Request $request, KardexService $kardexService): RedirectResponse
@@ -43,7 +44,9 @@ class VentaController extends Controller
             'numero_comprobante' => 'nullable|string|max:20',
             'fecha_venta' => 'required|date',
             'moneda' => 'required|in:PEN,USD',
-            'cuenta_financiera_id' => 'required|exists:cuentas_financieras,id',
+            'condicion_pago' => 'required|in:contado,credito',
+            'cuenta_financiera_id' => 'nullable|required_if:condicion_pago,contado|exists:cuentas_financieras,id',
+            'cuenta_contable_id' => 'nullable|exists:cuentas_contables,id',
             'productos' => 'required|array|min:1',
             'productos.*' => 'exists:productos,id',
             'cantidades' => 'required|array|min:1',
@@ -65,7 +68,10 @@ class VentaController extends Controller
                 'fecha_venta' => $request->fecha_venta,
                 'moneda' => $request->moneda,
                 'total' => 0,
+                'condicion_pago' => $request->condicion_pago,
                 'estado' => 'borrador',
+                'estado_pago' => 'pendiente',
+                'monto_cobrado' => 0,
                 'cuenta_financiera_id' => $request->cuenta_financiera_id,
                 'usuario_registra_id' => Auth::id(),
             ]);
@@ -90,13 +96,11 @@ class VentaController extends Controller
                 ]);
 
                 // 3. Registrar SALIDA del Kárdex (Automatización)
-                // Se registra a precio 0 para que el KardexService le asigne su Costo Promedio. 
-                // El Kárdex calculará el costo de salida. Si no hay stock, esto lanzará excepción.
                 $kardexService->registrarMovimiento(
                     $producto_id,
                     Kardex::TIPO_SALIDA,
                     $cantidad,
-                    0, // El servicio de kárdex costea automáticamente
+                    0,
                     Auth::id(),
                     'Venta',
                     $venta->id,
@@ -108,32 +112,44 @@ class VentaController extends Controller
                 throw new \Exception('El total de la venta debe ser mayor a 0.');
             }
 
-            // 4. Actualizar total y estado a PAGADA
+            // 4. Actualizar total y estados
+            $estadoPago = ($request->condicion_pago === 'contado') ? 'pagado' : 'pendiente';
+            $montoCobrado = ($request->condicion_pago === 'contado') ? $total : 0;
+
             $venta->update([
                 'total' => $total,
-                'estado' => 'pagada'
+                'estado' => 'pagada', // Documento procesado (el estado de deuda está en estado_pago)
+                'estado_pago' => $estadoPago,
+                'monto_cobrado' => $montoCobrado
             ]);
 
-            // 5. Generar INGRESO de dinero en Caja/Banco (Automatización)
-            $cuenta = CuentaFinanciera::findOrFail($request->cuenta_financiera_id);
-            if ($cuenta->moneda !== $venta->moneda) {
-                throw new \Exception("La cuenta destino debe tener la misma moneda que la venta ({$venta->moneda}).");
+            // 5. Generar INGRESO de dinero solo si es al contado
+            if ($request->condicion_pago === 'contado') {
+                $cuenta = CuentaFinanciera::findOrFail($request->cuenta_financiera_id);
+                if ($cuenta->moneda !== $venta->moneda) {
+                    throw new \Exception("La cuenta destino debe tener la misma moneda que la venta ({$venta->moneda}).");
+                }
+
+                TransaccionFinanciera::create([
+                    'cuenta_financiera_id' => $cuenta->id,
+                    'tipo' => 'ingreso',
+                    'monto' => $total,
+                    'motivo' => 'COBRO VENTA: ' . $venta->tipo_comprobante . ' ' . $venta->serie_comprobante . '-' . $venta->numero_comprobante,
+                    'referencia' => 'V-' . $venta->id,
+                    'fecha_transaccion' => $venta->fecha_venta,
+                    'usuario_registra_id' => Auth::id(),
+                    'cuenta_contable_id' => $request->cuenta_contable_id,
+                ]);
+                $cuenta->increment('saldo_actual', $total);
             }
-
-            TransaccionFinanciera::create([
-                'cuenta_financiera_id' => $cuenta->id,
-                'tipo' => 'ingreso',
-                'monto' => $total,
-                'motivo' => 'COBRO VENTA: ' . $venta->tipo_comprobante . ' ' . $venta->serie_comprobante . '-' . $venta->numero_comprobante,
-                'referencia' => 'V-' . $venta->id,
-                'fecha_transaccion' => $venta->fecha_venta,
-                'usuario_registra_id' => Auth::id(),
-            ]);
-            $cuenta->increment('saldo_actual', $total);
 
             DB::commit();
 
-            return redirect()->route('ventas.show', $venta)->with('success', 'Venta registrada exitosamente. El inventario ha sido descontado y el cobro ha ingresado a la caja.');
+            $msg = $request->condicion_pago === 'contado' 
+                ? 'Venta al contado registrada. El inventario ha sido descontado y el cobro ha ingresado a la caja.' 
+                : 'Venta al crédito registrada. El inventario ha sido descontado, generándose una cuenta por cobrar.';
+
+            return redirect()->route('ventas.show', $venta)->with('success', $msg);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -144,6 +160,61 @@ class VentaController extends Controller
     public function show(Venta $venta): View
     {
         $venta->load(['cliente', 'detalles.producto', 'cuentaFinanciera', 'usuarioRegistra']);
-        return view('ventas.show', compact('venta'));
+        $cuentasFinancieras = \App\Models\CuentaFinanciera::where('estado', true)->get();
+        $cuentasContables = \App\Models\CuentaContable::orderBy('codigo')->get();
+
+        return view('ventas.show', compact('venta', 'cuentasFinancieras', 'cuentasContables'));
+    }
+
+    public function registrarCobro(Request $request, Venta $venta): RedirectResponse
+    {
+        $validated = $request->validate([
+            'monto' => 'required|numeric|min:0.01',
+            'cuenta_financiera_id' => 'required|exists:cuentas_financieras,id',
+            'cuenta_contable_id' => 'nullable|exists:cuentas_contables,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $totalVenta = $venta->total;
+            $nuevoMontoCobrado = $venta->monto_cobrado + $validated['monto'];
+
+            if ($nuevoMontoCobrado > $totalVenta) {
+                throw new \Exception('El monto de cobro excede la deuda total de la venta.');
+            }
+
+            $estadoPago = 'parcial';
+            if (abs($totalVenta - $nuevoMontoCobrado) < 0.01) {
+                $estadoPago = 'pagado';
+            }
+
+            $venta->update([
+                'monto_cobrado' => $nuevoMontoCobrado,
+                'estado_pago' => $estadoPago
+            ]);
+
+            $cuenta = CuentaFinanciera::findOrFail($validated['cuenta_financiera_id']);
+
+            TransaccionFinanciera::create([
+                'cuenta_financiera_id' => $cuenta->id,
+                'tipo' => 'ingreso',
+                'monto' => $validated['monto'],
+                'motivo' => 'COBRO CUOTA VENTA: ' . $venta->tipo_comprobante . ' ' . $venta->serie_comprobante . '-' . $venta->numero_comprobante . ' (Cliente: ' . $venta->cliente->nombre . ')',
+                'referencia' => 'V-' . $venta->id,
+                'fecha_transaccion' => now(),
+                'usuario_registra_id' => Auth::id(),
+                'cuenta_contable_id' => $validated['cuenta_contable_id'] ?? null,
+            ]);
+
+            $cuenta->increment('saldo_actual', $validated['monto']);
+
+            DB::commit();
+            return back()->with('success', 'Cobro registrado exitosamente. Se ha ingresado el dinero a tesorería.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Error al registrar el cobro: ' . $e->getMessage()]);
+        }
     }
 }

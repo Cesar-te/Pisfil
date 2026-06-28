@@ -90,12 +90,14 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     // ========== VENTAS Y CLIENTES ==========
     Route::resource('clientes', ClienteController::class)->except(['show', 'create', 'edit', 'destroy']);
     Route::resource('ventas', VentaController::class)->only(['index', 'create', 'store', 'show']);
+    Route::post('/ventas/{venta}/registrar-cobro', [VentaController::class, 'registrarCobro'])->name('ventas.registrar-cobro');
 
     // ========== REPORTES GERENCIALES ==========
     Route::get('/reportes', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
 
     // ========== CONTABILIDAD ==========
-    Route::get('/contabilidad', [ContabilidadController::class, 'index'])->name('contabilidad.index');
+    Route::get('/contabilidad', [App\Http\Controllers\ContabilidadController::class, 'index'])->name('contabilidad.index');
+    Route::get('/contabilidad/plan-cuentas', [App\Http\Controllers\ContabilidadController::class, 'planCuentas'])->name('contabilidad.plan_cuentas');
 
     // ========== GESTIÓN ADMINISTRATIVA ==========
     Route::resource('usuarios', App\Http\Controllers\UsuarioController::class)->except(['show', 'destroy']);

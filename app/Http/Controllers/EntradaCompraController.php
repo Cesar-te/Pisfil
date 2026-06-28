@@ -8,10 +8,13 @@ use App\Models\Proveedor;
 use App\Models\Producto;
 use App\Models\Kardex;
 use App\Services\KardexService;
+use App\Models\CuentaFinanciera;
+use App\Models\TransaccionFinanciera;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 class EntradaCompraController extends Controller
@@ -64,8 +67,10 @@ class EntradaCompraController extends Controller
     public function show(EntradaCompra $entradaCompra): View
     {
         $entradaCompra->load('detalles.producto', 'proveedor', 'usuario');
+        $cuentasFinancieras = \App\Models\CuentaFinanciera::where('estado', true)->get();
+        $cuentasContables = \App\Models\CuentaContable::orderBy('codigo')->get();
 
-        return view('entradas_compra.show', compact('entradaCompra'));
+        return view('entradas_compra.show', compact('entradaCompra', 'cuentasFinancieras', 'cuentasContables'));
     }
 
     /**
@@ -145,26 +150,55 @@ class EntradaCompraController extends Controller
     {
         $validated = $request->validate([
             'monto' => 'required|numeric|min:0.01',
+            'cuenta_financiera_id' => 'required|exists:cuentas_financieras,id',
+            'cuenta_contable_id' => 'nullable|exists:cuentas_contables,id',
         ]);
 
-        $totalFactura = $entradaCompra->detalles()->sum('costo_total');
-        $nuevoMontoPagado = $entradaCompra->monto_pagado + $validated['monto'];
+        try {
+            DB::beginTransaction();
 
-        if ($nuevoMontoPagado > $totalFactura) {
-            return back()->withErrors(['error' => 'El monto de pago excede la deuda total de la factura.']);
+            $totalFactura = $entradaCompra->detalles()->sum('costo_total');
+            $nuevoMontoPagado = $entradaCompra->monto_pagado + $validated['monto'];
+
+            if ($nuevoMontoPagado > $totalFactura) {
+                throw new Exception('El monto de pago excede la deuda total de la factura.');
+            }
+
+            $cuenta = CuentaFinanciera::findOrFail($validated['cuenta_financiera_id']);
+            if ($cuenta->saldo_actual < $validated['monto']) {
+                throw new Exception('Saldo insuficiente en la cuenta/caja seleccionada.');
+            }
+
+            $estadoPago = EntradaCompra::PAGO_PARCIAL;
+            if (abs($totalFactura - $nuevoMontoPagado) < 0.01) {
+                $estadoPago = EntradaCompra::PAGO_PAGADO;
+            }
+
+            $entradaCompra->update([
+                'monto_pagado' => $nuevoMontoPagado,
+                'estado_pago' => $estadoPago
+            ]);
+
+            TransaccionFinanciera::create([
+                'cuenta_financiera_id' => $cuenta->id,
+                'tipo' => 'egreso',
+                'monto' => $validated['monto'],
+                'motivo' => 'PAGO COMPRA: ' . $entradaCompra->tipo_documento . ' ' . $entradaCompra->numero_documento . ' (Proveedor: ' . $entradaCompra->proveedor->nombre . ')',
+                'referencia' => 'C-' . $entradaCompra->id,
+                'fecha_transaccion' => now(),
+                'usuario_registra_id' => Auth::id(),
+                'cuenta_contable_id' => $validated['cuenta_contable_id'] ?? null,
+            ]);
+
+            $cuenta->decrement('saldo_actual', $validated['monto']);
+
+            DB::commit();
+            return back()->with('success', 'Pago registrado exitosamente. Se ha descontado el saldo de tesorería.');
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Error al registrar el pago: ' . $e->getMessage()]);
         }
-
-        $estadoPago = EntradaCompra::PAGO_PARCIAL;
-        if (abs($totalFactura - $nuevoMontoPagado) < 0.01) {
-            $estadoPago = EntradaCompra::PAGO_PAGADO;
-        }
-
-        $entradaCompra->update([
-            'monto_pagado' => $nuevoMontoPagado,
-            'estado_pago' => $estadoPago
-        ]);
-
-        return back()->with('success', 'Pago registrado exitosamente.');
     }
 
     /**

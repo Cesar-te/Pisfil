@@ -21,7 +21,10 @@ class Venta extends Model
         'fecha_venta',
         'moneda',
         'total',
+        'condicion_pago',
         'estado', // borrador, pagada, anulada
+        'estado_pago',
+        'monto_cobrado',
         'cuenta_financiera_id',
         'usuario_registra_id'
     ];

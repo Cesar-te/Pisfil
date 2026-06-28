@@ -45,17 +45,20 @@ class ConsumoMaterialController extends Controller
             // Una vez que el movimiento de salida se creó, el Kardex calculó el precio_unitario (costo de salida)
             // y el costo_total. Lo leemos de ahí para guardarlo en ConsumoMaterial y llevar los costos de la orden.
             $costo_unitario = $kardexMovimiento->precio_unitario;
-            $costo_total = $kardexMovimiento->costo_total;
+            $costo_total = $costo_unitario * $kardexMovimiento->cantidad;
+
+            // Obtener el producto para sacar su unidad de medida
+            $producto = \App\Models\Producto::findOrFail($validated['producto_id']);
 
             ConsumoMaterial::create([
                 'orden_produccion_id' => $ordenProduccion->id,
                 'producto_id' => $validated['producto_id'],
-                'cantidad' => $validated['cantidad'],
-                'costo_unitario' => $costo_unitario,
+                'cantidad_planificada' => $validated['cantidad'], // Asumimos igual
+                'cantidad_consumida' => $validated['cantidad'],
+                'unidad_medida_id' => $producto->unidad_medida_id,
+                'precio_unitario' => $costo_unitario,
                 'costo_total' => $costo_total,
-                'tarea_produccion_id' => $validated['tarea_produccion_id'] ?? null,
-                'usuario_registra_id' => Auth::id(),
-                'fecha_consumo' => now(),
+                'observaciones' => 'Consumo vinculado a OP N° ' . $ordenProduccion->numero_orden
             ]);
 
             DB::commit();

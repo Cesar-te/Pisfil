@@ -20,7 +20,8 @@ class TransaccionFinanciera extends Model
         'referencia',
         'fecha_transaccion',
         'usuario_registra_id',
-        'cuenta_destino_id'
+        'cuenta_destino_id',
+        'cuenta_contable_id'
     ];
 
     protected $casts = [
@@ -41,5 +42,10 @@ class TransaccionFinanciera extends Model
     public function usuarioRegistra(): BelongsTo
     {
         return $this->belongsTo(User::class, 'usuario_registra_id');
+    }
+
+    public function cuentaContable(): BelongsTo
+    {
+        return $this->belongsTo(CuentaContable::class, 'cuenta_contable_id');
     }
 }

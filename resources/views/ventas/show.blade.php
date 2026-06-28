@@ -123,11 +123,60 @@
 
     <!-- Info Pago -->
     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
-        <p style="margin: 0 0 5px 0;"><strong>Condición de Pago:</strong> AL CONTADO</p>
-        <p style="margin: 0 0 5px 0;"><strong>Abonado en:</strong> {{ $venta->cuentaFinanciera->nombre ?? 'N/A' }}</p>
+        <p style="margin: 0 0 5px 0;"><strong>Condición de Pago:</strong> {{ strtoupper($venta->condicion_pago) }} ({{ strtoupper($venta->estado_pago) }})</p>
+        @if($venta->condicion_pago === 'contado')
+            <p style="margin: 0 0 5px 0;"><strong>Abonado en:</strong> {{ $venta->cuentaFinanciera->nombre ?? 'N/A' }}</p>
+        @else
+            <p style="margin: 0 0 5px 0;"><strong>Monto Cobrado:</strong> S/ {{ number_format($venta->monto_cobrado, 2) }} de S/ {{ number_format($venta->total, 2) }}</p>
+        @endif
         <p style="margin: 0;"><strong>Emitido por:</strong> {{ $venta->usuarioRegistra->name ?? 'Sistema' }}</p>
     </div>
 </div>
+
+@if($venta->condicion_pago === 'credito' && $venta->estado_pago !== 'pagado')
+<div style="max-width: 800px; margin: 30px auto 0 auto;">
+    <section class="panel" style="border-color: rgba(79, 174, 122, 0.3);">
+        <span class="panel-tag" style="background: rgba(79, 174, 122, 0.1); color: var(--success);">Cobranzas</span>
+        <div class="panel-head mb-4">
+            <h2 style="font-size: 16px;">Registrar Cobro (Abono de Cliente)</h2>
+        </div>
+        
+        <form action="{{ route('ventas.registrar-cobro', $venta) }}" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+            @csrf
+            <div>
+                <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Monto a Cobrar (Pendiente: S/ {{ number_format($venta->total - $venta->monto_cobrado, 2) }})</label>
+                <input type="number" name="monto" step="0.01" max="{{ $venta->total - $venta->monto_cobrado }}" min="0.01" value="{{ $venta->total - $venta->monto_cobrado }}" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; color: var(--success);">Ingresar Dinero a (Caja/Banco)</label>
+                <select name="cuenta_financiera_id" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--success); color: var(--text);">
+                    <option value="">-- Seleccionar Cuenta / Caja --</option>
+                    @foreach($cuentasFinancieras as $cuenta)
+                        <option value="{{ $cuenta->id }}">{{ $cuenta->nombre }} ({{ $cuenta->moneda }}) - Saldo: {{ number_format($cuenta->saldo_actual, 2) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; color: var(--primary);">Asiento Contable (PCGE)</label>
+                <select name="cuenta_contable_id" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--primary); color: var(--text);">
+                    <option value="">-- No Asociar --</option>
+                    @if(isset($cuentasContables))
+                        @foreach($cuentasContables as $cc)
+                            <option value="{{ $cc->id }}" {{ str_starts_with($cc->codigo, '12') ? 'selected' : '' }}>
+                                {{ $cc->codigo }} - {{ $cc->descripcion }}
+                            </option>
+                        @endforeach
+                    @endif
+                </select>
+                <small style="color: var(--muted); font-size: 11px; display: block; margin-top: 5px;">* Por defecto asociamos a la cuenta 12 (Cuentas por Cobrar Comerciales).</small>
+            </div>
+            <button type="submit" class="pill ok cursor-pointer" style="border: none; justify-content: center; margin-top: 10px;">
+                <i class="fas fa-hand-holding-usd"></i> Procesar Cobro
+            </button>
+        </form>
+    </section>
+</div>
+@endif
 
 <style>
     @media print {

@@ -107,8 +107,8 @@
                 <div>
                     <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Producto</label>
                     <select id="producto_id" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
-                        <!-- TODO: Cargar productos -->
-                        @php $productos = App\Models\Producto::where('estado', true)->get(); @endphp
+                        <option value="">-- Seleccione un Producto --</option>
+                        @php $productos = App\Models\Producto::where('estado', 'activo')->get(); @endphp
                         @foreach($productos as $p)
                             <option value="{{ $p->id }}">{{ $p->nombre }} ({{ $p->codigo }})</option>
                         @endforeach
@@ -163,7 +163,29 @@
                     <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Monto a Pagar (Deuda: S/ {{ number_format($deuda, 2) }})</label>
                     <input type="number" name="monto" step="0.01" max="{{ $deuda }}" min="0.01" value="{{ $deuda }}" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
                 </div>
-                <button type="submit" class="pill warn cursor-pointer" style="border: none; justify-content: center;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; color: var(--danger);">Pagar desde (Origen del Dinero)</label>
+                    <select name="cuenta_financiera_id" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--danger); color: var(--text);">
+                        <option value="">-- Seleccionar Cuenta / Caja --</option>
+                        @foreach($cuentasFinancieras as $cuenta)
+                            <option value="{{ $cuenta->id }}">{{ $cuenta->nombre }} ({{ $cuenta->moneda }}) - Saldo: {{ number_format($cuenta->saldo_actual, 2) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; color: var(--primary);">Asiento Contable (PCGE)</label>
+                    <select name="cuenta_contable_id" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--primary); color: var(--text);">
+                        <option value="">-- No Asociar --</option>
+                        @if(isset($cuentasContables))
+                            @foreach($cuentasContables as $cc)
+                                <option value="{{ $cc->id }}" {{ str_starts_with($cc->codigo, '60') ? 'selected' : '' }}>
+                                    {{ $cc->codigo }} - {{ $cc->descripcion }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+                <button type="submit" class="pill warn cursor-pointer" style="border: none; justify-content: center; margin-top: 10px;">
                     <i class="fas fa-money-bill-wave"></i> Procesar Pago
                 </button>
             </form>

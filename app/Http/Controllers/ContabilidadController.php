@@ -58,4 +58,14 @@ class ContabilidadController extends Controller
             'movimientosBancarios'
         ));
     }
+
+    public function planCuentas(): View
+    {
+        $cuentasPrincipales = \App\Models\CuentaContable::whereNull('padre_id')
+            ->with('subcuentas')
+            ->orderBy('codigo')
+            ->get();
+
+        return view('contabilidad.plan_cuentas', compact('cuentasPrincipales'));
+    }
 }

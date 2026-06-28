@@ -122,15 +122,40 @@
                     </select>
                 </div>
 
-                <div style="margin-top: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; color: var(--success);">Cobrar en (Destino del Dinero)</label>
-                    <select name="cuenta_financiera_id" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--success); color: var(--text);">
-                        <option value="">-- Seleccionar Cuenta / Caja --</option>
-                        @foreach($cuentas as $cuenta)
-                            <option value="{{ $cuenta->id }}">{{ $cuenta->nombre }} ({{ $cuenta->moneda }}) - Saldo: {{ number_format($cuenta->saldo_actual, 2) }}</option>
-                        @endforeach
+                <div style="margin-top: 25px;">
+                    <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Condición de Pago</label>
+                    <select name="condicion_pago" id="condicion_pago" required onchange="togglePagoContado()" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                        <option value="contado">Al Contado (Cobro inmediato)</option>
+                        <option value="credito">Al Crédito (Cobro posterior)</option>
                     </select>
-                    <small style="color: var(--muted); font-size: 11px; display: block; margin-top: 5px;">* El total se sumará automáticamente a esta cuenta al procesar la venta.</small>
+                </div>
+
+                <div id="seccion_pago_contado" style="margin-top: 15px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; color: var(--success);">Cobrar en (Destino del Dinero)</label>
+                        <select name="cuenta_financiera_id" id="cuenta_financiera_id" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--success); color: var(--text);">
+                            <option value="">-- Seleccionar Cuenta / Caja --</option>
+                            @foreach($cuentas as $cuenta)
+                                <option value="{{ $cuenta->id }}">{{ $cuenta->nombre }} ({{ $cuenta->moneda }}) - Saldo: {{ number_format($cuenta->saldo_actual, 2) }}</option>
+                            @endforeach
+                        </select>
+                        <small style="color: var(--muted); font-size: 11px; display: block; margin-top: 5px;">* El total se sumará automáticamente a esta cuenta al procesar la venta.</small>
+                    </div>
+
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; color: var(--primary);">Asiento Contable (PCGE)</label>
+                        <select name="cuenta_contable_id" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--primary); color: var(--text);">
+                            <option value="">-- No Asociar --</option>
+                            @if(isset($cuentasContables))
+                                @foreach($cuentasContables as $cc)
+                                    <option value="{{ $cc->id }}" {{ str_starts_with($cc->codigo, '70') ? 'selected' : '' }}>
+                                        {{ $cc->codigo }} - {{ $cc->descripcion }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <small style="color: var(--muted); font-size: 11px; display: block; margin-top: 5px;">* Por defecto se asocia a la cuenta 70 (Ventas).</small>
+                    </div>
                 </div>
 
                 <button type="submit" class="pill ok cursor-pointer" style="width: 100%; justify-content: center; padding: 15px; font-size: 16px; margin-top: 20px; border: none; box-shadow: 0 4px 15px rgba(79, 174, 122, 0.3);">
@@ -183,6 +208,20 @@
     function eliminarFila(btn) {
         btn.closest('tr').remove();
         calcularTotal();
+    }
+
+    function togglePagoContado() {
+        const condicion = document.getElementById('condicion_pago').value;
+        const seccionContado = document.getElementById('seccion_pago_contado');
+        const cuentaSelect = document.getElementById('cuenta_financiera_id');
+        
+        if (condicion === 'contado') {
+            seccionContado.style.display = 'block';
+            cuentaSelect.required = true;
+        } else {
+            seccionContado.style.display = 'none';
+            cuentaSelect.required = false;
+        }
     }
 
     function calcularFila(element) {

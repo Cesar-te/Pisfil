@@ -55,7 +55,7 @@ class OrdenProduccionController extends Controller
         $usuarios = User::where('estado', true)->get();
         $procesos = ProcesoProduccion::where('estado', true)->get();
         // Aquí deberíamos pasar los productos disponibles para consumir, pero lo podemos hacer vía AJAX o pasarlos todos si no son muchos
-        $productos = \App\Models\Producto::where('estado', true)->get();
+        $productos = \App\Models\Producto::where('estado', 'activo')->get();
 
         return view('produccion.ordenes.show', compact('ordenProduccion', 'usuarios', 'procesos', 'productos'));
     }

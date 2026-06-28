@@ -46,7 +46,7 @@ class CajaBancosController extends Controller
     public function showCuenta(CuentaFinanciera $cuenta): View
     {
         $transacciones = $cuenta->transacciones()
-            ->with('usuarioRegistra', 'cuentaDestino')
+            ->with('usuarioRegistra', 'cuentaDestino', 'cuentaContable')
             ->orderByDesc('fecha_transaccion')
             ->orderByDesc('created_at')
             ->paginate(20);
@@ -56,7 +56,9 @@ class CajaBancosController extends Controller
             ->where('estado', true)
             ->get();
 
-        return view('caja_bancos.show', compact('cuenta', 'transacciones', 'todasCuentas'));
+        $cuentasContables = \App\Models\CuentaContable::orderBy('codigo')->get();
+
+        return view('caja_bancos.show', compact('cuenta', 'transacciones', 'todasCuentas', 'cuentasContables'));
     }
 
     public function registrarMovimiento(Request $request, CuentaFinanciera $cuenta): RedirectResponse
@@ -67,6 +69,7 @@ class CajaBancosController extends Controller
             'motivo' => 'required|string|max:255',
             'referencia' => 'nullable|string|max:100',
             'fecha_transaccion' => 'required|date',
+            'cuenta_contable_id' => 'nullable|exists:cuentas_contables,id',
         ]);
 
         try {

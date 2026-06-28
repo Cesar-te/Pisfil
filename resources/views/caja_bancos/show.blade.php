@@ -88,6 +88,11 @@
                                 @if($tx->referencia)
                                     <div style="font-size: 11px; color: var(--muted); font-family: var(--font-mono);">Ref: {{ $tx->referencia }}</div>
                                 @endif
+                                @if($tx->cuentaContable)
+                                    <div style="margin-top: 4px; font-size: 11px; color: var(--primary);">
+                                        <i class="fas fa-book"></i> PCGE: {{ $tx->cuentaContable->codigo }} - {{ $tx->cuentaContable->descripcion }}
+                                    </div>
+                                @endif
                             </td>
                             <td style="text-align: right; font-weight: bold; font-family: var(--font-mono); color: var(--success); font-size: 14px;">
                                 {{ ($tx->tipo === 'ingreso' || ($tx->tipo === 'transferencia' && str_contains($tx->motivo, 'ENTRANTE'))) ? number_format($tx->monto, 2) : '' }}
@@ -139,6 +144,18 @@
                 <div>
                     <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Motivo / Descripción</label>
                     <input type="text" name="motivo" required placeholder="Ej: Pago de servicios de luz" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Asiento Contable (PCGE) - Opcional</label>
+                    <select name="cuenta_contable_id" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                        <option value="">-- No Asociar --</option>
+                        @if(isset($cuentasContables))
+                            @foreach($cuentasContables as $cc)
+                                <option value="{{ $cc->id }}">{{ $cc->codigo }} - {{ $cc->descripcion }}</option>
+                            @endforeach
+                        @endif
+                    </select>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
