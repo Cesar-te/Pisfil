@@ -43,6 +43,20 @@ class RolSeeder extends Seeder
                     'entradas.create',
                 ]),
             ],
+            [
+                'codigo' => 'encargado_caja_bancos',
+                'nombre' => 'Encargado de Caja y Bancos',
+                'descripcion' => 'Encargado del control de efectivo, cuentas bancarias y transacciones financieras',
+                'estado' => true,
+                'permisos_json' => json_encode([
+                    'caja_bancos.view',
+                    'caja_bancos.create',
+                    'caja_bancos.update',
+                    'transacciones.view',
+                    'transacciones.create',
+                    'plan_contable.view',
+                ]),
+            ],
         ];
 
         foreach ($roles as $rol) {
