@@ -58,4 +58,4 @@ El proyecto cuenta con documentación complementaria almacenada en su raíz:
 
 ## 5. Integrantes
 - Muro Montenegro Alexis
--
+- Alva Muro Piero Alessandro
