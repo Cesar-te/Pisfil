@@ -55,3 +55,7 @@ El proyecto cuenta con documentación complementaria almacenada en su raíz:
 - **Plan de Cuentas PCGE 2026.pdf**: Estructura contable base.
 - **ANÁLISIS Y MODELAMIENTO PRELIMINAR DEL SISTEMA...pdf**: Documento de análisis del sistema.
 - **INFORME V2.pdf** / **PAmodeladoTOBEV5.2f.pdf**: Informes de procesos y flujos de trabajo (As-Is / To-Be).
+
+## 5. Integrantes
+- Muro Montenegro Alexis
+-
