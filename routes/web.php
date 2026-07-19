@@ -18,9 +18,13 @@ use App\Http\Controllers\VentaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ContabilidadController;
 
-// Ruta de bienvenida
+// Ruta principal del sistema
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
+    return redirect()->route('login');
 });
 
 // Rutas de Autenticación
