@@ -4,53 +4,74 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Iniciar Sesión - Pisfil EMSAC</title>
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    <!-- Scripts -->
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans text-gray-900 antialiased">
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800">Pisfil EMSAC</h1>
-        </div>
+<body class="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-800 font-sans text-slate-800 antialiased">
+    <div class="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+        <div class="w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/20 bg-white/95 shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
+            <div class="grid lg:grid-cols-[1.05fr_0.95fr]">
+                <div class="flex flex-col justify-center bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-8 sm:p-10 lg:p-12">
+                    <div class="mb-8">
+                        <p class="text-sm font-semibold uppercase tracking-[0.35em] text-indigo-600">Pisfil EMSAC</p>
+                        <h1 class="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl">Gestiona tu operación con estilo</h1>
+                        <p class="mt-3 max-w-md text-sm leading-6 text-slate-600 sm:text-base">
+                            Accede a tu panel de control y mantén tus procesos organizados, ágiles y seguros.
+                        </p>
+                    </div>
 
-        <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-            <!-- Session Status -->
-            @if (session('status'))
-                <div class="mb-4 font-medium text-sm text-green-600">
-                    {{ session('status') }}
-                </div>
-            @endif
-
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
-
-                <!-- Email Address -->
-                <div>
-                    <label for="email" class="block font-medium text-sm text-gray-700">Correo Electrónico</label>
-                    <input id="email" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-2 border" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" />
-                    @error('email')
-                        <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
-                    @enderror
+                    <div class="flex items-center justify-center rounded-[1.75rem] border border-dashed border-indigo-200 bg-gradient-to-br from-indigo-100/80 to-white p-8 shadow-inner">
+                        <div class="text-center">
+                            <div class="mx-auto flex h-24 w-24 items-center justify-center rounded-2xl bg-indigo-600/10 text-3xl font-semibold text-indigo-700 shadow-sm">
+                                Logo
+                            </div>
+                            <p class="mt-4 text-sm font-medium text-slate-500">Espacio para el logo de la empresa</p>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Password -->
-                <div class="mt-4">
-                    <label for="password" class="block font-medium text-sm text-gray-700">Contraseña</label>
-                    <input id="password" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm p-2 border" type="password" name="password" required autocomplete="current-password" />
-                    @error('password')
-                        <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
-                    @enderror
-                </div>
+                <div class="flex items-center justify-center bg-white p-8 sm:p-10 lg:p-12">
+                    <div class="w-full max-w-md">
+                        <div class="mb-8 text-center lg:text-left">
+                            <h2 class="text-2xl font-bold text-slate-900">Iniciar sesión</h2>
+                            <p class="mt-2 text-sm text-slate-500">Ingresa tus credenciales para continuar</p>
+                        </div>
 
-                <div class="flex items-center justify-end mt-4">
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                        Iniciar Sesión
-                    </button>
+                        @if (session('status'))
+                            <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+
+                        <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                            @csrf
+
+                            <div>
+                                <label for="email" class="mb-2 block text-sm font-semibold text-slate-700">Correo electrónico</label>
+                                <input id="email" class="block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm shadow-sm outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" />
+                                @error('email')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="password" class="mb-2 block text-sm font-semibold text-slate-700">Contraseña</label>
+                                <input id="password" class="block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm shadow-sm outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200" type="password" name="password" required autocomplete="current-password" />
+                                @error('password')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="flex items-center justify-end pt-2">
+                                <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-slate-800 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition duration-200 hover:translate-y-[-1px] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    Iniciar Sesión
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </body>
