@@ -18,6 +18,7 @@ class RolController extends Controller
         'produccion' => 'Acceso a Módulo de Producción (Órdenes)',
         'reportes' => 'Ver Reportes Gerenciales',
         'contabilidad' => 'Acceso a Módulo de Contabilidad',
+        'caja_bancos' => 'Acceso a Módulo de Caja y Bancos',
         'usuarios' => 'Gestionar Usuarios',
         'roles' => 'Gestionar Roles y Permisos',
     ];
