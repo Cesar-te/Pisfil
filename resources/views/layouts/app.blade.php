@@ -147,6 +147,10 @@
         .nav li a:hover { background: var(--surface-2); transform: translateX(4px); }
         .nav li a.active { background: var(--surface-2); color: var(--primary); border-left-color: var(--primary); }
         .nav li a.active i { color: var(--primary); }
+        .submenu { display: none; margin-left: 20px; border-left: 1px solid var(--line); padding-left: 10px; margin-top: 5px; }
+        .submenu.show { display: block; }
+        .nav-toggle-icon { margin-left: auto !important; width: auto !important; transition: transform 0.3s ease; font-size: 12px !important; }
+        .nav-toggle-icon.rotated { transform: rotate(90deg); }
 
         /* ---------- Main Content ---------- */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; scroll-behavior: smooth; position: relative; }
@@ -277,12 +281,27 @@
             <ul>
                 @foreach($global_menus as $menu)
                     @if(!$menu->permiso_id || (auth()->user() && $menu->permiso && auth()->user()->hasPermission($menu->permiso->codigo)))
+                        @php
+                            $hasSubmenus = $menu->submenus->count() > 0;
+                            $isMenuExpanded = false;
+                            if ($hasSubmenus) {
+                                foreach($menu->submenus as $sub) {
+                                    if ($sub->url && request()->is(ltrim($sub->url, '/').'*')) {
+                                        $isMenuExpanded = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        @endphp
                         <li>
-                            <a href="{{ $menu->url ? url($menu->url) : '#' }}" class="{{ $menu->url && request()->is(ltrim($menu->url, '/').'*') ? 'active' : '' }}">
+                            <a href="{{ $hasSubmenus ? '#' : ($menu->url ? url($menu->url) : '#') }}" class="{{ (!$hasSubmenus && $menu->url && request()->is(ltrim($menu->url, '/').'*')) ? 'active' : '' }} {{ $hasSubmenus ? 'toggle-submenu' : '' }}">
                                 <i class="{{ $menu->icono }}"></i> {{ $menu->nombre }}
+                                @if($hasSubmenus)
+                                    <i class="fas fa-chevron-right nav-toggle-icon {{ $isMenuExpanded ? 'rotated' : '' }}"></i>
+                                @endif
                             </a>
-                            @if($menu->submenus->count() > 0)
-                                <ul style="margin-left: 20px; border-left: 1px solid var(--line); padding-left: 10px; margin-top: 5px;">
+                            @if($hasSubmenus)
+                                <ul class="submenu {{ $isMenuExpanded ? 'show' : '' }}">
                                     @foreach($menu->submenus as $submenu)
                                         @if(!$submenu->permiso_id || (auth()->user() && $submenu->permiso && auth()->user()->hasPermission($submenu->permiso->codigo)))
                                             <li>
@@ -394,6 +413,23 @@
                 }
             });
         }
+
+        // --- Lógica de Menú Acordeón ---
+        const toggleSubmenus = document.querySelectorAll('.toggle-submenu');
+        toggleSubmenus.forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                const submenu = toggle.nextElementSibling;
+                const icon = toggle.querySelector('.nav-toggle-icon');
+                
+                if (submenu) {
+                    submenu.classList.toggle('show');
+                    if (icon) {
+                        icon.classList.toggle('rotated');
+                    }
+                }
+            });
+        });
     </script>
     
     @stack('scripts')
