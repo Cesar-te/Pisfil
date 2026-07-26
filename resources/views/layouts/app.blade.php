@@ -130,6 +130,7 @@
         .brand-text strong { display: block; font-family: var(--font-display); font-size: 18px; letter-spacing: 0.5px; }
         .brand-text span { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 3px; }
 
+        .nav { flex: 1; overflow-y: auto; padding-top: 10px; padding-bottom: 20px; }
         .nav-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin: 24px 24px 10px; }
         .nav ul { list-style: none; padding: 0 16px; }
         .nav li { margin-bottom: 4px; }
@@ -265,80 +266,29 @@
 
         @auth
         <nav class="nav">
-            <p class="nav-label">Operación</p>
             <ul>
-                @if(auth()->user()->hasPermission('dashboard'))
-                <li>
-                    <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        <i class="fas fa-border-all"></i> Resumen General
-                    </a>
-                </li>
-                @endif
-                
-                @if(auth()->user()->hasPermission('inventario'))
-                <li>
-                    <a href="{{ route('inventario.dashboard') }}" class="{{ request()->routeIs('inventario.*') || request()->routeIs('productos.*') ? 'active' : '' }}">
-                        <i class="fas fa-boxes-stacked"></i> Inventario · Kárdex
-                    </a>
-                </li>
-                @endif
-
-                @if(auth()->user()->hasPermission('compras'))
-                <li>
-                    <a href="{{ route('entradas-compra.index') }}" class="{{ request()->routeIs('proveedores.*') || request()->routeIs('entradas-compra.*') ? 'active' : '' }}">
-                        <i class="fas fa-file-invoice-dollar"></i> Compras
-                    </a>
-                </li>
-                @endif
-                
-                @if(auth()->user()->hasPermission('ventas'))
-                <li>
-                    <a href="{{ route('ventas.index') }}" class="{{ request()->routeIs('ventas.*') || request()->routeIs('clientes.*') ? 'active' : '' }}">
-                        <i class="fas fa-shopping-cart"></i> Ventas
-                    </a>
-                </li>
-                @endif
-                
-                <!-- Caja y Bancos -->
-                <li>
-                    <a href="{{ route('caja-bancos.dashboard') }}" class="{{ request()->routeIs('caja-bancos.*') ? 'active' : '' }}">
-                        <i class="fas fa-building-columns"></i> Caja y Bancos
-                    </a>
-                </li>
-                @if(auth()->user()->hasPermission('produccion'))
-                <li>
-                    <a href="{{ route('ordenes-produccion.index') }}" class="{{ request()->routeIs('ordenes-produccion.*') || request()->routeIs('tareas-produccion.*') ? 'active' : '' }}">
-                        <i class="fas fa-hammer"></i> Producción
-                    </a>
-                </li>
-                @endif
-            </ul>
-
-            <p class="nav-label">Gestión Administrativa</p>
-            <ul>
-                @if(auth()->user()->hasPermission('reportes'))
-                <li>
-                    <a href="{{ route('reportes.dashboard') }}" class="{{ request()->routeIs('reportes.*') ? 'active' : '' }}">
-                        <i class="fas fa-chart-pie"></i> Reportes Gerenciales
-                    </a>
-                </li>
-                @endif
-                
-                @if(auth()->user()->hasPermission('contabilidad'))
-                <li>
-                    <a href="{{ route('contabilidad.index') }}" class="{{ request()->routeIs('contabilidad.*') ? 'active' : '' }}">
-                        <i class="fas fa-book-journal-whills"></i> Contabilidad
-                    </a>
-                </li>
-                @endif
-
-                @if(auth()->user()->hasPermission('usuarios') || auth()->user()->hasPermission('roles'))
-                <li>
-                    <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') || request()->routeIs('roles.*') ? 'active' : '' }}">
-                        <i class="fas fa-users-gear"></i> Usuarios y Roles
-                    </a>
-                </li>
-                @endif
+                @foreach($global_menus as $menu)
+                    @if(!$menu->permiso_id || (auth()->user() && $menu->permiso && auth()->user()->hasPermission($menu->permiso->codigo)))
+                        <li>
+                            <a href="{{ $menu->url ? url($menu->url) : '#' }}" class="{{ $menu->url && request()->is(ltrim($menu->url, '/').'*') ? 'active' : '' }}">
+                                <i class="{{ $menu->icono }}"></i> {{ $menu->nombre }}
+                            </a>
+                            @if($menu->submenus->count() > 0)
+                                <ul style="margin-left: 20px; border-left: 1px solid var(--line); padding-left: 10px; margin-top: 5px;">
+                                    @foreach($menu->submenus as $submenu)
+                                        @if(!$submenu->permiso_id || (auth()->user() && $submenu->permiso && auth()->user()->hasPermission($submenu->permiso->codigo)))
+                                            <li>
+                                                <a href="{{ $submenu->url ? url($submenu->url) : '#' }}" class="{{ $submenu->url && request()->is(ltrim($submenu->url, '/').'*') ? 'active' : '' }}" style="padding: 8px 12px; font-size: 13px;">
+                                                    <i class="{{ $submenu->icono ?? 'fas fa-angle-right' }}"></i> {{ $submenu->nombre }}
+                                                </a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </li>
+                    @endif
+                @endforeach
             </ul>
         </nav>
         @endauth
