@@ -17,6 +17,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ContabilidadController;
+use App\Http\Controllers\CuentaContableController;
 
 // Ruta principal del sistema
 Route::get('/', function () {
@@ -102,6 +103,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     // ========== CONTABILIDAD ==========
     Route::get('/contabilidad', [App\Http\Controllers\ContabilidadController::class, 'index'])->name('contabilidad.index');
     Route::get('/contabilidad/plan-cuentas', [App\Http\Controllers\ContabilidadController::class, 'planCuentas'])->name('contabilidad.plan_cuentas');
+    Route::resource('cuentas-contables', CuentaContableController::class);
 
     // ========== GESTIÓN ADMINISTRATIVA ==========
     Route::resource('usuarios', App\Http\Controllers\UsuarioController::class)->except(['show', 'destroy']);
