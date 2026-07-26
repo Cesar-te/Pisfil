@@ -1,78 +1,213 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Iniciar Sesión - Pisfil EMSAC</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Tipografías -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Iconos y Gráficos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- Tema Oscuro (Industrial / Blueprint) --- */
+        [data-theme="dark"] {
+            --bg: #11151a;
+            --surface: #1a2028;
+            --surface-2: #212a33;
+            --line: #2b3540;
+            --text: #e9eff3;
+            --muted: #8d99a6;
+            --primary: #3fa7da;
+            --secondary: #e2722e;
+            --accent: #c9a227;
+            --success: #4fae7a;
+            --danger: #d9534f;
+            --glass-bg: rgba(26, 32, 40, 0.85);
+            --blueprint-grid: linear-gradient(rgba(63, 167, 218, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(63, 167, 218, 0.05) 1px, transparent 1px);
+            --shadow-md: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Variables Comunes */
+        :root {
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+            background-image: var(--blueprint-grid);
+            background-size: 40px 40px;
+        }
+
+        /* ---------- Paneles (Estilo Blueprint) ---------- */
+        .panel { 
+            position: relative; 
+            background: var(--surface); 
+            border: 1px solid var(--line); 
+            border-radius: var(--radius-lg); 
+            padding: 40px; 
+            box-shadow: var(--shadow-md); 
+            transition: var(--transition); 
+            width: 100%;
+            max-width: 400px;
+        }
+        .panel::before, .panel::after { content: ''; position: absolute; width: 24px; height: 24px; pointer-events: none; transition: var(--transition); }
+        .panel::before { top: -1px; left: -1px; border-top: 2px solid var(--primary); border-left: 2px solid var(--primary); border-radius: 16px 0 0 0; opacity: 0.8; }
+        .panel::after { bottom: -1px; right: -1px; border-bottom: 2px solid var(--primary); border-right: 2px solid var(--primary); border-radius: 0 0 16px 0; opacity: 0.8; }
+        
+        .brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .brand-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 24px;
+            object-fit: cover;
+        }
+        .brand-text strong { display: block; font-family: var(--font-display); font-size: 22px; letter-spacing: 0.5px; }
+        .brand-text span { display: block; font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-group label {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            width: 100%;
+            background-color: var(--surface-2);
+            border: 1px solid var(--line);
+            color: var(--text);
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-body);
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(63, 167, 218, 0.2);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 14px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-primary:hover {
+            background-color: rgba(63, 167, 218, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(63, 167, 218, 0.2);
+        }
+
+        .error-msg {
+            color: var(--danger);
+            font-size: 12px;
+            margin-top: 6px;
+            font-family: var(--font-body);
+        }
+        
+        .status-msg {
+            background-color: rgba(79, 174, 122, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(79, 174, 122, 0.2);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-800 font-sans text-slate-800 antialiased">
-    <div class="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
-        <div class="w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/20 bg-white/95 shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
-            <div class="grid lg:grid-cols-[1.05fr_0.95fr]">
-                <div class="flex flex-col justify-center bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-8 sm:p-10 lg:p-12">
-                    <div class="mb-8">
-                        <p class="text-sm font-semibold uppercase tracking-[0.35em] text-indigo-600">Pisfil EMSAC</p>
-                        <h1 class="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl">Gestiona tu operación con estilo</h1>
-                        <p class="mt-3 max-w-md text-sm leading-6 text-slate-600 sm:text-base">
-                            Accede a tu panel de control y mantén tus procesos organizados, ágiles y seguros.
-                        </p>
-                    </div>
+<body>
 
-                    <div class="flex items-center justify-center rounded-[1.75rem] border border-dashed border-indigo-200 bg-gradient-to-br from-indigo-100/80 to-white p-8 shadow-inner">
-                        <div class="text-center">
-                            <div class="mx-auto flex h-24 w-24 items-center justify-center rounded-2xl bg-indigo-600/10 text-3xl font-semibold text-indigo-700 shadow-sm">
-                                Logo
-                            </div>
-                            <p class="mt-4 text-sm font-medium text-slate-500">Espacio para el logo de la empresa</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-center bg-white p-8 sm:p-10 lg:p-12">
-                    <div class="w-full max-w-md">
-                        <div class="mb-8 text-center lg:text-left">
-                            <h2 class="text-2xl font-bold text-slate-900">Iniciar sesión</h2>
-                            <p class="mt-2 text-sm text-slate-500">Ingresa tus credenciales para continuar</p>
-                        </div>
-
-                        @if (session('status'))
-                            <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-                                {{ session('status') }}
-                            </div>
-                        @endif
-
-                        <form method="POST" action="{{ route('login') }}" class="space-y-5">
-                            @csrf
-
-                            <div>
-                                <label for="email" class="mb-2 block text-sm font-semibold text-slate-700">Correo electrónico</label>
-                                <input id="email" class="block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm shadow-sm outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" />
-                                @error('email')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="password" class="mb-2 block text-sm font-semibold text-slate-700">Contraseña</label>
-                                <input id="password" class="block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm shadow-sm outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200" type="password" name="password" required autocomplete="current-password" />
-                                @error('password')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div class="flex items-center justify-end pt-2">
-                                <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-slate-800 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition duration-200 hover:translate-y-[-1px] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                    Iniciar Sesión
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+    <div class="panel">
+        <div class="brand">
+            <img src="{{ asset('images/Logo_sistema.png') }}" class="brand-logo" alt="Logo PISFIL EMSAC">
+            <div class="brand-text">
+                <strong>PISFIL SIG</strong>
             </div>
         </div>
+
+        @if (session('status'))
+            <div class="status-msg">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
+
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input id="email" class="form-control" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" />
+                @error('email')
+                    <p class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input id="password" class="form-control" type="password" name="password" required autocomplete="current-password" />
+                @error('password')
+                    <p class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
+                @enderror
+            </div>
+
+            <div style="margin-top: 35px;">
+                <button type="submit" class="btn-primary">
+                    Iniciar Sesión <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </form>
     </div>
+
 </body>
 </html>

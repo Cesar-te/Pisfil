@@ -111,6 +111,14 @@
             color: var(--text);
         }
 
+        .brand-logo {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            object-fit: cover;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
         .brand-mark {
             width: 46px;
             height: 46px;
@@ -257,7 +265,7 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <a href="{{ route('dashboard') }}" class="brand">
-            <span class="brand-mark">PSF</span>
+            <img src="{{ asset('images/Logo_sistema.png') }}" class="brand-logo" alt="Logo PISFIL EMSAC">
             <div class="brand-text">
                 <strong>PISFIL SIG</strong>
                 <span>v1.0 · EMSAC</span>
