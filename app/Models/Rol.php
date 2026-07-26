@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Rol extends Model
 {
@@ -17,12 +18,10 @@ class Rol extends Model
         'nombre',
         'descripcion',
         'estado',
-        'permisos_json',
     ];
 
     protected $casts = [
         'estado' => 'boolean',
-        'permisos_json' => 'array',
     ];
 
     /**
@@ -34,19 +33,21 @@ class Rol extends Model
     }
 
     /**
+     * Relación con Permisos
+     */
+    public function permisos(): BelongsToMany
+    {
+        return $this->belongsToMany(Permiso::class, 'rol_permiso');
+    }
+
+    /**
      * Comprueba si el rol tiene un permiso específico
      */
-    public function hasPermission(string $permiso): bool
+    public function hasPermission(string $permisoCodigo): bool
     {
-        $permisos = $this->permisos_json;
-        if (is_string($permisos)) {
-            $permisos = json_decode($permisos, true);
-        }
-        $permisos = (array) $permisos;
-        
-        if (in_array('*', $permisos)) {
+        if ($this->permisos()->where('codigo', '*')->exists()) {
             return true;
         }
-        return in_array($permiso, $permisos);
+        return $this->permisos()->where('codigo', $permisoCodigo)->exists();
     }
 }

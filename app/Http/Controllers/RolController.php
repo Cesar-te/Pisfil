@@ -3,25 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rol;
+use App\Models\Permiso;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class RolController extends Controller
 {
-    // Lista de todos los permisos disponibles en el sistema (Podría venir de config en un sistema más grande)
-    const PERMISOS_SISTEMA = [
-        'dashboard' => 'Ver Dashboard General',
-        'inventario' => 'Acceso a Módulo de Inventario y Kárdex',
-        'compras' => 'Acceso a Módulo de Compras',
-        'ventas' => 'Acceso a Módulo de Ventas',
-        'produccion' => 'Acceso a Módulo de Producción (Órdenes)',
-        'reportes' => 'Ver Reportes Gerenciales',
-        'contabilidad' => 'Acceso a Módulo de Contabilidad',
-        'caja_bancos' => 'Acceso a Módulo de Caja y Bancos',
-        'usuarios' => 'Gestionar Usuarios',
-        'roles' => 'Gestionar Roles y Permisos',
-    ];
+    // Eliminado: const PERMISOS_SISTEMA ya que ahora vienen de la BD
 
     public function index(): View
     {
@@ -31,7 +20,7 @@ class RolController extends Controller
 
     public function create(): View
     {
-        $permisosDisponibles = self::PERMISOS_SISTEMA;
+        $permisosDisponibles = Permiso::pluck('descripcion', 'codigo')->toArray();
         return view('roles.create', compact('permisosDisponibles'));
     }
 
@@ -53,20 +42,24 @@ class RolController extends Controller
 
         $codigo = strtolower(str_replace(' ', '_', $validated['nombre']));
 
-        Rol::create([
+        $rol = Rol::create([
             'codigo' => $codigo,
             'nombre' => $validated['nombre'],
             'descripcion' => $validated['descripcion'],
             'estado' => $validated['estado'],
-            'permisos_json' => json_encode($permisosJson)
         ]);
+
+        $permisoIds = Permiso::whereIn('codigo', $permisosJson)->pluck('id')->toArray();
+        $rol->permisos()->sync($permisoIds);
 
         return redirect()->route('roles.index')->with('success', 'Rol creado exitosamente.');
     }
 
     public function edit(Rol $role): View
     {
-        $permisosDisponibles = self::PERMISOS_SISTEMA;
+        $permisosDisponibles = Permiso::pluck('descripcion', 'codigo')->toArray();
+        // Cargar permisos actuales para la vista
+        $role->load('permisos'); 
         return view('roles.edit', ['rol' => $role, 'permisosDisponibles' => $permisosDisponibles]);
     }
 
@@ -90,8 +83,10 @@ class RolController extends Controller
             'nombre' => $validated['nombre'],
             'descripcion' => $validated['descripcion'],
             'estado' => $validated['estado'],
-            'permisos_json' => json_encode($permisosJson)
         ]);
+
+        $permisoIds = Permiso::whereIn('codigo', $permisosJson)->pluck('id')->toArray();
+        $role->permisos()->sync($permisoIds);
 
         return redirect()->route('roles.index')->with('success', 'Rol y permisos actualizados correctamente.');
     }
