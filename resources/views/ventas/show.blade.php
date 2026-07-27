@@ -20,16 +20,29 @@
 @endif
 
 <!-- Documento A4-like -->
-<div class="panel" style="max-width: 800px; margin: 0 auto; background: white; color: black; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-    
+<style>
+    .invoice-container {
+        max-width: 800px; margin: 0 auto; background: white; color: black; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-radius: 8px; font-family: 'Inter', sans-serif;
+    }
+    .invoice-container table { min-width: auto !important; width: 100%; border-collapse: collapse; }
+    .invoice-container th, .invoice-container td { border-color: #ddd !important; color: black !important; padding: 8px; }
+    .invoice-container thead, .invoice-container th { background-color: #eee !important; color: #333 !important; font-weight: bold; }
+    .invoice-container tr:hover td { background-color: transparent !important; }
+    .layout-table td { border: none !important; padding: 3px 0 !important; }
+    .invoice-container h1, .invoice-container p, .invoice-container div { color: black; }
+</style>
+<div class="invoice-container">
     <!-- Cabecera Factura -->
-    <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px;">
-        <div>
-            <h1 style="font-size: 24px; margin: 0; color: #111;">PISFIL EMSAC</h1>
-            <p style="margin: 5px 0 0 0; font-size: 14px; color: #555;">Servicios Metalmecánicos Integrales</p>
-            <p style="margin: 2px 0 0 0; font-size: 12px; color: #777;">RUC: 20000000001</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <img src="{{ asset('images/Logo.png') }}" alt="Logo PISFIL" style="height: 75px; width: auto; object-fit: contain;">
+            <div>
+                <h1 style="font-size: 24px; margin: 0; color: #111;">PISFIL EMSAC</h1>
+                <p style="margin: 5px 0 0 0; font-size: 14px; color: #555;">Servicios Metalmecánicos Integrales</p>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: #777;">RUC: 20000000001</p>
+            </div>
         </div>
-        <div style="text-align: right; border: 1px solid #333; padding: 10px 20px; border-radius: 5px;">
+        <div style="text-align: center; border: 1px solid #333; padding: 15px 25px; border-radius: 5px;">
             <div style="font-size: 18px; font-weight: bold;">{{ strtoupper($venta->tipo_comprobante) }}</div>
             <div style="font-size: 16px; margin-top: 5px;" class="mono">{{ $venta->serie_comprobante }} - {{ str_pad($venta->numero_comprobante, 8, '0', STR_PAD_LEFT) }}</div>
         </div>
@@ -38,7 +51,7 @@
     <!-- Datos Cliente -->
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; font-size: 14px;">
         <div style="background: #f9f9f9; padding: 15px; border-radius: 5px;">
-            <table style="width: 100%; border: none;">
+            <table class="layout-table">
                 <tr>
                     <td style="width: 100px; color: #666; padding: 3px 0;"><strong>Cliente:</strong></td>
                     <td style="padding: 3px 0;">{{ $venta->cliente->nombre }}</td>
@@ -54,7 +67,7 @@
             </table>
         </div>
         <div style="background: #f9f9f9; padding: 15px; border-radius: 5px;">
-            <table style="width: 100%; border: none;">
+            <table class="layout-table">
                 <tr>
                     <td style="color: #666; padding: 3px 0;"><strong>Fecha:</strong></td>
                     <td style="padding: 3px 0;">{{ $venta->fecha_venta->format('d/m/Y') }}</td>
@@ -183,16 +196,16 @@
         body * {
             visibility: hidden;
         }
-        .panel, .panel * {
+        .invoice-container, .invoice-container * {
             visibility: visible;
         }
-        .panel {
+        .invoice-container {
             position: absolute;
             left: 0;
             top: 0;
-            box-shadow: none !important;
             width: 100%;
         }
+        .panel-head, .cobranzas-panel { display: none !important; }
         .pill, .icon-btn, .topbar, aside {
             display: none !important;
         }
