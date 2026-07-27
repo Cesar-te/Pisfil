@@ -55,7 +55,7 @@
                         <td>
                             @if($venta->estado === 'pagada')
                                 <span class="pill ok" style="padding: 2px 8px; font-size: 11px;">PAGADA</span>
-                                <div style="font-size: 10px; color: var(--muted); margin-top: 4px;">En: {{ $venta->cuentaFinanciera->nombre }}</div>
+                                <div style="font-size: 10px; color: var(--muted); margin-top: 4px;">En: {{ $venta->cuentaFinanciera?->nombre ?? 'N/A' }}</div>
                             @elseif($venta->estado === 'borrador')
                                 <span class="pill pending" style="padding: 2px 8px; font-size: 11px;">BORRADOR</span>
                             @else
