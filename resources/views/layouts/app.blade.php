@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'PISFIL SIG v1.0')</title>
+    <script>
+        (() => {
+            const savedTheme = localStorage.getItem('pisfil-theme');
+            const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+            const initialTheme = savedTheme || (prefersLight ? 'light' : 'dark');
+            document.documentElement.setAttribute('data-theme', initialTheme);
+        })();
+    </script>
 
     <!-- Tipografías -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -389,10 +397,17 @@
         
         if (themeToggle) {
             const themeIcon = themeToggle.querySelector('i');
+            const setThemeIcon = () => {
+                themeIcon.className = html.getAttribute('data-theme') === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            };
+            setThemeIcon();
+
             themeToggle.addEventListener('click', () => {
                 const isDark = html.getAttribute('data-theme') === 'dark';
-                html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-                themeIcon.className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+                const nextTheme = isDark ? 'light' : 'dark';
+                html.setAttribute('data-theme', nextTheme);
+                localStorage.setItem('pisfil-theme', nextTheme);
+                setThemeIcon();
                 
                 // Disparar evento para que los gráficos se actualicen si existen
                 document.dispatchEvent(new Event('themeChanged'));
