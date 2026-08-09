@@ -193,6 +193,10 @@
 
         .role-context { margin: 24px 32px 0; padding: 14px 20px; background: rgba(63, 167, 218, 0.08); border: 1px solid rgba(63, 167, 218, 0.25); border-radius: var(--radius-md); font-size: 13px; color: var(--text); display: flex; gap: 12px; align-items: center; }
         [data-theme="light"] .role-context { background: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.2); }
+        .dismissible-message { position: relative; transition: opacity 0.45s ease, transform 0.45s ease, margin 0.45s ease, padding 0.45s ease, max-height 0.45s ease; max-height: 180px; overflow: hidden; }
+        .dismissible-message.is-hiding { opacity: 0; transform: translateY(-8px); margin-top: 0 !important; margin-bottom: 0 !important; padding-top: 0 !important; padding-bottom: 0 !important; max-height: 0; pointer-events: none; }
+        .dismiss-message-btn { margin-left: auto; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); flex-shrink: 0; }
+        .dismiss-message-btn:hover { background: var(--surface-2); color: var(--text); }
 
         .content { padding: 32px; display: flex; flex-direction: column; gap: 40px; }
 
@@ -379,7 +383,7 @@
 
         <!-- Role Context Banner -->
         @auth
-        <div class="role-context stagger-1">
+        <div class="role-context stagger-1" data-auto-dismiss="6500">
             <i class="fas fa-info-circle" style="color: var(--primary); font-size: 16px;"></i>
             <span>{{ Auth::user()->rol->descripcion ?? 'Acceso al sistema.' }}</span>
         </div>
@@ -446,6 +450,42 @@
                     }
                 }
             });
+        });
+
+        // --- Mensajes temporales ---
+        const autoDismissSelectors = [
+            '.role-context',
+            '.content > div[style*="rgba(79, 174, 122"]',
+            '.content > div[style*="rgba(217, 83, 79"]',
+            '.content > div[style*="var(--danger)"]',
+            '.content > div[class*="bg-green"]',
+            '.content > div[class*="bg-red"]',
+            '.content > section > div[style*="rgba(79, 174, 122"]',
+            '.content > section > div[style*="rgba(217, 83, 79"]'
+        ];
+
+        const dismissMessage = (message) => {
+            message.classList.add('is-hiding');
+            window.setTimeout(() => message.remove(), 500);
+        };
+
+        document.querySelectorAll(autoDismissSelectors.join(',')).forEach((message) => {
+            if (message.dataset.persistent === 'true' || message.classList.contains('kpi-card')) return;
+
+            message.classList.add('dismissible-message');
+
+            if (!message.querySelector('.dismiss-message-btn')) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'dismiss-message-btn';
+                button.setAttribute('aria-label', 'Cerrar mensaje');
+                button.innerHTML = '<i class="fas fa-times"></i>';
+                button.addEventListener('click', () => dismissMessage(message));
+                message.appendChild(button);
+            }
+
+            const delay = Number(message.dataset.autoDismiss || 5200);
+            window.setTimeout(() => dismissMessage(message), delay);
         });
     </script>
     
