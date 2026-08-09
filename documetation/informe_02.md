@@ -41,12 +41,12 @@ Los principales componentes implementados son:
 | Inventario y Kardex | En proceso avanzado | Se implemento dashboard de inventario, movimientos Kardex, stock bajo, reporte de stock, clasificacion ABC y movimientos manuales. |
 | Ventas | En proceso | Permite registrar ventas al contado o credito, agregar productos, descontar inventario y registrar cobros. |
 | Caja y bancos | En proceso | Permite registrar cuentas financieras, ingresos, egresos y transferencias entre cuentas de la misma moneda. |
-| Contabilidad y PCGE | En proceso avanzado | Se implemento el catalogo de cuentas contables, la generacion automatica de asientos y la consulta de Libro Diario. |
-| Produccion | En proceso | Se implementaron ordenes de produccion, tareas, avances y consumos de materiales. |
+| Contabilidad y PCGE | En proceso avanzado | Se implemento el catalogo de cuentas contables, asientos automaticos, Libro Diario, Libro Mayor, Balance de Comprobacion y exportacion CSV. |
+| Produccion | En proceso avanzado | Se implementaron ordenes de produccion, tareas, avances, consumos de materiales y asiento contable por consumo. |
 | Dashboard operativo y reportes | En proceso avanzado | El dashboard principal usa datos reales de ventas, compras, caja, inventario, produccion y contabilidad; ademas se agregaron reportes de inventario. |
 | Navegacion e interfaz | En proceso avanzado | Se alineo el menu lateral con las rutas reales, se corrigio la persistencia de tema claro/oscuro y los mensajes del sistema ahora desaparecen automaticamente. |
 
-El porcentaje aproximado de avance del proyecto es de **83 %**, considerando que la estructura de datos, los modulos principales, la navegacion validada, el dashboard operativo con datos reales, los reportes de inventario y la generacion inicial de asientos contables ya se encuentran implementados. Aun falta fortalecer reportes contables finales, Libro Mayor, Balance de Comprobacion, exportaciones, pruebas integrales ampliadas y documentacion de usuario.
+El porcentaje aproximado de avance del proyecto es de **90 %**, considerando que la estructura de datos, los modulos principales, la navegacion validada, el dashboard operativo con datos reales, los reportes de inventario, los libros contables principales, las exportaciones CSV y la generacion de asientos contables ya se encuentran implementados. Aun falta fortalecer permisos por accion, costos avanzados de produccion, pruebas end-to-end, auditoria, copias de seguridad y documentacion final con capturas.
 
 #### 1.3 Tecnologias utilizadas
 
@@ -80,11 +80,11 @@ El porcentaje aproximado de avance del proyecto es de **83 %**, considerando que
 | Compras | En proceso | Registro de cabecera, detalle, estado de compra, pagos y actualizacion de Kardex. |
 | Ventas | En proceso | Registro de ventas, detalles, cobros y salida de inventario. |
 | Caja y bancos | En proceso | Cuentas, ingresos, egresos y transferencias implementadas. |
-| Contabilidad y PCGE | En proceso avanzado | Catalogo PCGE, resumen mensual, asientos automaticos y Libro Diario implementados. |
-| Produccion | En proceso | Ordenes, tareas y consumos de materiales en desarrollo. |
-| Reportes finales | En proceso | Se implementaron dashboard operativo, reportes de inventario y Libro Diario; faltan Libro Mayor, Balance de Comprobacion y exportaciones. |
-| Pruebas integrales | En proceso | Se validaron rutas de inventario, dashboard, cache de vistas y pruebas PHPUnit base; faltan pruebas completas de procesos encadenados. |
-| Manual de usuario | Pendiente | Programado para la entrega final. |
+| Contabilidad y PCGE | En proceso avanzado | Catalogo PCGE, resumen mensual, asientos automaticos, Libro Diario, Libro Mayor, Balance de Comprobacion y exportacion CSV implementados. |
+| Produccion | En proceso avanzado | Ordenes, tareas, consumos de materiales y contabilizacion inicial de consumos implementados. |
+| Reportes finales | En proceso avanzado | Se implementaron dashboard operativo, reportes de inventario, Libro Diario, Libro Mayor, Balance de Comprobacion y exportaciones CSV; faltan reportes SUNAT avanzados y formatos finales. |
+| Pruebas integrales | En proceso avanzado | Se validaron rutas de inventario, dashboard, cache de vistas y pruebas PHPUnit para rutas/vistas contables; faltan pruebas end-to-end completas con navegador. |
+| Manual de usuario | En proceso | Se elaboro una guia base de uso; faltan capturas finales por pantalla. |
 
 #### 1.5 Evidencias del avance
 
@@ -102,6 +102,8 @@ Las siguientes capturas deben incorporarse desde la version actual del prototipo
 | Captura 8: Plan de cuentas | Catalogo PCGE implementado en el sistema. | Pendiente de insertar imagen. |
 | Captura 9: Libro Diario | Asientos contables generados por compras, ventas, cobros, pagos y tesoreria. | Pendiente de insertar imagen. |
 | Captura 10: Navegacion y tema | Menu lateral alineado a los modulos reales, con persistencia de tema claro u oscuro. | Pendiente de insertar imagen. |
+| Captura 11: Libro Mayor | Movimientos agrupados por cuenta contable. | Pendiente de insertar imagen. |
+| Captura 12: Balance de Comprobacion | Saldos deudores y acreedores por cuenta. | Pendiente de insertar imagen. |
 
 ---
 
@@ -425,25 +427,25 @@ A continuacion se presenta un diccionario de datos resumido de las tablas mas re
 
 **Objetivo del modulo:** organizar las operaciones economicas mediante cuentas contables basadas en el PCGE.
 
-**Funciones implementadas:** listado del plan de cuentas, creacion y edicion de cuentas, jerarquia por cuenta padre, clasificacion por elemento, tipo y nivel, resumen mensual de ventas, compras, IGV, movimientos de tesoreria, generacion automatica de asientos y consulta de Libro Diario.
+**Funciones implementadas:** listado del plan de cuentas, creacion y edicion de cuentas, jerarquia por cuenta padre, clasificacion por elemento, tipo y nivel, resumen mensual de ventas, compras, IGV, movimientos de tesoreria, generacion automatica de asientos, consulta de Libro Diario, Libro Mayor, Balance de Comprobacion y exportacion CSV compatible con Excel.
 
 **Validaciones implementadas:** codigo contable unico, descripcion obligatoria, elemento obligatorio, nivel entre 2 y 6, cuenta padre existente y bloqueo de eliminacion cuando una cuenta tiene subcuentas.
 
 **Captura del formulario:** pendiente de insertar.
 
-**Descripcion del funcionamiento:** el usuario consulta o registra cuentas contables. Las operaciones de ventas, compras, cobros, pagos y movimientos financieros generan asientos contables balanceados, asociando cada linea del Debe y Haber a cuentas del PCGE. Posteriormente, el usuario puede consultar estos registros desde el Libro Diario.
+**Descripcion del funcionamiento:** el usuario consulta o registra cuentas contables. Las operaciones de ventas, compras, cobros, pagos, movimientos financieros, costo de ventas y consumos de produccion generan asientos contables balanceados, asociando cada linea del Debe y Haber a cuentas del PCGE. Posteriormente, el usuario puede consultar estos registros desde Libro Diario, Libro Mayor y Balance de Comprobacion.
 
 #### 3.10 Modulo de produccion
 
 **Objetivo del modulo:** controlar trabajos de fabricacion metalmecanica, tareas asignadas y materiales consumidos por orden.
 
-**Funciones implementadas:** registro de ordenes de produccion, actualizacion de estado, registro de tareas, avance de tareas y consumo de materiales.
+**Funciones implementadas:** registro de ordenes de produccion, actualizacion de estado, registro de tareas, avance de tareas, consumo de materiales, descuento de inventario por Kardex y asiento contable inicial por consumo de materias primas.
 
 **Validaciones implementadas:** numero de orden unico, fechas de planificacion, usuario creador, usuario asignado, responsable de tarea, producto existente y cantidad de material planificada.
 
 **Captura del formulario:** pendiente de insertar.
 
-**Descripcion del funcionamiento:** el usuario registra una orden de produccion asociada a un trabajo especifico. Luego se agregan tareas y consumos de material, permitiendo mayor trazabilidad de costos por proyecto.
+**Descripcion del funcionamiento:** el usuario registra una orden de produccion asociada a un trabajo especifico. Luego se agregan tareas y consumos de material. Cada consumo descuenta inventario, valoriza el retiro con el costo promedio y genera un asiento contable, permitiendo mayor trazabilidad de costos por proyecto.
 
 ---
 
@@ -480,11 +482,13 @@ En esta etapa, la automatizacion contable ya cuenta con una implementacion funci
 Los asientos se generan automaticamente desde los siguientes procesos:
 
 - Registro de ventas al contado y al credito.
+- Reconocimiento del costo de ventas asociado a la salida de inventario.
 - Cobro de ventas al credito.
 - Validacion de compras.
 - Pago de compras a proveedores.
 - Movimientos manuales de caja y bancos con cuenta contable asociada.
 - Transferencias entre cuentas financieras.
+- Consumo de materiales en ordenes de produccion.
 
 Flujo actual de automatizacion:
 
@@ -593,6 +597,8 @@ Las capturas de pantalla deben corresponder a la version actual del prototipo. S
 | 12 | Reporte de stock | Presenta stock actual, stock minimo, precio unitario y valor de inventario por producto. |
 | 13 | Clasificacion ABC | Clasifica los productos segun su peso economico dentro del inventario. |
 | 14 | Navegacion y tema | Muestra el menu lateral alineado a rutas reales y la persistencia del modo claro u oscuro. |
+| 15 | Libro Mayor | Agrupa movimientos contables por cuenta y muestra saldos deudores o acreedores. |
+| 16 | Balance de Comprobacion | Presenta movimientos, saldos y cuadre contable por cuenta. |
 
 #### 5.2 Formularios Implementados
 
@@ -611,14 +617,17 @@ Las capturas de pantalla deben corresponder a la version actual del prototipo. S
 | 11 | Caja y bancos | Registro de cuentas, ingresos, egresos y transferencias. |
 | 12 | Contabilidad | Consulta mensual de ventas, compras, IGV y movimientos financieros. |
 | 13 | Libro Diario | Consulta de asientos contables generados automaticamente. |
-| 14 | Plan de cuentas | Gestion de cuentas contables PCGE. |
-| 15 | Usuarios | Registro y actualizacion de usuarios del sistema. |
-| 16 | Roles | Administracion de roles y permisos. |
-| 17 | Ordenes de produccion | Registro y seguimiento de trabajos productivos. |
-| 18 | Tareas de produccion | Registro de tareas y avance de produccion. |
-| 19 | Reporte de stock | Consulta valorizada del inventario disponible. |
-| 20 | Clasificacion ABC | Priorizacion de productos segun valor acumulado de inventario. |
-| 21 | Reportes | Panel base para reportes gerenciales. |
+| 14 | Libro Mayor | Consulta de movimientos contables agrupados por cuenta. |
+| 15 | Balance de Comprobacion | Consulta de movimientos y saldos contables por cuenta. |
+| 16 | Exportacion CSV | Descarga de Libro Diario, Libro Mayor y Balance de Comprobacion para Excel. |
+| 17 | Plan de cuentas | Gestion de cuentas contables PCGE. |
+| 18 | Usuarios | Registro y actualizacion de usuarios del sistema. |
+| 19 | Roles | Administracion de roles y permisos. |
+| 20 | Ordenes de produccion | Registro y seguimiento de trabajos productivos. |
+| 21 | Tareas de produccion | Registro de tareas y avance de produccion. |
+| 22 | Reporte de stock | Consulta valorizada del inventario disponible. |
+| 23 | Clasificacion ABC | Priorizacion de productos segun valor acumulado de inventario. |
+| 24 | Reportes | Panel base para reportes gerenciales. |
 
 #### 5.3 Navegacion del Sistema
 
@@ -665,6 +674,8 @@ Dashboard operativo
   |      |--> Resumen contable
   |      |--> Plan de cuentas
   |      |--> Libro Diario
+  |      |--> Libro Mayor
+  |      |--> Balance de Comprobacion
   |
   |--> Produccion
   |      |--> Ordenes de produccion
@@ -788,6 +799,9 @@ sequenceDiagram
 | Dashboard principal con datos estaticos. | Se reemplazaron los valores simulados por consultas reales a ventas, compras, caja, inventario, produccion y contabilidad. | El dashboard muestra informacion operativa util para gerencia. |
 | Preferencia de tema no persistia entre paginas. | Se guardo la seleccion de modo claro u oscuro en `localStorage` y se aplica al cargar cada vista. | El sistema mantiene la preferencia visual del usuario durante la navegacion. |
 | Mensajes informativos permanentes ocupaban espacio en pantalla. | Se agrego cierre automatico y manual para mensajes de rol, validacion y notificaciones del sistema. | Los avisos aparecen de forma temporal y luego desaparecen sin interrumpir el trabajo. |
+| Falta de reportes contables finales. | Se implementaron Libro Mayor y Balance de Comprobacion a partir de los asientos registrados. | El sistema permite revisar movimientos por cuenta, saldos y cuadre contable. |
+| Necesidad de exportar informacion contable. | Se agregaron descargas CSV para Libro Diario, Libro Mayor y Balance de Comprobacion. | Los reportes pueden abrirse en Excel para revision y entrega. |
+| Faltaba reflejar costo de ventas y consumos en contabilidad. | Se agregaron asientos automaticos para costo de ventas y consumo de materiales de produccion. | La trazabilidad contable del inventario y produccion queda fortalecida. |
 
 ---
 
@@ -809,7 +823,11 @@ sequenceDiagram
 
 8. La navegacion fue corregida y validada para que los accesos del menu correspondan a rutas existentes, reduciendo errores de interfaz y mejorando la experiencia del usuario.
 
-9. El prototipo desarrollado mejora la trazabilidad de las operaciones de PISFIL EMSAC y establece una base tecnica adecuada para completar Libro Mayor, Balance de Comprobacion, exportaciones, pruebas integrales y documentacion final.
+9. La incorporacion de Libro Mayor, Balance de Comprobacion y exportaciones CSV fortalece el uso contable del sistema y permite revisar los asientos desde reportes formales.
+
+10. La automatizacion de costo de ventas y consumo de materiales mejora la trazabilidad entre inventario, produccion y contabilidad.
+
+11. El prototipo desarrollado mejora la trazabilidad de las operaciones de PISFIL EMSAC y establece una base tecnica adecuada para completar permisos finos, auditoria, pruebas end-to-end, copias de seguridad y documentacion final con capturas.
 
 ---
 
@@ -819,9 +837,8 @@ El sistema desarrollado constituye una version funcional inicial. Para fortalece
 
 | Funcionalidad propuesta | Descripcion | Beneficio esperado |
 | :--- | :--- | :--- |
-| Ampliacion de asientos contables | Incorporar asiento de costo de ventas y consumo de materiales de produccion. | Completa la trazabilidad contable del inventario y la produccion. |
-| Libro Mayor y Balance de Comprobacion | Generar reportes contables formales a partir de los asientos registrados. | Facilita la revision contable y preparacion de informacion financiera. |
-| Exportacion a PDF y Excel | Permitir exportar ventas, compras, Kardex, caja y reportes contables. | Mejora la presentacion y analisis de informacion. |
+| Reportes SUNAT avanzados | Preparar formatos oficiales adicionales para compras, ventas y libros electronicos. | Facilita cumplimiento tributario futuro. |
+| Exportacion ampliada | Permitir exportar ventas, compras, Kardex, caja e inventario, ademas de los libros contables ya implementados. | Mejora la presentacion y analisis de informacion. |
 | Integracion con facturacion electronica SUNAT | Preparar emision de comprobantes electronicos. | Reduce riesgo tributario y facilita cumplimiento normativo. |
 | Indicadores gerenciales avanzados | Ampliar el dashboard con rentabilidad por proyecto, tendencias comparativas, margenes y filtros por periodo. | Apoya una toma de decisiones mas detallada por parte de gerencia. |
 | Control de costos por orden de produccion | Asociar consumos, mano de obra y gastos indirectos a cada proyecto. | Permite calcular rentabilidad por trabajo metalmecanico. |
@@ -831,4 +848,4 @@ El sistema desarrollado constituye una version funcional inicial. Para fortalece
 | Conciliacion bancaria | Comparar movimientos registrados con extractos bancarios. | Mejora el control de caja y bancos. |
 | Centro de notificaciones | Registrar alertas importantes como stock bajo, cuentas vencidas y operaciones pendientes. | Permite hacer seguimiento a eventos relevantes aun despues de cerrar los mensajes temporales. |
 | Pruebas end-to-end con navegador | Automatizar recorridos completos de login, compras, ventas, inventario, reportes y contabilidad. | Reduce regresiones en navegacion y flujos criticos. |
-| Manual de usuario | Documentar el uso de cada modulo implementado. | Facilita la capacitacion del personal. |
+| Manual final con capturas | Completar la guia de usuario con capturas reales de cada pantalla implementada. | Facilita la capacitacion del personal y la sustentacion del sistema. |
