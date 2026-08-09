@@ -112,6 +112,14 @@ class MenuSeeder extends Seeder
             'permiso_id' => Permiso::where('codigo', 'plan_contable.manage')->value('id')
         ]);
 
+        Menu::updateOrCreate(['nombre' => 'Libro Diario'], [
+            'url' => '/contabilidad/libro-diario',
+            'icono' => 'fas fa-book-open',
+            'orden' => 3,
+            'padre_id' => $finanzas->id,
+            'permiso_id' => Permiso::where('codigo', 'plan_contable.view')->value('id')
+        ]);
+
         // 6. Administración
         $admin = Menu::updateOrCreate(['nombre' => 'Administración'], [
             'url' => null,

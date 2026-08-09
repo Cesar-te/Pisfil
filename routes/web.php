@@ -103,6 +103,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     // ========== CONTABILIDAD ==========
     Route::get('/contabilidad', [App\Http\Controllers\ContabilidadController::class, 'index'])->name('contabilidad.index');
     Route::get('/contabilidad/plan-cuentas', [App\Http\Controllers\ContabilidadController::class, 'planCuentas'])->name('contabilidad.plan_cuentas');
+    Route::get('/contabilidad/libro-diario', [App\Http\Controllers\ContabilidadController::class, 'libroDiario'])->name('contabilidad.libro_diario');
     Route::resource('cuentas-contables', CuentaContableController::class);
 
     // ========== GESTIÓN ADMINISTRATIVA ==========

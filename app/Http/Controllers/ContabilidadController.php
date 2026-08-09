@@ -7,6 +7,7 @@ use Illuminate\View\View;
 use App\Models\Venta;
 use App\Models\EntradaCompra;
 use App\Models\TransaccionFinanciera;
+use App\Models\AsientoContable;
 use Carbon\Carbon;
 
 class ContabilidadController extends Controller
@@ -67,5 +68,32 @@ class ContabilidadController extends Controller
             ->get();
 
         return view('contabilidad.plan_cuentas', compact('cuentasPrincipales'));
+    }
+
+    public function libroDiario(Request $request): View
+    {
+        $mes = $request->input('mes', date('m'));
+        $anio = $request->input('anio', date('Y'));
+
+        $fechaInicio = Carbon::createFromDate($anio, $mes, 1)->startOfMonth();
+        $fechaFin = $fechaInicio->copy()->endOfMonth();
+
+        $asientos = AsientoContable::with(['detalles.cuentaContable', 'usuario'])
+            ->whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->orderBy('fecha')
+            ->orderBy('numero')
+            ->get();
+
+        $totalDebe = $asientos->sum('total_debe');
+        $totalHaber = $asientos->sum('total_haber');
+
+        return view('contabilidad.libro_diario', compact(
+            'mes',
+            'anio',
+            'fechaInicio',
+            'asientos',
+            'totalDebe',
+            'totalHaber'
+        ));
     }
 }

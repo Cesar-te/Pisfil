@@ -31,6 +31,9 @@
         <a href="{{ route('contabilidad.plan_cuentas') }}" class="pill cursor-pointer text-decoration-none" style="border: 1px solid var(--line); color: var(--text); margin-left: auto;">
             <i class="fas fa-book"></i> Ver Plan de Cuentas (PCGE)
         </a>
+        <a href="{{ route('contabilidad.libro_diario', ['mes' => $mes, 'anio' => $anio]) }}" class="pill cursor-pointer text-decoration-none" style="border: 1px solid var(--line); color: var(--text);">
+            <i class="fas fa-book-open"></i> Libro Diario
+        </a>
         <button type="button" class="pill pending cursor-pointer ml-auto" onclick="window.print()" style="border: none; background: rgba(37,99,235,0.1); color: var(--primary);">
             <i class="fas fa-file-export"></i> Imprimir / PDF
         </button>
@@ -145,7 +148,7 @@
                             <td class="mono">{{ $compra->numero_documento ?? str_pad($compra->id, 6, '0', STR_PAD_LEFT) }}</td>
                             <td>6</td>
                             <td class="mono">{{ $compra->proveedor->ruc }}</td>
-                            <td>{{ $compra->proveedor->razon_social }}</td>
+                            <td>{{ $compra->proveedor->nombre_empresa }}</td>
                             
                             @php
                                 $total_costo = $compra->detalles->sum('costo_total');
