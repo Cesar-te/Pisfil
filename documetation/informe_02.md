@@ -41,11 +41,11 @@ Los principales componentes implementados son:
 | Inventario y Kardex | En proceso | Se implemento dashboard de inventario, movimientos Kardex, stock bajo, reporte de stock y movimientos manuales. |
 | Ventas | En proceso | Permite registrar ventas al contado o credito, agregar productos, descontar inventario y registrar cobros. |
 | Caja y bancos | En proceso | Permite registrar cuentas financieras, ingresos, egresos y transferencias entre cuentas de la misma moneda. |
-| Contabilidad y PCGE | En proceso | Se implemento el catalogo de cuentas contables y una vista de resumen mensual de ventas, compras e IGV. |
+| Contabilidad y PCGE | En proceso avanzado | Se implemento el catalogo de cuentas contables, la generacion automatica de asientos y la consulta de Libro Diario. |
 | Produccion | En proceso | Se implementaron ordenes de produccion, tareas, avances y consumos de materiales. |
 | Reportes gerenciales | Parcial | Se cuenta con dashboard de reportes como base para consolidar indicadores. |
 
-El porcentaje aproximado de avance del proyecto es de **70 %**, considerando que la estructura de datos y los modulos principales ya se encuentran implementados parcialmente, pero aun falta fortalecer reportes finales, automatizacion contable completa, pruebas integrales, exportaciones y documentacion de usuario.
+El porcentaje aproximado de avance del proyecto es de **78 %**, considerando que la estructura de datos, los modulos principales y la generacion inicial de asientos contables ya se encuentran implementados. Aun falta fortalecer reportes finales, Libro Mayor, Balance de Comprobacion, exportaciones, pruebas integrales ampliadas y documentacion de usuario.
 
 #### 1.3 Tecnologias utilizadas
 
@@ -79,10 +79,10 @@ El porcentaje aproximado de avance del proyecto es de **70 %**, considerando que
 | Compras | En proceso | Registro de cabecera, detalle, estado de compra, pagos y actualizacion de Kardex. |
 | Ventas | En proceso | Registro de ventas, detalles, cobros y salida de inventario. |
 | Caja y bancos | En proceso | Cuentas, ingresos, egresos y transferencias implementadas. |
-| Contabilidad y PCGE | En proceso | Catalogo PCGE y resumen mensual implementados parcialmente. |
+| Contabilidad y PCGE | En proceso avanzado | Catalogo PCGE, resumen mensual, asientos automaticos y Libro Diario implementados. |
 | Produccion | En proceso | Ordenes, tareas y consumos de materiales en desarrollo. |
-| Reportes finales | Pendiente | Se fortaleceran para el informe final. |
-| Pruebas integrales | Pendiente | Se ejecutaran pruebas completas de procesos encadenados. |
+| Reportes finales | En proceso | Se implemento Libro Diario; faltan Libro Mayor, Balance de Comprobacion y exportaciones. |
+| Pruebas integrales | En proceso | Se ejecutaron pruebas base; faltan pruebas completas de procesos encadenados. |
 | Manual de usuario | Pendiente | Programado para la entrega final. |
 
 #### 1.5 Evidencias del avance
@@ -99,6 +99,7 @@ Las siguientes capturas deben incorporarse desde la version actual del prototipo
 | Captura 6: Ventas | Registro de venta al contado o credito. | Pendiente de insertar imagen. |
 | Captura 7: Caja y bancos | Movimientos financieros y saldos de cuentas. | Pendiente de insertar imagen. |
 | Captura 8: Plan de cuentas | Catalogo PCGE implementado en el sistema. | Pendiente de insertar imagen. |
+| Captura 9: Libro Diario | Asientos contables generados por compras, ventas, cobros, pagos y tesoreria. | Pendiente de insertar imagen. |
 
 ---
 
@@ -115,8 +116,8 @@ La solucion se organiza en las siguientes capas:
 | Presentacion | Vistas Blade en `resources/views` | Muestra formularios, listados, dashboards y mensajes de validacion al usuario. |
 | Controlador | Controladores en `app/Http/Controllers` | Recibe solicitudes, valida datos, aplica reglas de negocio y coordina la respuesta. |
 | Modelo | Modelos Eloquent en `app/Models` | Representa las entidades principales y sus relaciones con la base de datos. |
-| Servicio | `KardexService` | Centraliza la logica de movimientos de inventario, promedio ponderado y actualizacion de stock. |
-| Datos | Migraciones y base de datos MySQL | Almacena usuarios, clientes, proveedores, productos, compras, ventas, Kardex, caja, bancos y cuentas contables. |
+| Servicio | `KardexService` y `AsientoContableService` | Centraliza la logica de movimientos de inventario, promedio ponderado, actualizacion de stock y generacion de asientos contables. |
+| Datos | Migraciones y base de datos MySQL | Almacena usuarios, clientes, proveedores, productos, compras, ventas, Kardex, caja, bancos, cuentas contables y asientos contables. |
 
 Diagrama de arquitectura:
 
@@ -156,6 +157,8 @@ La base de datos se diseño de forma relacional, separando las entidades maestra
 | `cuentas_financieras` | Registra caja y bancos. | `id` | Se relaciona con transacciones financieras y ventas. |
 | `transacciones_financieras` | Registra ingresos, egresos y transferencias. | `id` | Pertenece a cuenta financiera, usuario y cuenta contable. |
 | `cuentas_contables` | Catalogo PCGE. | `id` | Relacion jerarquica consigo misma mediante `padre_id`. |
+| `asientos_contables` | Cabecera de los asientos contables generados por el sistema. | `id` | Se relaciona con usuario y con sus detalles. |
+| `detalle_asientos_contables` | Detalle del Debe y Haber de cada asiento. | `id` | Pertenece a asiento contable y cuenta contable. |
 | `ordenes_produccion` | Registra trabajos o proyectos de produccion. | `id` | Se relaciona con tareas y consumos de material. |
 | `tareas_produccion` | Controla actividades por orden. | `id` | Pertenece a orden, proceso y usuario responsable. |
 | `consumos_material` | Registra materiales usados en produccion. | `id` | Pertenece a orden, producto y unidad de medida. |
@@ -172,6 +175,8 @@ El modelo entidad-relacion integra los procesos de compras, ventas, inventario, 
 - Una cuenta financiera puede registrar muchas transacciones financieras.
 - Una transaccion financiera puede asociarse a una cuenta contable del PCGE.
 - Una cuenta contable puede tener subcuentas mediante una relacion jerarquica.
+- Un asiento contable puede tener varios detalles en el Debe y Haber.
+- Cada detalle de asiento se asocia a una cuenta del PCGE.
 - Una orden de produccion puede tener tareas y consumos de materiales.
 
 Diagrama entidad-relacion resumido:
@@ -193,6 +198,8 @@ erDiagram
     CUENTAS_FINANCIERAS ||--o{ TRANSACCIONES_FINANCIERAS : registra
     CUENTAS_CONTABLES ||--o{ TRANSACCIONES_FINANCIERAS : clasifica
     CUENTAS_CONTABLES ||--o{ CUENTAS_CONTABLES : agrupa
+    ASIENTOS_CONTABLES ||--o{ DETALLE_ASIENTOS_CONTABLES : contiene
+    CUENTAS_CONTABLES ||--o{ DETALLE_ASIENTOS_CONTABLES : registra
 
     ORDENES_PRODUCCION ||--o{ TAREAS_PRODUCCION : programa
     ORDENES_PRODUCCION ||--o{ CONSUMOS_MATERIAL : consume
@@ -284,6 +291,33 @@ A continuacion se presenta un diccionario de datos resumido de las tablas mas re
 | `tipo` | varchar | 50 | Activo, Pasivo, Patrimonio, Gasto o Ingreso. |
 | `padre_id` | bigint | - | Cuenta padre, si corresponde. |
 | `estado` | boolean | - | Indica si la cuenta esta activa. |
+
+**Tabla: `asientos_contables`**
+
+| Campo | Tipo | Longitud | Descripcion |
+| :--- | :--- | :--- | :--- |
+| `id` | bigint | - | Identificador del asiento contable. |
+| `numero` | varchar | 40 | Codigo unico del asiento. |
+| `fecha` | date | - | Fecha contable del registro. |
+| `descripcion` | varchar | 255 | Glosa general del asiento. |
+| `origen_tipo` | varchar | 80 | Modulo que genero el asiento. |
+| `origen_id` | bigint | - | Identificador del registro de origen. |
+| `moneda` | varchar | 10 | Moneda del asiento. |
+| `total_debe` | decimal | 15,2 | Suma de importes registrados al Debe. |
+| `total_haber` | decimal | 15,2 | Suma de importes registrados al Haber. |
+| `estado` | enum | - | Borrador, confirmado o anulado. |
+| `usuario_id` | bigint | - | Usuario que genero el asiento. |
+
+**Tabla: `detalle_asientos_contables`**
+
+| Campo | Tipo | Longitud | Descripcion |
+| :--- | :--- | :--- | :--- |
+| `id` | bigint | - | Identificador del detalle. |
+| `asiento_contable_id` | bigint | - | Asiento contable asociado. |
+| `cuenta_contable_id` | bigint | - | Cuenta PCGE utilizada. |
+| `tipo_movimiento` | enum | - | Debe o Haber. |
+| `monto` | decimal | 15,2 | Importe del detalle. |
+| `glosa` | varchar | 255 | Descripcion especifica de la linea contable. |
 
 ---
 
@@ -377,13 +411,13 @@ A continuacion se presenta un diccionario de datos resumido de las tablas mas re
 
 **Objetivo del modulo:** organizar las operaciones economicas mediante cuentas contables basadas en el PCGE.
 
-**Funciones implementadas:** listado del plan de cuentas, creacion y edicion de cuentas, jerarquia por cuenta padre, clasificacion por elemento, tipo y nivel, resumen mensual de ventas, compras, IGV y movimientos de tesoreria.
+**Funciones implementadas:** listado del plan de cuentas, creacion y edicion de cuentas, jerarquia por cuenta padre, clasificacion por elemento, tipo y nivel, resumen mensual de ventas, compras, IGV, movimientos de tesoreria, generacion automatica de asientos y consulta de Libro Diario.
 
 **Validaciones implementadas:** codigo contable unico, descripcion obligatoria, elemento obligatorio, nivel entre 2 y 6, cuenta padre existente y bloqueo de eliminacion cuando una cuenta tiene subcuentas.
 
 **Captura del formulario:** pendiente de insertar.
 
-**Descripcion del funcionamiento:** el usuario consulta o registra cuentas contables. Las transacciones financieras pueden asociarse a una cuenta del PCGE, facilitando la clasificacion contable de cobros, pagos, ingresos y egresos.
+**Descripcion del funcionamiento:** el usuario consulta o registra cuentas contables. Las operaciones de ventas, compras, cobros, pagos y movimientos financieros generan asientos contables balanceados, asociando cada linea del Debe y Haber a cuentas del PCGE. Posteriormente, el usuario puede consultar estos registros desde el Libro Diario.
 
 #### 3.9 Modulo de produccion
 
@@ -427,7 +461,16 @@ Las cuentas implementadas en esta etapa corresponden principalmente a los elemen
 
 #### 4.2 Automatizacion de asientos contables
 
-En esta etapa, la automatizacion contable se encuentra implementada de forma parcial. El sistema ya vincula operaciones comerciales con movimientos de inventario y transacciones financieras, dejando la base preparada para generar asientos contables completos en la siguiente etapa.
+En esta etapa, la automatizacion contable ya cuenta con una implementacion funcional inicial. El sistema registra asientos contables en las tablas `asientos_contables` y `detalle_asientos_contables`, utilizando el servicio `AsientoContableService` para validar que el total del Debe sea igual al total del Haber antes de guardar cada asiento.
+
+Los asientos se generan automaticamente desde los siguientes procesos:
+
+- Registro de ventas al contado y al credito.
+- Cobro de ventas al credito.
+- Validacion de compras.
+- Pago de compras a proveedores.
+- Movimientos manuales de caja y bancos con cuenta contable asociada.
+- Transferencias entre cuentas financieras.
 
 Flujo actual de automatizacion:
 
@@ -447,7 +490,13 @@ Actualiza inventario, caja/bancos o cuentas por cobrar/pagar
 Asocia la operacion a una cuenta contable cuando corresponde
          |
          v
-Guarda la informacion para consultas y reportes
+Genera el asiento contable
+         |
+         v
+Valida Debe = Haber
+         |
+         v
+Guarda el asiento para consulta en Libro Diario
 ```
 
 **Ejemplo 1: compra validada**
@@ -525,7 +574,8 @@ Las capturas de pantalla deben corresponder a la version actual del prototipo. S
 | 7 | Ventas | Permite registrar comprobantes, clientes, productos y condicion de pago. |
 | 8 | Caja y bancos | Presenta cuentas financieras, saldos e historial de movimientos. |
 | 9 | Plan de cuentas | Muestra cuentas contables organizadas segun PCGE. |
-| 10 | Ordenes de produccion | Permite controlar trabajos, tareas y consumos de material. |
+| 10 | Libro Diario | Presenta los asientos contables generados, con detalle de cuentas, Debe y Haber. |
+| 11 | Ordenes de produccion | Permite controlar trabajos, tareas y consumos de material. |
 
 #### 5.2 Formularios Implementados
 
@@ -543,12 +593,13 @@ Las capturas de pantalla deben corresponder a la version actual del prototipo. S
 | 10 | Cobros de ventas | Registro de pagos realizados por clientes. |
 | 11 | Caja y bancos | Registro de cuentas, ingresos, egresos y transferencias. |
 | 12 | Contabilidad | Consulta mensual de ventas, compras, IGV y movimientos financieros. |
-| 13 | Plan de cuentas | Gestion de cuentas contables PCGE. |
-| 14 | Usuarios | Registro y actualizacion de usuarios del sistema. |
-| 15 | Roles | Administracion de roles y permisos. |
-| 16 | Ordenes de produccion | Registro y seguimiento de trabajos productivos. |
-| 17 | Tareas de produccion | Registro de tareas y avance de produccion. |
-| 18 | Reportes | Dashboard base para reportes gerenciales. |
+| 13 | Libro Diario | Consulta de asientos contables generados automaticamente. |
+| 14 | Plan de cuentas | Gestion de cuentas contables PCGE. |
+| 15 | Usuarios | Registro y actualizacion de usuarios del sistema. |
+| 16 | Roles | Administracion de roles y permisos. |
+| 17 | Ordenes de produccion | Registro y seguimiento de trabajos productivos. |
+| 18 | Tareas de produccion | Registro de tareas y avance de produccion. |
+| 19 | Reportes | Dashboard base para reportes gerenciales. |
 
 #### 5.3 Navegacion del Sistema
 
@@ -591,6 +642,7 @@ Dashboard principal
   |--> Contabilidad
   |      |--> Resumen mensual
   |      |--> Plan de cuentas
+  |      |--> Libro Diario
   |      |--> Cuentas contables
   |
   |--> Produccion
@@ -702,7 +754,7 @@ sequenceDiagram
 | Integracion entre compras, ventas e inventario. | Se creo `KardexService` para centralizar la logica de movimientos. | Las compras validadas generan entradas y las ventas generan salidas de inventario. |
 | Riesgo de inconsistencias en stock. | Se uso transaccion de base de datos y bloqueo de fila del producto con `lockForUpdate`. | Se reduce el riesgo de saldos incorrectos durante movimientos simultaneos. |
 | Control de pagos y cobros parciales. | Se agregaron campos de estado de pago y monto cobrado/pagado. | El sistema permite registrar pagos parciales sin exceder el total del documento. |
-| Relacion entre tesoreria y contabilidad. | Se agrego `cuenta_contable_id` en transacciones financieras. | Los ingresos y egresos pueden asociarse a cuentas del PCGE. |
+| Relacion entre tesoreria y contabilidad. | Se agrego `cuenta_contable_id` en transacciones financieras y se implemento `AsientoContableService`. | Los ingresos, egresos, cobros, pagos y transferencias pueden generar asientos contables consultables en Libro Diario. |
 | Necesidad de separar perfiles de acceso. | Se implementaron roles, permisos y tabla pivote `rol_permiso`. | La base queda preparada para control de acceso por perfil. |
 | Manejo de ventas al contado y al credito. | Se incorporo la condicion de pago y reglas diferentes para cobro inmediato o pendiente. | El sistema distingue ingresos de caja y cuentas por cobrar. |
 | Registro manual previo de inventarios. | Se implemento Kardex digital con entradas, salidas, ajustes y stock bajo. | La empresa puede consultar movimientos y saldos actualizados. |
@@ -720,11 +772,11 @@ sequenceDiagram
 
 4. El uso del Kardex digital representa un avance importante frente al control manual, ya que permite registrar movimientos de entrada, salida y ajuste, actualizando automaticamente el stock.
 
-5. La integracion parcial con el PCGE permite clasificar operaciones financieras mediante cuentas contables, dejando preparada la base para generar asientos contables completos en la etapa final.
+5. La integracion con el PCGE permite clasificar operaciones financieras mediante cuentas contables y generar asientos automaticos para ventas, compras, cobros, pagos y transferencias.
 
 6. Las validaciones implementadas reducen errores frecuentes como documentos duplicados, cantidades invalidas, saldos insuficientes, cobros excedidos y registros sin entidades asociadas.
 
-7. El prototipo desarrollado mejora la trazabilidad de las operaciones de PISFIL EMSAC y establece una base tecnica adecuada para completar reportes, automatizacion contable, pruebas integrales y documentacion final.
+7. El prototipo desarrollado mejora la trazabilidad de las operaciones de PISFIL EMSAC y establece una base tecnica adecuada para completar Libro Mayor, Balance de Comprobacion, exportaciones, pruebas integrales y documentacion final.
 
 ---
 
@@ -734,8 +786,8 @@ El sistema desarrollado constituye una version funcional inicial. Para fortalece
 
 | Funcionalidad propuesta | Descripcion | Beneficio esperado |
 | :--- | :--- | :--- |
-| Generacion automatica de asientos contables completos | Implementar asiento de compra, venta, cobro, pago, costo de ventas y consumo de materiales. | Reduce el registro manual y mejora la consistencia contable. |
-| Libro Diario y Libro Mayor | Generar reportes contables formales a partir de las transacciones registradas. | Facilita la revision contable y preparacion de informacion financiera. |
+| Ampliacion de asientos contables | Incorporar asiento de costo de ventas y consumo de materiales de produccion. | Completa la trazabilidad contable del inventario y la produccion. |
+| Libro Mayor y Balance de Comprobacion | Generar reportes contables formales a partir de los asientos registrados. | Facilita la revision contable y preparacion de informacion financiera. |
 | Exportacion a PDF y Excel | Permitir exportar ventas, compras, Kardex, caja y reportes contables. | Mejora la presentacion y analisis de informacion. |
 | Integracion con facturacion electronica SUNAT | Preparar emision de comprobantes electronicos. | Reduce riesgo tributario y facilita cumplimiento normativo. |
 | Dashboard gerencial avanzado | Incorporar indicadores de ventas, compras, liquidez, inventario, stock bajo y rentabilidad por proyecto. | Apoya la toma de decisiones de gerencia. |
@@ -746,4 +798,3 @@ El sistema desarrollado constituye una version funcional inicial. Para fortalece
 | Conciliacion bancaria | Comparar movimientos registrados con extractos bancarios. | Mejora el control de caja y bancos. |
 | Reporte de stock ABC | Clasificar materiales segun valor e importancia. | Optimiza la gestion de inventario en la empresa. |
 | Manual de usuario | Documentar el uso de cada modulo implementado. | Facilita la capacitacion del personal. |
-
