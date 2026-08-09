@@ -1,206 +1,238 @@
 @extends('layouts.app')
 
-@section('title', 'PISFIL SIG v1.0 — Ultimate Dashboard')
+@section('title', 'Dashboard - PISFIL SIG v1.0')
+@section('header_title', 'Dashboard Operativo')
 
 @push('scripts_head')
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 @endpush
 
 @section('content')
-<!-- KPIs -->
-<section class="kpi-grid stagger-2">
-    <div class="kpi-card">
+<section class="kpi-grid stagger-1">
+    <a href="{{ route('ventas.index') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
         <span class="kpi-label">Ventas del mes</span>
-        <span class="kpi-value">S/ 48,250.00</span>
-        <span class="kpi-delta up"><i class="fas fa-arrow-up"></i> 12% vs. mayo 2026</span>
-        <div class="sparkline-box" id="spark1"></div>
-    </div>
-    <div class="kpi-card">
+        <span class="kpi-value mono">S/ {{ number_format($ventasMes, 2) }}</span>
+        @if($variacionVentas === null)
+            <span class="kpi-delta" style="color: var(--muted);"><i class="fas fa-minus"></i> Sin mes anterior comparable</span>
+        @else
+            <span class="kpi-delta {{ $variacionVentas >= 0 ? 'up' : 'danger' }}">
+                <i class="fas fa-arrow-{{ $variacionVentas >= 0 ? 'up' : 'down' }}"></i> {{ number_format(abs($variacionVentas), 1) }}% vs. mes anterior
+            </span>
+        @endif
+    </a>
+
+    <a href="{{ route('ventas.index') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
         <span class="kpi-label">Cuentas por cobrar</span>
-        <span class="kpi-value">S/ 19,150.00</span>
-        <span class="kpi-delta" style="color: var(--muted);"><i class="fas fa-clock"></i> 3 clientes con deuda</span>
-        <div class="sparkline-box" id="spark2"></div>
-    </div>
-    <div class="kpi-card">
+        <span class="kpi-value mono">S/ {{ number_format($cuentasPorCobrar, 2) }}</span>
+        <span class="kpi-delta" style="color: var(--muted);"><i class="fas fa-clock"></i> {{ $clientesConDeuda }} cliente(s) con saldo</span>
+    </a>
+
+    <a href="{{ route('entradas-compra.index') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
         <span class="kpi-label">Cuentas por pagar</span>
-        <span class="kpi-value">S/ 7,340.00</span>
-        <span class="kpi-delta up" style="color: var(--success);"><i class="fas fa-arrow-down"></i> Deuda controlada</span>
-        <div class="sparkline-box" id="spark3"></div>
-    </div>
-    <div class="kpi-card" style="border-color: rgba(226,114,46,0.3);">
-        <span class="kpi-label" style="color: var(--secondary);">Alertas Logística</span>
-        <span class="kpi-value" style="color: var(--secondary);">4 Ítems</span>
-        <span class="kpi-delta warn"><i class="fas fa-triangle-exclamation"></i> Stock crítico (RF-04)</span>
-        <div class="sparkline-box" id="spark4"></div>
-    </div>
+        <span class="kpi-value mono">S/ {{ number_format($cuentasPorPagar, 2) }}</span>
+        <span class="kpi-delta {{ $cuentasPorPagar > 0 ? 'warn' : 'up' }}">
+            <i class="fas fa-file-invoice-dollar"></i> {{ $proveedoresConDeuda }} proveedor(es) pendientes
+        </span>
+    </a>
+
+    <a href="{{ route('inventario.stock_bajo') }}" class="kpi-card" style="text-decoration: none; color: inherit; {{ $productosStockBajo > 0 ? 'border-color: rgba(226,114,46,0.3);' : '' }}">
+        <span class="kpi-label" style="{{ $productosStockBajo > 0 ? 'color: var(--secondary);' : '' }}">Alertas de stock</span>
+        <span class="kpi-value" style="{{ $productosStockBajo > 0 ? 'color: var(--secondary);' : 'color: var(--success);' }}">{{ $productosStockBajo }} item(s)</span>
+        <span class="kpi-delta {{ $productosStockBajo > 0 ? 'warn' : 'up' }}">
+            <i class="fas fa-triangle-exclamation"></i> {{ $productosStockBajo > 0 ? 'Requiere revision' : 'Inventario saludable' }}
+        </span>
+    </a>
 </section>
 
-<!-- Gráficos Avanzados -->
+<section class="kpi-grid stagger-2">
+    <a href="{{ route('inventario.reporte_stock') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
+        <span class="kpi-label">Valor inventario</span>
+        <span class="kpi-value mono">S/ {{ number_format($valorTotalInventario, 2) }}</span>
+        <span class="kpi-delta"><i class="fas fa-boxes-stacked"></i> {{ $productosActivos }} producto(s) activo(s)</span>
+    </a>
+
+    <a href="{{ route('caja-bancos.dashboard') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
+        <span class="kpi-label">Flujo de caja del mes</span>
+        <span class="kpi-value mono">S/ {{ number_format($ingresosMes - $egresosMes, 2) }}</span>
+        <span class="kpi-delta {{ ($ingresosMes - $egresosMes) >= 0 ? 'up' : 'danger' }}">
+            <i class="fas fa-wallet"></i> Ingresos S/ {{ number_format($ingresosMes, 0) }} | Egresos S/ {{ number_format($egresosMes, 0) }}
+        </span>
+    </a>
+
+    <a href="{{ route('ordenes-produccion.index') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
+        <span class="kpi-label">Produccion</span>
+        <span class="kpi-value">{{ $ordenesEnProceso }} / {{ $ordenesTotales }}</span>
+        <span class="kpi-delta"><i class="fas fa-industry"></i> En proceso / total de ordenes</span>
+    </a>
+
+    <a href="{{ route('contabilidad.libro_diario') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
+        <span class="kpi-label">Asientos del mes</span>
+        <span class="kpi-value">{{ $asientosMes }}</span>
+        <span class="kpi-delta up"><i class="fas fa-book-open"></i> Libro Diario actualizado</span>
+    </a>
+</section>
+
 <section class="charts-grid stagger-3">
     <article class="panel chart-panel">
-        <span class="panel-tag">Fig. 02 — Flujo</span>
-        <h2>Ventas vs. Compras (Últimos 6 meses)</h2>
-        <div id="barChart" style="min-height: 250px;"></div>
+        <span class="panel-tag">Flujo</span>
+        <div class="panel-head">
+            <h2>Ventas vs. Compras</h2>
+            <span class="hint">Ultimos 6 meses</span>
+        </div>
+        <div id="barChart" style="min-height: 280px;"></div>
     </article>
 
     <article class="panel chart-panel">
-        <span class="panel-tag">Fig. 03 — Pareto</span>
-        <h2>Clasificación ABC (Valorización PPP)</h2>
-        <div id="donutChart" style="margin-top: 10px;"></div>
-        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed var(--line); display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; justify-content: space-between; font-size: 13px;">
-                <span><i class="fas fa-circle" style="color: var(--primary); font-size: 10px; margin-right: 5px;"></i> Clase A (Planchas/Vigas)</span>
-                <strong style="font-family: var(--font-mono);">70%</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 13px;">
-                <span><i class="fas fa-circle" style="color: var(--accent); font-size: 10px; margin-right: 5px;"></i> Clase B (Soldadura)</span>
-                <strong style="font-family: var(--font-mono);">20%</strong>
-            </div>
+        <span class="panel-tag">ABC</span>
+        <div class="panel-head">
+            <h2>Valorizacion de inventario</h2>
+            <a href="{{ route('inventario.clasificacion_abc') }}" class="hint" style="text-decoration: none;">Ver detalle</a>
+        </div>
+        <div id="donutChart" style="min-height: 260px;"></div>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+            @foreach($abcTotales as $clase => $valor)
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span>Clase {{ $clase }}</span>
+                    <strong class="mono">S/ {{ number_format($valor, 2) }}</strong>
+                </div>
+            @endforeach
         </div>
     </article>
 </section>
 
-<!-- Tablas de Datos -->
 <section class="panel table-panel stagger-4">
-    <span class="panel-tag">Fig. 04 — Kárdex</span>
+    <span class="panel-tag">Kardex</span>
     <div class="panel-head">
         <h2>Movimientos recientes de inventario</h2>
-        <span class="hint">Método: Promedio Ponderado</span>
+        <a href="{{ route('inventario.movimientos_kardex') }}" class="hint" style="text-decoration: none;">Ver historial</a>
     </div>
     <div style="overflow-x: auto;">
         <table>
             <thead>
                 <tr>
-                    <th>Código</th>
+                    <th>Fecha</th>
                     <th>Producto</th>
                     <th>Tipo</th>
-                    <th>Cantidad</th>
-                    <th>Costo Unit.</th>
-                    <th>Saldo</th>
-                    <th>Estado</th>
+                    <th style="text-align: right;">Cantidad</th>
+                    <th style="text-align: right;">Costo Unit.</th>
+                    <th style="text-align: right;">Saldo</th>
+                    <th>Usuario</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td class="mono">KX-014</td>
-                    <td>Plancha acero LAC 1/4"</td>
-                    <td>Salida</td>
-                    <td style="font-family: var(--font-mono); color: var(--danger);">-6</td>
-                    <td>S/ 285.00</td>
-                    <td>18</td>
-                    <td><span class="pill ok">Stock OK</span></td>
-                </tr>
-                <tr>
-                    <td class="mono">KX-013</td>
-                    <td>Tubo estructural 50x50</td>
-                    <td>Entrada</td>
-                    <td style="font-family: var(--font-mono); color: var(--success);">+120</td>
-                    <td>S/ 32.50</td>
-                    <td>340</td>
-                    <td><span class="pill ok">Stock OK</span></td>
-                </tr>
-                <tr>
-                    <td class="mono">KX-012</td>
-                    <td>Electrodo E6011 1/8"</td>
-                    <td>Salida</td>
-                    <td style="font-family: var(--font-mono); color: var(--danger);">-12</td>
-                    <td>S/ 18.90</td>
-                    <td>8</td>
-                    <td><span class="pill warn">Stock bajo</span></td>
-                </tr>
-                <tr>
-                    <td class="mono">KX-011</td>
-                    <td>Perno hexagonal 1/2"</td>
-                    <td>Salida</td>
-                    <td style="font-family: var(--font-mono); color: var(--danger);">-210</td>
-                    <td>S/ 0.45</td>
-                    <td>40</td>
-                    <td><span class="pill warn">Stock bajo</span></td>
-                </tr>
+                @forelse($ultimosMovimientos as $mov)
+                    <tr>
+                        <td class="mono">{{ $mov->fecha_movimiento->format('d/m/Y H:i') }}</td>
+                        <td>{{ $mov->producto->nombre ?? 'Producto no disponible' }}</td>
+                        <td>
+                            @if($mov->tipo_movimiento === 'entrada')
+                                <span class="pill ok">Entrada</span>
+                            @elseif($mov->tipo_movimiento === 'salida')
+                                <span class="pill danger">Salida</span>
+                            @else
+                                <span class="pill pending">{{ ucfirst($mov->tipo_movimiento) }}</span>
+                            @endif
+                        </td>
+                        <td style="text-align: right;" class="mono">{{ number_format($mov->cantidad, 2) }}</td>
+                        <td style="text-align: right;" class="mono">S/ {{ number_format($mov->precio_unitario, 2) }}</td>
+                        <td style="text-align: right; font-weight: bold;" class="mono">{{ number_format($mov->saldo_actual, 2) }}</td>
+                        <td>{{ $mov->usuario->name ?? 'N/A' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--muted); padding: 28px;">Todavia no hay movimientos de inventario registrados.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 </section>
 
 <section class="panel table-panel stagger-4">
-    <span class="panel-tag">Fig. 05 — Comprobantes</span>
+    <span class="panel-tag">Comprobantes</span>
     <div class="panel-head">
-        <h2>Últimos Comprobantes Emitidos</h2>
+        <h2>Ultimos comprobantes</h2>
+        <div style="display: flex; gap: 8px;">
+            <a href="{{ route('ventas.index') }}" class="hint" style="text-decoration: none;">Ventas</a>
+            <a href="{{ route('entradas-compra.index') }}" class="hint" style="text-decoration: none;">Compras</a>
+        </div>
     </div>
     <div style="overflow-x: auto;">
         <table>
             <thead>
                 <tr>
-                    <th>Doc.</th>
+                    <th>Fecha</th>
+                    <th>Documento</th>
                     <th>Tipo</th>
                     <th>Cliente / Proveedor</th>
-                    <th>Monto</th>
+                    <th style="text-align: right;">Monto</th>
                     <th>Estado</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td class="mono"><i class="fas fa-file-invoice" style="margin-right: 5px;"></i> F001-00231</td>
-                    <td>Venta</td>
-                    <td>Constructora Lambayeque S.A.C.</td>
-                    <td style="font-weight: 600;">S/ 12,400.00</td>
-                    <td><span class="pill ok">Pagado</span></td>
-                </tr>
-                <tr>
-                    <td class="mono"><i class="fas fa-file-invoice" style="margin-right: 5px;"></i> B001-00089</td>
-                    <td>Venta</td>
-                    <td>Juan Torres Díaz</td>
-                    <td style="font-weight: 600;">S/ 850.00</td>
-                    <td><span class="pill pending">Pendiente</span></td>
-                </tr>
-                <tr>
-                    <td class="mono"><i class="fas fa-receipt" style="margin-right: 5px;"></i> F002-00114</td>
-                    <td>Compra</td>
-                    <td>Aceros Arequipa S.A.</td>
-                    <td style="font-weight: 600;">S/ 6,200.00</td>
-                    <td><span class="pill ok">Pagado</span></td>
-                </tr>
-                <tr>
-                    <td class="mono"><i class="fas fa-receipt" style="margin-right: 5px;"></i> F002-00113</td>
-                    <td>Compra</td>
-                    <td>Soldexa Perú S.A.C.</td>
-                    <td style="font-weight: 600;">S/ 1,140.00</td>
-                    <td><span class="pill danger">Vencido</span></td>
-                </tr>
+                @forelse($ultimosComprobantes as $doc)
+                    <tr>
+                        <td class="mono">{{ optional($doc['fecha'])->format('d/m/Y') }}</td>
+                        <td class="mono">{{ $doc['documento'] ?: 'Sin numero' }}</td>
+                        <td>{{ $doc['tipo'] }}</td>
+                        <td>{{ $doc['entidad'] }}</td>
+                        <td style="text-align: right; font-weight: bold;" class="mono">S/ {{ number_format($doc['monto'], 2) }}</td>
+                        <td>
+                            @if($doc['estado'] === 'pagado' || $doc['estado'] === 'pagada')
+                                <span class="pill ok">Pagado</span>
+                            @elseif($doc['estado'] === 'parcial')
+                                <span class="pill pending">Parcial</span>
+                            @else
+                                <span class="pill warn">{{ ucfirst($doc['estado'] ?? 'pendiente') }}</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--muted); padding: 28px;">No hay comprobantes registrados.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 </section>
 
-<!-- Contabilidad -->
 <section class="panel stagger-4">
-    <span class="panel-tag">Fig. 06 — PCGE</span>
-    <h2>Libros Contables y Estados Financieros</h2>
-    <p style="font-size: 13px; color: var(--muted); margin-top: 5px;">Generados automáticamente a partir de los asientos validados bajo el PCGE.</p>
-
+    <span class="panel-tag">Accesos</span>
+    <div class="panel-head">
+        <h2>Gestion contable y operativa</h2>
+        <span class="hint">Datos reales del sistema</span>
+    </div>
     <div class="ledger-grid">
-        <div class="ledger-card">
-            <i class="fas fa-book" style="color: var(--primary); font-size: 20px;"></i>
+        <a href="{{ route('contabilidad.libro_diario') }}" class="ledger-card" style="text-decoration: none;">
+            <i class="fas fa-book-open" style="color: var(--primary); font-size: 20px;"></i>
             <strong>Libro Diario</strong>
-            <span>Asientos cronológicos del periodo</span>
-        </div>
-        <div class="ledger-card">
-            <i class="fas fa-layer-group" style="color: var(--primary); font-size: 20px;"></i>
-            <strong>Libro Mayor</strong>
-            <span>Mayorización por cuenta contable</span>
-        </div>
-        <div class="ledger-card">
-            <i class="fas fa-scale-balanced" style="color: var(--primary); font-size: 20px;"></i>
-            <strong>Balance Comprobación</strong>
-            <span>Validación Debe = Haber</span>
-        </div>
+            <span>Asientos cronologicos generados</span>
+        </a>
+        <a href="{{ route('contabilidad.index') }}" class="ledger-card" style="text-decoration: none;">
+            <i class="fas fa-calculator" style="color: var(--primary); font-size: 20px;"></i>
+            <strong>Resumen Contable</strong>
+            <span>Ventas, compras, IGV y caja</span>
+        </a>
+        <a href="{{ route('reportes.dashboard') }}" class="ledger-card" style="text-decoration: none;">
+            <i class="fas fa-chart-column" style="color: var(--primary); font-size: 20px;"></i>
+            <strong>Reportes</strong>
+            <span>Indicadores gerenciales</span>
+        </a>
     </div>
 </section>
 @endsection
 
 @push('scripts')
 <script>
-    // Colores que se inyectarán en ApexCharts según el tema
+    const dashboardData = {
+        labels: @json($mesesLabels),
+        ventas: @json($ventasChart),
+        compras: @json($comprasChart),
+        abcLabels: @json($abcLabels),
+        abcSeries: @json($abcSeries),
+    };
+
     const getChartThemeColors = () => {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         return {
@@ -208,7 +240,8 @@
             grid: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
             primary: isDark ? '#3fa7da' : '#2563eb',
             secondary: isDark ? '#e2722e' : '#ea580c',
-            accent: isDark ? '#c9a227' : '#ca8a04'
+            accent: isDark ? '#c9a227' : '#ca8a04',
+            success: isDark ? '#4fae7a' : '#16a34a'
         };
     };
 
@@ -219,71 +252,47 @@
         const colors = getChartThemeColors();
         const theme = document.documentElement.getAttribute('data-theme');
 
-        // Configuración Gráfico de Barras (Ventas vs Compras)
-        const barOptions = {
-            series: [{ name: 'Ventas', data: [44, 55, 57, 56, 61, 58] }, { name: 'Compras', data: [35, 41, 36, 26, 45, 48] }],
+        if (barChartInstance) barChartInstance.destroy();
+        barChartInstance = new ApexCharts(document.querySelector("#barChart"), {
+            series: [
+                { name: 'Ventas', data: dashboardData.ventas },
+                { name: 'Compras', data: dashboardData.compras }
+            ],
             chart: { type: 'bar', height: 280, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
             colors: [colors.primary, colors.secondary],
-            plotOptions: { bar: { horizontal: false, columnWidth: '45%', borderRadius: 4 } },
+            plotOptions: { bar: { horizontal: false, columnWidth: '48%', borderRadius: 4 } },
             dataLabels: { enabled: false },
             stroke: { show: true, width: 2, colors: ['transparent'] },
             xaxis: {
-                categories: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                categories: dashboardData.labels,
                 labels: { style: { colors: colors.text } },
-                axisBorder: { show: false }, axisTicks: { show: false }
+                axisBorder: { show: false },
+                axisTicks: { show: false }
             },
-            yaxis: { labels: { style: { colors: colors.text } } },
+            yaxis: { labels: { style: { colors: colors.text }, formatter: value => 'S/ ' + Number(value).toLocaleString('es-PE') } },
             grid: { borderColor: colors.grid, strokeDashArray: 4 },
             legend: { position: 'top', horizontalAlign: 'left', labels: { colors: colors.text } },
-            tooltip: { theme: theme }
-        };
-
-        if (barChartInstance) barChartInstance.destroy();
-        barChartInstance = new ApexCharts(document.querySelector("#barChart"), barOptions);
+            tooltip: { theme: theme, y: { formatter: value => 'S/ ' + Number(value).toLocaleString('es-PE', { minimumFractionDigits: 2 }) } }
+        });
         barChartInstance.render();
 
-        // Configuración Gráfico Donut (Pareto ABC)
-        const donutOptions = {
-            series: [70, 20, 10],
-            labels: ['Clase A', 'Clase B', 'Clase C'],
+        if (donutChartInstance) donutChartInstance.destroy();
+        const hasAbcData = dashboardData.abcSeries.some(value => Number(value) > 0);
+        donutChartInstance = new ApexCharts(document.querySelector("#donutChart"), {
+            series: hasAbcData ? dashboardData.abcSeries : [1],
+            labels: hasAbcData ? dashboardData.abcLabels.map(label => 'Clase ' + label) : ['Sin valorizacion'],
             chart: { type: 'donut', height: 260, fontFamily: 'Inter, sans-serif' },
-            colors: [colors.primary, colors.accent, colors.secondary],
-            plotOptions: { pie: { donut: { size: '75%', labels: { show: true, name: { color: colors.text }, value: { color: colors.text, fontSize: '24px', fontWeight: 700 } } } } },
+            colors: hasAbcData ? [colors.primary, colors.accent, colors.secondary] : [colors.grid],
+            plotOptions: { pie: { donut: { size: '72%', labels: { show: true, name: { color: colors.text }, value: { color: colors.text, fontSize: '18px', fontWeight: 700, formatter: value => hasAbcData ? 'S/ ' + Number(value).toLocaleString('es-PE') : '0' } } } } },
             dataLabels: { enabled: false },
             stroke: { show: false },
             legend: { show: false },
-            tooltip: { theme: theme }
-        };
-
-        if (donutChartInstance) donutChartInstance.destroy();
-        donutChartInstance = new ApexCharts(document.querySelector("#donutChart"), donutOptions);
+            tooltip: { theme: theme, y: { formatter: value => hasAbcData ? 'S/ ' + Number(value).toLocaleString('es-PE', { minimumFractionDigits: 2 }) : 'Sin datos' } }
+        });
         donutChartInstance.render();
     }
 
-    // Configuración de Sparklines (KPIs)
-    const renderSparklines = () => {
-        const sparkOptions = {
-            chart: { type: 'area', height: 50, sparkline: { enabled: true } },
-            stroke: { curve: 'smooth', width: 2 },
-            fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0, stops: [0, 100] } },
-            tooltip: { fixed: { enabled: false }, x: { show: false }, y: { title: { formatter: function () { return '' } } }, marker: { show: false } }
-        };
-
-        new ApexCharts(document.querySelector("#spark1"), { ...sparkOptions, series: [{ data: [30, 40, 35, 50, 49, 60, 70] }], colors: ['#4fae7a'] }).render();
-        new ApexCharts(document.querySelector("#spark2"), { ...sparkOptions, series: [{ data: [15, 25, 20, 30, 25, 35, 30] }], colors: ['#8d99a6'] }).render();
-        new ApexCharts(document.querySelector("#spark3"), { ...sparkOptions, series: [{ data: [45, 40, 38, 30, 25, 20, 15] }], colors: ['#4fae7a'] }).render();
-        new ApexCharts(document.querySelector("#spark4"), { ...sparkOptions, series: [{ data: [1, 0, 2, 1, 3, 2, 4] }], colors: ['#e2722e'], chart: { type: 'bar', height: 50, sparkline: { enabled: true } } }).render();
-    };
-
-    // Iniciar gráficos
-    document.addEventListener('DOMContentLoaded', () => {
-        renderMainCharts();
-        renderSparklines();
-    });
-
-    // Escuchar el evento themeChanged del Layout
-    document.addEventListener('themeChanged', () => {
-        renderMainCharts();
-    });
+    document.addEventListener('DOMContentLoaded', renderMainCharts);
+    document.addEventListener('themeChanged', renderMainCharts);
 </script>
 @endpush
