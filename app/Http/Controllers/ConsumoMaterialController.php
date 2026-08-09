@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ConsumoMaterial;
 use App\Models\OrdenProduccion;
 use App\Models\Kardex;
+use App\Services\AsientoContableService;
 use App\Services\KardexService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -14,7 +15,7 @@ use Exception;
 
 class ConsumoMaterialController extends Controller
 {
-    public function store(Request $request, OrdenProduccion $ordenProduccion, KardexService $kardexService): RedirectResponse
+    public function store(Request $request, OrdenProduccion $ordenProduccion, KardexService $kardexService, AsientoContableService $asientoService): RedirectResponse
     {
         $validated = $request->validate([
             'producto_id' => 'required|exists:productos,id',
@@ -50,7 +51,7 @@ class ConsumoMaterialController extends Controller
             // Obtener el producto para sacar su unidad de medida
             $producto = \App\Models\Producto::findOrFail($validated['producto_id']);
 
-            ConsumoMaterial::create([
+            $consumo = ConsumoMaterial::create([
                 'orden_produccion_id' => $ordenProduccion->id,
                 'producto_id' => $validated['producto_id'],
                 'cantidad_planificada' => $validated['cantidad'], // Asumimos igual
@@ -60,6 +61,8 @@ class ConsumoMaterialController extends Controller
                 'costo_total' => $costo_total,
                 'observaciones' => 'Consumo vinculado a OP N° ' . $ordenProduccion->numero_orden
             ]);
+
+            $asientoService->registrarConsumoProduccion($consumo, Auth::id());
 
             DB::commit();
 

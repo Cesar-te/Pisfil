@@ -144,7 +144,9 @@ class VentaController extends Controller
                 $cuenta->increment('saldo_actual', $total);
             }
 
-            $asientoService->registrarVenta($venta->fresh(['cliente', 'cuentaFinanciera']), Auth::id());
+            $ventaActualizada = $venta->fresh(['cliente', 'cuentaFinanciera']);
+            $asientoService->registrarVenta($ventaActualizada, Auth::id());
+            $asientoService->registrarCostoVenta($ventaActualizada, Auth::id());
 
             DB::commit();
 

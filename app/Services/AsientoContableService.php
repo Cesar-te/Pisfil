@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\AsientoContable;
+use App\Models\ConsumoMaterial;
 use App\Models\CuentaContable;
 use App\Models\CuentaFinanciera;
 use App\Models\EntradaCompra;
+use App\Models\Kardex;
 use App\Models\TransaccionFinanciera;
 use App\Models\Venta;
 use Illuminate\Support\Carbon;
@@ -38,6 +40,32 @@ class AsientoContableService
                 ['codigo' => $cuentaDebe, 'tipo' => 'debe', 'monto' => $total, 'glosa' => 'Cliente: ' . ($venta->cliente->nombre ?? 'Sin cliente')],
                 ['codigo' => '701', 'tipo' => 'haber', 'monto' => $base, 'glosa' => 'Base imponible de venta'],
                 ['codigo' => '401', 'tipo' => 'haber', 'monto' => $igv, 'glosa' => 'IGV de venta'],
+            ]
+        );
+    }
+
+    public function registrarCostoVenta(Venta $venta, int $usuarioId): ?AsientoContable
+    {
+        $costo = Kardex::where('referencia_tipo', 'Venta')
+            ->where('referencia_id', $venta->id)
+            ->where('tipo_movimiento', Kardex::TIPO_SALIDA)
+            ->get()
+            ->sum(fn ($movimiento) => (float) $movimiento->cantidad * (float) $movimiento->precio_unitario);
+
+        if ($costo <= 0) {
+            return null;
+        }
+
+        return $this->crearDesdeOperacionUnica(
+            'CostoVenta',
+            $venta->id,
+            $venta->fecha_venta,
+            "Costo de venta {$venta->tipo_comprobante} {$venta->serie_comprobante}-{$venta->numero_comprobante}",
+            $venta->moneda,
+            $usuarioId,
+            [
+                ['codigo' => '691', 'tipo' => 'debe', 'monto' => $costo, 'glosa' => 'Reconocimiento del costo de venta'],
+                ['codigo' => '20', 'tipo' => 'haber', 'monto' => $costo, 'glosa' => 'Salida valorizada de inventario'],
             ]
         );
     }
@@ -155,6 +183,25 @@ class AsientoContableService
             [
                 ['codigo' => $this->codigoCuentaFinanciera($entrada->cuenta), 'tipo' => 'debe', 'monto' => $monto, 'glosa' => 'Ingreso a ' . $entrada->cuenta->nombre],
                 ['codigo' => $this->codigoCuentaFinanciera($salida->cuenta), 'tipo' => 'haber', 'monto' => $monto, 'glosa' => 'Salida de ' . $salida->cuenta->nombre],
+            ]
+        );
+    }
+
+    public function registrarConsumoProduccion(ConsumoMaterial $consumo, ?int $usuarioId): AsientoContable
+    {
+        $consumo->loadMissing('ordenProduccion', 'producto');
+        $monto = (float) $consumo->costo_total;
+
+        return $this->crearDesdeOperacionUnica(
+            'ConsumoMaterial',
+            $consumo->id,
+            $consumo->created_at ?? now(),
+            'Consumo de materiales en OP ' . $consumo->ordenProduccion->numero_orden,
+            'PEN',
+            $usuarioId,
+            [
+                ['codigo' => '61', 'tipo' => 'debe', 'monto' => $monto, 'glosa' => 'Consumo: ' . ($consumo->producto->nombre ?? 'Material')],
+                ['codigo' => '24', 'tipo' => 'haber', 'monto' => $monto, 'glosa' => 'Salida de materias primas hacia produccion'],
             ]
         );
     }
