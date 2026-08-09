@@ -38,14 +38,15 @@ Los principales componentes implementados son:
 | Gestion de proveedores | Finalizado | Permite administrar proveedores, RUC, datos de contacto, condicion de pago y estado. |
 | Gestion de productos | Finalizado | Permite registrar productos con categoria, unidad de medida, precio, stock minimo y stock actual. |
 | Compras | En proceso | Permite registrar entradas de compra, agregar detalles, cambiar estados y procesar recepcion hacia Kardex. |
-| Inventario y Kardex | En proceso | Se implemento dashboard de inventario, movimientos Kardex, stock bajo, reporte de stock y movimientos manuales. |
+| Inventario y Kardex | En proceso avanzado | Se implemento dashboard de inventario, movimientos Kardex, stock bajo, reporte de stock, clasificacion ABC y movimientos manuales. |
 | Ventas | En proceso | Permite registrar ventas al contado o credito, agregar productos, descontar inventario y registrar cobros. |
 | Caja y bancos | En proceso | Permite registrar cuentas financieras, ingresos, egresos y transferencias entre cuentas de la misma moneda. |
 | Contabilidad y PCGE | En proceso avanzado | Se implemento el catalogo de cuentas contables, la generacion automatica de asientos y la consulta de Libro Diario. |
 | Produccion | En proceso | Se implementaron ordenes de produccion, tareas, avances y consumos de materiales. |
-| Reportes gerenciales | Parcial | Se cuenta con dashboard de reportes como base para consolidar indicadores. |
+| Dashboard operativo y reportes | En proceso avanzado | El dashboard principal usa datos reales de ventas, compras, caja, inventario, produccion y contabilidad; ademas se agregaron reportes de inventario. |
+| Navegacion e interfaz | En proceso avanzado | Se alineo el menu lateral con las rutas reales, se corrigio la persistencia de tema claro/oscuro y los mensajes del sistema ahora desaparecen automaticamente. |
 
-El porcentaje aproximado de avance del proyecto es de **78 %**, considerando que la estructura de datos, los modulos principales y la generacion inicial de asientos contables ya se encuentran implementados. Aun falta fortalecer reportes finales, Libro Mayor, Balance de Comprobacion, exportaciones, pruebas integrales ampliadas y documentacion de usuario.
+El porcentaje aproximado de avance del proyecto es de **83 %**, considerando que la estructura de datos, los modulos principales, la navegacion validada, el dashboard operativo con datos reales, los reportes de inventario y la generacion inicial de asientos contables ya se encuentran implementados. Aun falta fortalecer reportes contables finales, Libro Mayor, Balance de Comprobacion, exportaciones, pruebas integrales ampliadas y documentacion de usuario.
 
 #### 1.3 Tecnologias utilizadas
 
@@ -75,14 +76,14 @@ El porcentaje aproximado de avance del proyecto es de **78 %**, considerando que
 | Diseño de base de datos | Finalizado | Migraciones creadas para los modulos principales. |
 | Implementacion de autenticacion | Finalizado | Login y logout operativos. |
 | Clientes y proveedores | Finalizado | CRUD funcional con validaciones. |
-| Productos e inventario | En proceso | Registro de productos, Kardex y stock bajo implementados parcialmente. |
+| Productos e inventario | En proceso avanzado | Registro de productos, Kardex, stock bajo, reporte de stock y clasificacion ABC implementados. |
 | Compras | En proceso | Registro de cabecera, detalle, estado de compra, pagos y actualizacion de Kardex. |
 | Ventas | En proceso | Registro de ventas, detalles, cobros y salida de inventario. |
 | Caja y bancos | En proceso | Cuentas, ingresos, egresos y transferencias implementadas. |
 | Contabilidad y PCGE | En proceso avanzado | Catalogo PCGE, resumen mensual, asientos automaticos y Libro Diario implementados. |
 | Produccion | En proceso | Ordenes, tareas y consumos de materiales en desarrollo. |
-| Reportes finales | En proceso | Se implemento Libro Diario; faltan Libro Mayor, Balance de Comprobacion y exportaciones. |
-| Pruebas integrales | En proceso | Se ejecutaron pruebas base; faltan pruebas completas de procesos encadenados. |
+| Reportes finales | En proceso | Se implementaron dashboard operativo, reportes de inventario y Libro Diario; faltan Libro Mayor, Balance de Comprobacion y exportaciones. |
+| Pruebas integrales | En proceso | Se validaron rutas de inventario, dashboard, cache de vistas y pruebas PHPUnit base; faltan pruebas completas de procesos encadenados. |
 | Manual de usuario | Pendiente | Programado para la entrega final. |
 
 #### 1.5 Evidencias del avance
@@ -92,14 +93,15 @@ Las siguientes capturas deben incorporarse desde la version actual del prototipo
 | Evidencia | Descripcion | Estado |
 | :--- | :--- | :--- |
 | Captura 1: Login | Pantalla de inicio de sesion. | Pendiente de insertar imagen. |
-| Captura 2: Dashboard | Vista principal posterior al inicio de sesion. | Pendiente de insertar imagen. |
+| Captura 2: Dashboard operativo | Vista principal con indicadores reales de ventas, compras, caja, inventario, produccion y contabilidad. | Pendiente de insertar imagen. |
 | Captura 3: Productos | Listado y mantenimiento de productos. | Pendiente de insertar imagen. |
-| Captura 4: Inventario | Dashboard de inventario y movimientos Kardex. | Pendiente de insertar imagen. |
+| Captura 4: Inventario | Dashboard de inventario, movimientos Kardex, stock bajo, reporte de stock y clasificacion ABC. | Pendiente de insertar imagen. |
 | Captura 5: Compras | Registro de entradas de compra y detalle. | Pendiente de insertar imagen. |
 | Captura 6: Ventas | Registro de venta al contado o credito. | Pendiente de insertar imagen. |
 | Captura 7: Caja y bancos | Movimientos financieros y saldos de cuentas. | Pendiente de insertar imagen. |
 | Captura 8: Plan de cuentas | Catalogo PCGE implementado en el sistema. | Pendiente de insertar imagen. |
 | Captura 9: Libro Diario | Asientos contables generados por compras, ventas, cobros, pagos y tesoreria. | Pendiente de insertar imagen. |
+| Captura 10: Navegacion y tema | Menu lateral alineado a los modulos reales, con persistencia de tema claro u oscuro. | Pendiente de insertar imagen. |
 
 ---
 
@@ -113,7 +115,7 @@ La solucion se organiza en las siguientes capas:
 
 | Capa | Componentes del proyecto | Funcion |
 | :--- | :--- | :--- |
-| Presentacion | Vistas Blade en `resources/views` | Muestra formularios, listados, dashboards y mensajes de validacion al usuario. |
+| Presentacion | Vistas Blade en `resources/views` | Muestra formularios, listados, dashboards, menu lateral, persistencia de tema y mensajes temporales de validacion al usuario. |
 | Controlador | Controladores en `app/Http/Controllers` | Recibe solicitudes, valida datos, aplica reglas de negocio y coordina la respuesta. |
 | Modelo | Modelos Eloquent en `app/Models` | Representa las entidades principales y sus relaciones con la base de datos. |
 | Servicio | `KardexService` y `AsientoContableService` | Centraliza la logica de movimientos de inventario, promedio ponderado, actualizacion de stock y generacion de asientos contables. |
@@ -323,7 +325,19 @@ A continuacion se presenta un diccionario de datos resumido de las tablas mas re
 
 ### *III. DESARROLLO FUNCIONAL*
 
-#### 3.1 Modulo de autenticacion
+#### 3.1 Dashboard operativo
+
+**Objetivo del modulo:** presentar a gerencia y usuarios autorizados una vista resumida del estado operativo, financiero, comercial, productivo y contable de la empresa.
+
+**Funciones implementadas:** indicadores de ventas del mes, variacion respecto al mes anterior, cuentas por cobrar, cuentas por pagar, valor de inventario, alertas de stock, flujo de caja mensual, ordenes de produccion, asientos del mes, graficos de ventas versus compras, valorizacion ABC de inventario y ultimos comprobantes registrados.
+
+**Validaciones implementadas:** consulta de datos desde tablas reales del sistema, calculo seguro de porcentajes cuando no existen datos del mes anterior y presentacion de importes con formato monetario.
+
+**Captura del formulario:** pendiente de insertar.
+
+**Descripcion del funcionamiento:** al iniciar sesion, el usuario visualiza indicadores calculados desde ventas, compras, transacciones financieras, Kardex, productos, ordenes de produccion y asientos contables. Esto reemplaza los valores simulados por informacion tomada de la base de datos.
+
+#### 3.2 Modulo de autenticacion
 
 **Objetivo del modulo:** controlar el acceso al sistema mediante credenciales validas.
 
@@ -335,7 +349,7 @@ A continuacion se presenta un diccionario de datos resumido de las tablas mas re
 
 **Descripcion del funcionamiento:** el usuario ingresa su correo y contraseña. Si las credenciales coinciden con la base de datos, el sistema redirige al dashboard; de lo contrario, muestra un mensaje de error.
 
-#### 3.2 Modulo de clientes
+#### 3.3 Modulo de clientes
 
 **Objetivo del modulo:** administrar los clientes asociados a ventas y cuentas por cobrar.
 
@@ -347,7 +361,7 @@ A continuacion se presenta un diccionario de datos resumido de las tablas mas re
 
 **Descripcion del funcionamiento:** el usuario registra los datos del cliente. El sistema verifica que el documento no este duplicado y almacena la informacion para ser utilizada en el modulo de ventas.
 
-#### 3.3 Modulo de proveedores
+#### 3.4 Modulo de proveedores
 
 **Objetivo del modulo:** controlar la informacion de proveedores que abastecen materiales e insumos.
 
@@ -359,19 +373,19 @@ A continuacion se presenta un diccionario de datos resumido de las tablas mas re
 
 **Descripcion del funcionamiento:** el usuario registra los datos comerciales del proveedor, incluyendo contacto, RUC, condicion de pago y estado. Esta informacion se utiliza al registrar entradas de compra.
 
-#### 3.4 Modulo de productos e inventario
+#### 3.5 Modulo de productos e inventario
 
 **Objetivo del modulo:** administrar los materiales, insumos y productos de la empresa, controlando existencias y valorizacion.
 
-**Funciones implementadas:** registro de productos, edicion, listado, consulta de productos activos, dashboard de inventario, reporte de stock, stock bajo y movimientos Kardex.
+**Funciones implementadas:** registro de productos, edicion, listado, consulta de productos activos, dashboard de inventario, reporte de stock valorizado, clasificacion ABC, stock bajo, movimientos Kardex y movimientos manuales.
 
 **Validaciones implementadas:** codigo unico, categoria obligatoria, unidad de medida obligatoria, precio no negativo, stock minimo no negativo y stock actual no negativo. Cuando un producto ya tiene movimientos Kardex, el sistema evita modificar directamente el stock actual desde el mantenimiento del producto.
 
 **Captura del formulario:** pendiente de insertar.
 
-**Descripcion del funcionamiento:** el usuario registra un producto con su unidad, categoria, precio y stock. Luego los movimientos de compra, venta o ajuste actualizan el Kardex y el stock disponible.
+**Descripcion del funcionamiento:** el usuario registra un producto con su unidad, categoria, precio y stock. Luego los movimientos de compra, venta o ajuste actualizan el Kardex y el stock disponible. El modulo permite consultar inventario valorizado y clasificar productos por importancia economica mediante ABC.
 
-#### 3.5 Modulo de compras
+#### 3.6 Modulo de compras
 
 **Objetivo del modulo:** registrar compras de materiales o insumos y actualizar el inventario cuando la compra es validada.
 
@@ -383,7 +397,7 @@ A continuacion se presenta un diccionario de datos resumido de las tablas mas re
 
 **Descripcion del funcionamiento:** el usuario registra la cabecera de la compra y agrega los productos. Cuando la compra pasa a estado validada, el sistema registra automaticamente una entrada en Kardex por cada detalle y actualiza el stock de los productos.
 
-#### 3.6 Modulo de ventas
+#### 3.7 Modulo de ventas
 
 **Objetivo del modulo:** registrar ventas al contado o credito, controlar cuentas por cobrar y actualizar inventario.
 
@@ -395,7 +409,7 @@ A continuacion se presenta un diccionario de datos resumido de las tablas mas re
 
 **Descripcion del funcionamiento:** el usuario registra una venta y agrega productos. El sistema calcula subtotales, descuenta inventario mediante Kardex y, si la venta es al contado, registra automaticamente el ingreso en caja o banco.
 
-#### 3.7 Modulo de caja y bancos
+#### 3.8 Modulo de caja y bancos
 
 **Objetivo del modulo:** controlar ingresos, egresos, saldos y transferencias entre cuentas financieras.
 
@@ -407,7 +421,7 @@ A continuacion se presenta un diccionario de datos resumido de las tablas mas re
 
 **Descripcion del funcionamiento:** el usuario registra cuentas de caja o banco. Luego puede registrar movimientos financieros o transferencias, actualizando saldos de manera automatica y dejando trazabilidad por usuario.
 
-#### 3.8 Modulo de contabilidad y plan de cuentas
+#### 3.9 Modulo de contabilidad y plan de cuentas
 
 **Objetivo del modulo:** organizar las operaciones economicas mediante cuentas contables basadas en el PCGE.
 
@@ -419,7 +433,7 @@ A continuacion se presenta un diccionario de datos resumido de las tablas mas re
 
 **Descripcion del funcionamiento:** el usuario consulta o registra cuentas contables. Las operaciones de ventas, compras, cobros, pagos y movimientos financieros generan asientos contables balanceados, asociando cada linea del Debe y Haber a cuentas del PCGE. Posteriormente, el usuario puede consultar estos registros desde el Libro Diario.
 
-#### 3.9 Modulo de produccion
+#### 3.10 Modulo de produccion
 
 **Objetivo del modulo:** controlar trabajos de fabricacion metalmecanica, tareas asignadas y materiales consumidos por orden.
 
@@ -566,7 +580,7 @@ Las capturas de pantalla deben corresponder a la version actual del prototipo. S
 | Captura | Titulo | Descripcion |
 | :--- | :--- | :--- |
 | 1 | Inicio de sesion | Permite validar el acceso del usuario mediante correo y contraseña. |
-| 2 | Dashboard principal | Presenta el acceso a los modulos principales del sistema. |
+| 2 | Dashboard operativo | Presenta indicadores reales de ventas, compras, caja, inventario, produccion y contabilidad. |
 | 3 | Gestion de productos | Permite registrar y consultar productos, categorias, unidades y stock. |
 | 4 | Dashboard de inventario | Presenta productos activos, valor de inventario, stock bajo y ultimos movimientos. |
 | 5 | Movimientos Kardex | Muestra entradas, salidas, ajustes y saldos por producto. |
@@ -576,17 +590,20 @@ Las capturas de pantalla deben corresponder a la version actual del prototipo. S
 | 9 | Plan de cuentas | Muestra cuentas contables organizadas segun PCGE. |
 | 10 | Libro Diario | Presenta los asientos contables generados, con detalle de cuentas, Debe y Haber. |
 | 11 | Ordenes de produccion | Permite controlar trabajos, tareas y consumos de material. |
+| 12 | Reporte de stock | Presenta stock actual, stock minimo, precio unitario y valor de inventario por producto. |
+| 13 | Clasificacion ABC | Clasifica los productos segun su peso economico dentro del inventario. |
+| 14 | Navegacion y tema | Muestra el menu lateral alineado a rutas reales y la persistencia del modo claro u oscuro. |
 
 #### 5.2 Formularios Implementados
 
 | N.º | Formulario | Funcionalidad |
 | :--- | :--- | :--- |
 | 1 | Inicio de sesion | Valida el acceso de usuarios registrados. |
-| 2 | Dashboard | Centraliza el acceso a los modulos del sistema. |
+| 2 | Dashboard operativo | Centraliza indicadores reales y accesos a los modulos del sistema. |
 | 3 | Clientes | Registro, consulta y actualizacion de clientes. |
 | 4 | Proveedores | Registro, consulta, modificacion y administracion de proveedores. |
 | 5 | Productos | Registro y mantenimiento de productos o materiales. |
-| 6 | Inventario | Consulta de stock, stock bajo y movimientos Kardex. |
+| 6 | Inventario | Consulta de stock, stock bajo, reporte valorizado, clasificacion ABC y movimientos Kardex. |
 | 7 | Movimiento manual Kardex | Registro de entradas, salidas o ajustes de inventario. |
 | 8 | Entradas de compra | Registro de compras, detalles, estados y pagos. |
 | 9 | Ventas | Registro de ventas al contado o credito. |
@@ -599,11 +616,13 @@ Las capturas de pantalla deben corresponder a la version actual del prototipo. S
 | 16 | Roles | Administracion de roles y permisos. |
 | 17 | Ordenes de produccion | Registro y seguimiento de trabajos productivos. |
 | 18 | Tareas de produccion | Registro de tareas y avance de produccion. |
-| 19 | Reportes | Dashboard base para reportes gerenciales. |
+| 19 | Reporte de stock | Consulta valorizada del inventario disponible. |
+| 20 | Clasificacion ABC | Priorizacion de productos segun valor acumulado de inventario. |
+| 21 | Reportes | Panel base para reportes gerenciales. |
 
 #### 5.3 Navegacion del Sistema
 
-La navegacion del sistema parte desde la pantalla de inicio de sesion. Luego de autenticarse, el usuario accede al dashboard y desde alli puede ingresar a los modulos disponibles segun su rol.
+La navegacion del sistema parte desde la pantalla de inicio de sesion. Luego de autenticarse, el usuario accede al dashboard y desde alli puede ingresar a los modulos disponibles segun su rol. El menu lateral fue alineado con las rutas reales del sistema para evitar accesos a vistas inexistentes y mantener consistencia entre permisos, modulos y pantallas.
 
 ```text
 Inicio
@@ -612,7 +631,7 @@ Inicio
 Login
   |
   v
-Dashboard principal
+Dashboard operativo
   |
   |--> Inventario
   |      |--> Dashboard de inventario
@@ -764,6 +783,11 @@ sequenceDiagram
 | Manejo de ventas al contado y al credito. | Se incorporo la condicion de pago y reglas diferentes para cobro inmediato o pendiente. | El sistema distingue ingresos de caja y cuentas por cobrar. |
 | Registro manual previo de inventarios. | Se implemento Kardex digital con entradas, salidas, ajustes y stock bajo. | La empresa puede consultar movimientos y saldos actualizados. |
 | Modelar produccion vinculada al consumo de materiales. | Se crearon ordenes de produccion, tareas y consumos de material. | Se inicia la trazabilidad de materiales por proyecto. |
+| Menu incompleto o con accesos a vistas inexistentes. | Se actualizo la estructura del menu, permisos y rutas disponibles por modulo. | La navegacion del sistema quedo alineada con las pantallas implementadas. |
+| Reportes de inventario pendientes. | Se crearon las vistas de reporte de stock y clasificacion ABC. | El usuario puede consultar inventario valorizado y priorizar productos por importancia economica. |
+| Dashboard principal con datos estaticos. | Se reemplazaron los valores simulados por consultas reales a ventas, compras, caja, inventario, produccion y contabilidad. | El dashboard muestra informacion operativa util para gerencia. |
+| Preferencia de tema no persistia entre paginas. | Se guardo la seleccion de modo claro u oscuro en `localStorage` y se aplica al cargar cada vista. | El sistema mantiene la preferencia visual del usuario durante la navegacion. |
+| Mensajes informativos permanentes ocupaban espacio en pantalla. | Se agrego cierre automatico y manual para mensajes de rol, validacion y notificaciones del sistema. | Los avisos aparecen de forma temporal y luego desaparecen sin interrumpir el trabajo. |
 
 ---
 
@@ -781,7 +805,11 @@ sequenceDiagram
 
 6. Las validaciones implementadas reducen errores frecuentes como documentos duplicados, cantidades invalidas, saldos insuficientes, cobros excedidos y registros sin entidades asociadas.
 
-7. El prototipo desarrollado mejora la trazabilidad de las operaciones de PISFIL EMSAC y establece una base tecnica adecuada para completar Libro Mayor, Balance de Comprobacion, exportaciones, pruebas integrales y documentacion final.
+7. El dashboard principal ya trabaja con datos reales del sistema, lo que permite visualizar ventas, compras, inventario, caja, produccion y asientos contables desde una vista gerencial inicial.
+
+8. La navegacion fue corregida y validada para que los accesos del menu correspondan a rutas existentes, reduciendo errores de interfaz y mejorando la experiencia del usuario.
+
+9. El prototipo desarrollado mejora la trazabilidad de las operaciones de PISFIL EMSAC y establece una base tecnica adecuada para completar Libro Mayor, Balance de Comprobacion, exportaciones, pruebas integrales y documentacion final.
 
 ---
 
@@ -795,11 +823,12 @@ El sistema desarrollado constituye una version funcional inicial. Para fortalece
 | Libro Mayor y Balance de Comprobacion | Generar reportes contables formales a partir de los asientos registrados. | Facilita la revision contable y preparacion de informacion financiera. |
 | Exportacion a PDF y Excel | Permitir exportar ventas, compras, Kardex, caja y reportes contables. | Mejora la presentacion y analisis de informacion. |
 | Integracion con facturacion electronica SUNAT | Preparar emision de comprobantes electronicos. | Reduce riesgo tributario y facilita cumplimiento normativo. |
-| Dashboard gerencial avanzado | Incorporar indicadores de ventas, compras, liquidez, inventario, stock bajo y rentabilidad por proyecto. | Apoya la toma de decisiones de gerencia. |
+| Indicadores gerenciales avanzados | Ampliar el dashboard con rentabilidad por proyecto, tendencias comparativas, margenes y filtros por periodo. | Apoya una toma de decisiones mas detallada por parte de gerencia. |
 | Control de costos por orden de produccion | Asociar consumos, mano de obra y gastos indirectos a cada proyecto. | Permite calcular rentabilidad por trabajo metalmecanico. |
 | Auditoria de operaciones | Registrar usuario, fecha, accion y cambios realizados en registros clave. | Mejora la trazabilidad y control interno. |
 | Copias de seguridad automaticas | Implementar respaldos periodicos de la base de datos. | Protege la informacion ante fallas o perdida de datos. |
-| Control de permisos por rol en interfaz | Restringir menus y acciones segun el perfil del usuario. | Incrementa la seguridad y separacion de funciones. |
+| Refinamiento de permisos por accion | Completar restricciones finas para crear, editar, eliminar, aprobar y exportar segun cada rol. | Incrementa la seguridad y separacion de funciones. |
 | Conciliacion bancaria | Comparar movimientos registrados con extractos bancarios. | Mejora el control de caja y bancos. |
-| Reporte de stock ABC | Clasificar materiales segun valor e importancia. | Optimiza la gestion de inventario en la empresa. |
+| Centro de notificaciones | Registrar alertas importantes como stock bajo, cuentas vencidas y operaciones pendientes. | Permite hacer seguimiento a eventos relevantes aun despues de cerrar los mensajes temporales. |
+| Pruebas end-to-end con navegador | Automatizar recorridos completos de login, compras, ventas, inventario, reportes y contabilidad. | Reduce regresiones en navegacion y flujos criticos. |
 | Manual de usuario | Documentar el uso de cada modulo implementado. | Facilita la capacitacion del personal. |
