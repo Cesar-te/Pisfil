@@ -34,6 +34,12 @@
         <a href="{{ route('contabilidad.libro_diario', ['mes' => $mes, 'anio' => $anio]) }}" class="pill cursor-pointer text-decoration-none" style="border: 1px solid var(--line); color: var(--text);">
             <i class="fas fa-book-open"></i> Libro Diario
         </a>
+        <a href="{{ route('contabilidad.libro_mayor', ['mes' => $mes, 'anio' => $anio]) }}" class="pill cursor-pointer text-decoration-none" style="border: 1px solid var(--line); color: var(--text);">
+            <i class="fas fa-book"></i> Libro Mayor
+        </a>
+        <a href="{{ route('contabilidad.balance_comprobacion', ['mes' => $mes, 'anio' => $anio]) }}" class="pill cursor-pointer text-decoration-none" style="border: 1px solid var(--line); color: var(--text);">
+            <i class="fas fa-balance-scale"></i> Balance
+        </a>
         <button type="button" class="pill pending cursor-pointer ml-auto" onclick="window.print()" style="border: none; background: rgba(37,99,235,0.1); color: var(--primary);">
             <i class="fas fa-file-export"></i> Imprimir / PDF
         </button>

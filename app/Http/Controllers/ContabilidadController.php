@@ -8,6 +8,7 @@ use App\Models\Venta;
 use App\Models\EntradaCompra;
 use App\Models\TransaccionFinanciera;
 use App\Models\AsientoContable;
+use App\Models\DetalleAsientoContable;
 use Carbon\Carbon;
 
 class ContabilidadController extends Controller
@@ -94,6 +95,108 @@ class ContabilidadController extends Controller
             'asientos',
             'totalDebe',
             'totalHaber'
+        ));
+    }
+
+    public function libroMayor(Request $request): View
+    {
+        $mes = $request->input('mes', date('m'));
+        $anio = $request->input('anio', date('Y'));
+
+        $fechaInicio = Carbon::createFromDate($anio, $mes, 1)->startOfMonth();
+        $fechaFin = $fechaInicio->copy()->endOfMonth();
+
+        $detalles = DetalleAsientoContable::with(['cuentaContable', 'asiento'])
+            ->whereHas('asiento', function ($query) use ($fechaInicio, $fechaFin) {
+                $query->whereBetween('fecha', [$fechaInicio, $fechaFin]);
+            })
+            ->get()
+            ->sortBy(fn ($detalle) => $detalle->cuentaContable->codigo . '|'
+                . $detalle->asiento->fecha->format('Ymd') . '|'
+                . $detalle->asiento->numero);
+
+        $cuentasMayor = $detalles
+            ->groupBy('cuenta_contable_id')
+            ->map(function ($movimientos) {
+                $totalDebe = $movimientos
+                    ->where('tipo_movimiento', 'debe')
+                    ->sum('monto');
+                $totalHaber = $movimientos
+                    ->where('tipo_movimiento', 'haber')
+                    ->sum('monto');
+
+                return [
+                    'cuenta' => $movimientos->first()->cuentaContable,
+                    'movimientos' => $movimientos,
+                    'totalDebe' => $totalDebe,
+                    'totalHaber' => $totalHaber,
+                    'saldo' => $totalDebe - $totalHaber,
+                ];
+            })
+            ->sortBy(fn ($item) => $item['cuenta']->codigo);
+
+        $totalDebe = $cuentasMayor->sum('totalDebe');
+        $totalHaber = $cuentasMayor->sum('totalHaber');
+
+        return view('contabilidad.libro_mayor', compact(
+            'mes',
+            'anio',
+            'fechaInicio',
+            'cuentasMayor',
+            'totalDebe',
+            'totalHaber'
+        ));
+    }
+
+    public function balanceComprobacion(Request $request): View
+    {
+        $mes = $request->input('mes', date('m'));
+        $anio = $request->input('anio', date('Y'));
+
+        $fechaInicio = Carbon::createFromDate($anio, $mes, 1)->startOfMonth();
+        $fechaFin = $fechaInicio->copy()->endOfMonth();
+
+        $detalles = DetalleAsientoContable::with(['cuentaContable', 'asiento'])
+            ->whereHas('asiento', function ($query) use ($fechaInicio, $fechaFin) {
+                $query->whereBetween('fecha', [$fechaInicio, $fechaFin]);
+            })
+            ->get();
+
+        $cuentasBalance = $detalles
+            ->groupBy('cuenta_contable_id')
+            ->map(function ($movimientos) {
+                $totalDebe = $movimientos
+                    ->where('tipo_movimiento', 'debe')
+                    ->sum('monto');
+                $totalHaber = $movimientos
+                    ->where('tipo_movimiento', 'haber')
+                    ->sum('monto');
+                $saldo = $totalDebe - $totalHaber;
+
+                return [
+                    'cuenta' => $movimientos->first()->cuentaContable,
+                    'totalDebe' => $totalDebe,
+                    'totalHaber' => $totalHaber,
+                    'saldoDeudor' => $saldo > 0 ? $saldo : 0,
+                    'saldoAcreedor' => $saldo < 0 ? abs($saldo) : 0,
+                ];
+            })
+            ->sortBy(fn ($item) => $item['cuenta']->codigo);
+
+        $totalDebe = $cuentasBalance->sum('totalDebe');
+        $totalHaber = $cuentasBalance->sum('totalHaber');
+        $totalSaldoDeudor = $cuentasBalance->sum('saldoDeudor');
+        $totalSaldoAcreedor = $cuentasBalance->sum('saldoAcreedor');
+
+        return view('contabilidad.balance_comprobacion', compact(
+            'mes',
+            'anio',
+            'fechaInicio',
+            'cuentasBalance',
+            'totalDebe',
+            'totalHaber',
+            'totalSaldoDeudor',
+            'totalSaldoAcreedor'
         ));
     }
 }

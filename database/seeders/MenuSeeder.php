@@ -175,6 +175,22 @@ class MenuSeeder extends Seeder
             'permiso_id' => Permiso::where('codigo', 'plan_contable.view')->value('id'),
         ]);
 
+        Menu::updateOrCreate(['nombre' => 'Libro Mayor'], [
+            'url' => '/contabilidad/libro-mayor',
+            'icono' => 'fas fa-book',
+            'orden' => 5,
+            'padre_id' => $finanzas->id,
+            'permiso_id' => Permiso::where('codigo', 'plan_contable.view')->value('id'),
+        ]);
+
+        Menu::updateOrCreate(['nombre' => 'Balance de Comprobacion'], [
+            'url' => '/contabilidad/balance-comprobacion',
+            'icono' => 'fas fa-balance-scale',
+            'orden' => 6,
+            'padre_id' => $finanzas->id,
+            'permiso_id' => Permiso::where('codigo', 'plan_contable.view')->value('id'),
+        ]);
+
         // 6. Produccion
         $produccion = Menu::updateOrCreate(['nombre' => 'Producción'], [
             'url' => null,
