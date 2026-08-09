@@ -68,4 +68,10 @@ class EntradaCompra extends Model
     {
         return $this->hasMany(DetalleEntradaCompra::class);
     }
+
+    public function asientosContables(): HasMany
+    {
+        return $this->hasMany(AsientoContable::class, 'origen_id')
+            ->where('origen_tipo', 'EntradaCompra');
+    }
 }

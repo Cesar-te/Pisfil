@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class TransaccionFinanciera extends Model
 {
@@ -47,5 +48,11 @@ class TransaccionFinanciera extends Model
     public function cuentaContable(): BelongsTo
     {
         return $this->belongsTo(CuentaContable::class, 'cuenta_contable_id');
+    }
+
+    public function asientoContable(): HasOne
+    {
+        return $this->hasOne(AsientoContable::class, 'origen_id')
+            ->where('origen_tipo', 'TransaccionFinanciera');
     }
 }

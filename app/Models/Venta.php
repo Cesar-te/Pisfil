@@ -53,4 +53,10 @@ class Venta extends Model
     {
         return $this->hasMany(DetalleVenta::class);
     }
+
+    public function asientosContables(): HasMany
+    {
+        return $this->hasMany(AsientoContable::class, 'origen_id')
+            ->where('origen_tipo', 'Venta');
+    }
 }

@@ -8,6 +8,7 @@ use App\Models\Proveedor;
 use App\Models\Producto;
 use App\Models\Kardex;
 use App\Services\KardexService;
+use App\Services\AsientoContableService;
 use App\Models\CuentaFinanciera;
 use App\Models\TransaccionFinanciera;
 use Illuminate\Http\Request;
@@ -104,18 +105,20 @@ class EntradaCompraController extends Controller
     /**
      * Cambiar estado de la entrada
      */
-    public function cambiarEstado(Request $request, EntradaCompra $entradaCompra, KardexService $kardexService): RedirectResponse
+    public function cambiarEstado(Request $request, EntradaCompra $entradaCompra, KardexService $kardexService, AsientoContableService $asientoService): RedirectResponse
     {
         $validated = $request->validate([
             'estado' => 'required|in:pendiente,recibida,validada,rechazada',
         ]);
 
         try {
-            // Si pasa a 'validada', ingresar los materiales al Kárdex
+            DB::beginTransaction();
+
+            $datosActualizacion = ['estado' => $validated['estado']];
+
             if ($validated['estado'] === EntradaCompra::ESTADO_VALIDADA && $entradaCompra->estado !== EntradaCompra::ESTADO_VALIDADA) {
-                
-                // Asegurar que tiene detalles
                 if ($entradaCompra->detalles()->count() === 0) {
+                    DB::rollBack();
                     return back()->withErrors(['error' => 'No se puede validar una compra sin detalles (productos).']);
                 }
 
@@ -131,14 +134,17 @@ class EntradaCompraController extends Controller
                         'Recepción de compra N° ' . $entradaCompra->numero_documento
                     );
                 }
-                
-                $entradaCompra->fecha_recepcion = now();
+
+                $datosActualizacion['fecha_recepcion'] = now();
+                $asientoService->registrarCompra($entradaCompra->fresh(['proveedor', 'detalles']), Auth::id());
             }
 
-            $entradaCompra->update(['estado' => $validated['estado']]);
+            $entradaCompra->update($datosActualizacion);
 
+            DB::commit();
             return back()->with('success', 'Estado actualizado y Kárdex procesado (si aplica).');
         } catch (Exception $e) {
+            DB::rollBack();
             return back()->withErrors(['error' => 'Error al procesar el Kárdex: ' . $e->getMessage()]);
         }
     }
@@ -146,7 +152,7 @@ class EntradaCompraController extends Controller
     /**
      * Registrar un pago a la cuenta por pagar
      */
-    public function registrarPago(Request $request, EntradaCompra $entradaCompra): RedirectResponse
+    public function registrarPago(Request $request, EntradaCompra $entradaCompra, AsientoContableService $asientoService): RedirectResponse
     {
         $validated = $request->validate([
             'monto' => 'required|numeric|min:0.01',
@@ -179,11 +185,11 @@ class EntradaCompraController extends Controller
                 'estado_pago' => $estadoPago
             ]);
 
-            TransaccionFinanciera::create([
+            $transaccion = TransaccionFinanciera::create([
                 'cuenta_financiera_id' => $cuenta->id,
                 'tipo' => 'egreso',
                 'monto' => $validated['monto'],
-                'motivo' => 'PAGO COMPRA: ' . $entradaCompra->tipo_documento . ' ' . $entradaCompra->numero_documento . ' (Proveedor: ' . $entradaCompra->proveedor->nombre . ')',
+                'motivo' => 'PAGO COMPRA: ' . $entradaCompra->numero_documento . ' (Proveedor: ' . $entradaCompra->proveedor->nombre_empresa . ')',
                 'referencia' => 'C-' . $entradaCompra->id,
                 'fecha_transaccion' => now(),
                 'usuario_registra_id' => Auth::id(),
@@ -191,6 +197,7 @@ class EntradaCompraController extends Controller
             ]);
 
             $cuenta->decrement('saldo_actual', $validated['monto']);
+            $asientoService->registrarPagoCompra($entradaCompra->fresh('proveedor'), $transaccion);
 
             DB::commit();
             return back()->with('success', 'Pago registrado exitosamente. Se ha descontado el saldo de tesorería.');

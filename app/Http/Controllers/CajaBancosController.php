@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Services\AsientoContableService;
 
 class CajaBancosController extends Controller
 {
@@ -61,7 +62,7 @@ class CajaBancosController extends Controller
         return view('caja_bancos.show', compact('cuenta', 'transacciones', 'todasCuentas', 'cuentasContables'));
     }
 
-    public function registrarMovimiento(Request $request, CuentaFinanciera $cuenta): RedirectResponse
+    public function registrarMovimiento(Request $request, CuentaFinanciera $cuenta, AsientoContableService $asientoService): RedirectResponse
     {
         $validated = $request->validate([
             'tipo' => 'required|in:ingreso,egreso',
@@ -90,6 +91,8 @@ class CajaBancosController extends Controller
                 $cuenta->decrement('saldo_actual', $validated['monto']);
             }
 
+            $asientoService->registrarMovimientoManual($transaccion);
+
             DB::commit();
             return back()->with('success', 'Movimiento registrado correctamente.');
 
@@ -99,7 +102,7 @@ class CajaBancosController extends Controller
         }
     }
 
-    public function registrarTransferencia(Request $request, CuentaFinanciera $cuentaOrigen): RedirectResponse
+    public function registrarTransferencia(Request $request, CuentaFinanciera $cuentaOrigen, AsientoContableService $asientoService): RedirectResponse
     {
         $validated = $request->validate([
             'cuenta_destino_id' => 'required|exists:cuentas_financieras,id|different:' . $cuentaOrigen->id,
@@ -122,7 +125,7 @@ class CajaBancosController extends Controller
             }
 
             // 1. Egreso de la cuenta origen
-            TransaccionFinanciera::create([
+            $salida = TransaccionFinanciera::create([
                 'cuenta_financiera_id' => $cuentaOrigen->id,
                 'cuenta_destino_id' => $cuentaDestino->id,
                 'tipo' => 'transferencia',
@@ -134,7 +137,7 @@ class CajaBancosController extends Controller
             $cuentaOrigen->decrement('saldo_actual', $validated['monto']);
 
             // 2. Ingreso a la cuenta destino
-            TransaccionFinanciera::create([
+            $entrada = TransaccionFinanciera::create([
                 'cuenta_financiera_id' => $cuentaDestino->id,
                 'tipo' => 'ingreso',
                 'monto' => $validated['monto'],
@@ -143,6 +146,7 @@ class CajaBancosController extends Controller
                 'usuario_registra_id' => Auth::id(),
             ]);
             $cuentaDestino->increment('saldo_actual', $validated['monto']);
+            $asientoService->registrarTransferencia($salida, $entrada);
 
             DB::commit();
             return back()->with('success', 'Transferencia completada correctamente.');

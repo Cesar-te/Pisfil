@@ -10,6 +10,7 @@ use App\Models\CuentaFinanciera;
 use App\Models\TransaccionFinanciera;
 use App\Models\Kardex;
 use App\Services\KardexService;
+use App\Services\AsientoContableService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -35,7 +36,7 @@ class VentaController extends Controller
         return view('ventas.create', compact('clientes', 'productos', 'cuentas', 'cuentasContables'));
     }
 
-    public function store(Request $request, KardexService $kardexService): RedirectResponse
+    public function store(Request $request, KardexService $kardexService, AsientoContableService $asientoService): RedirectResponse
     {
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
@@ -143,6 +144,8 @@ class VentaController extends Controller
                 $cuenta->increment('saldo_actual', $total);
             }
 
+            $asientoService->registrarVenta($venta->fresh(['cliente', 'cuentaFinanciera']), Auth::id());
+
             DB::commit();
 
             $msg = $request->condicion_pago === 'contado' 
@@ -166,7 +169,7 @@ class VentaController extends Controller
         return view('ventas.show', compact('venta', 'cuentasFinancieras', 'cuentasContables'));
     }
 
-    public function registrarCobro(Request $request, Venta $venta): RedirectResponse
+    public function registrarCobro(Request $request, Venta $venta, AsientoContableService $asientoService): RedirectResponse
     {
         $validated = $request->validate([
             'monto' => 'required|numeric|min:0.01',
@@ -196,7 +199,7 @@ class VentaController extends Controller
 
             $cuenta = CuentaFinanciera::findOrFail($validated['cuenta_financiera_id']);
 
-            TransaccionFinanciera::create([
+            $transaccion = TransaccionFinanciera::create([
                 'cuenta_financiera_id' => $cuenta->id,
                 'tipo' => 'ingreso',
                 'monto' => $validated['monto'],
@@ -208,6 +211,7 @@ class VentaController extends Controller
             ]);
 
             $cuenta->increment('saldo_actual', $validated['monto']);
+            $asientoService->registrarCobroVenta($venta->fresh('cliente'), $transaccion);
 
             DB::commit();
             return back()->with('success', 'Cobro registrado exitosamente. Se ha ingresado el dinero a tesorería.');

@@ -51,4 +51,9 @@ class CuentaContable extends Model
     {
         return $this->hasMany(TransaccionFinanciera::class, 'cuenta_contable_id');
     }
+
+    public function detalleAsientos(): HasMany
+    {
+        return $this->hasMany(DetalleAsientoContable::class, 'cuenta_contable_id');
+    }
 }
