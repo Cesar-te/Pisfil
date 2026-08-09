@@ -25,6 +25,7 @@ class RolSeeder extends Seeder
             ['codigo' => 'produccion.view', 'descripcion' => 'Acceso a Módulo de Producción'],
             ['codigo' => 'tareas.view', 'descripcion' => 'Ver Tareas de Producción'],
             ['codigo' => 'tareas.update_avance', 'descripcion' => 'Actualizar avance de tareas'],
+            ['codigo' => 'reportes.view', 'descripcion' => 'Ver reportes gerenciales'],
             ['codigo' => 'reportes.create', 'descripcion' => 'Crear reportes'],
             ['codigo' => 'caja_bancos.view', 'descripcion' => 'Acceso a Módulo de Caja y Bancos'],
             ['codigo' => 'caja_bancos.create', 'descripcion' => 'Crear cuentas bancarias'],
@@ -55,8 +56,10 @@ class RolSeeder extends Seeder
                 'descripcion' => 'Operario de Producción - Acceso a tareas y reportes',
                 'estado' => true,
                 'permisos' => [
+                    'produccion.view',
                     'tareas.view',
                     'tareas.update_avance',
+                    'reportes.view',
                     'reportes.create',
                 ],
             ],
@@ -84,6 +87,7 @@ class RolSeeder extends Seeder
                     'transacciones.view',
                     'transacciones.create',
                     'plan_contable.view',
+                    'reportes.view',
                 ],
             ],
         ];

@@ -280,19 +280,23 @@
         <nav class="nav">
             <ul>
                 @foreach($global_menus as $menu)
-                    @if(!$menu->permiso_id || (auth()->user() && $menu->permiso && auth()->user()->hasPermission($menu->permiso->codigo)))
-                        @php
-                            $hasSubmenus = $menu->submenus->count() > 0;
-                            $isMenuExpanded = false;
-                            if ($hasSubmenus) {
-                                foreach($menu->submenus as $sub) {
-                                    if ($sub->url && request()->is(ltrim($sub->url, '/').'*')) {
-                                        $isMenuExpanded = true;
-                                        break;
-                                    }
+                    @php
+                        $canViewMenu = !$menu->permiso_id || (auth()->user() && $menu->permiso && auth()->user()->hasPermission($menu->permiso->codigo));
+                        $visibleSubmenus = $menu->submenus->filter(function ($submenu) {
+                            return !$submenu->permiso_id || (auth()->user() && $submenu->permiso && auth()->user()->hasPermission($submenu->permiso->codigo));
+                        });
+                        $hasSubmenus = $visibleSubmenus->count() > 0;
+                        $isMenuExpanded = false;
+                        if ($hasSubmenus) {
+                            foreach($visibleSubmenus as $sub) {
+                                if ($sub->url && request()->is(ltrim($sub->url, '/').'*')) {
+                                    $isMenuExpanded = true;
+                                    break;
                                 }
                             }
-                        @endphp
+                        }
+                    @endphp
+                    @if($canViewMenu || $hasSubmenus)
                         <li>
                             <a href="{{ $hasSubmenus ? '#' : ($menu->url ? url($menu->url) : '#') }}" class="{{ (!$hasSubmenus && $menu->url && request()->is(ltrim($menu->url, '/').'*')) ? 'active' : '' }} {{ $hasSubmenus ? 'toggle-submenu' : '' }}">
                                 <i class="{{ $menu->icono }}"></i> {{ $menu->nombre }}
@@ -302,14 +306,12 @@
                             </a>
                             @if($hasSubmenus)
                                 <ul class="submenu {{ $isMenuExpanded ? 'show' : '' }}">
-                                    @foreach($menu->submenus as $submenu)
-                                        @if(!$submenu->permiso_id || (auth()->user() && $submenu->permiso && auth()->user()->hasPermission($submenu->permiso->codigo)))
-                                            <li>
-                                                <a href="{{ $submenu->url ? url($submenu->url) : '#' }}" class="{{ $submenu->url && request()->is(ltrim($submenu->url, '/').'*') ? 'active' : '' }}" style="padding: 8px 12px; font-size: 13px;">
-                                                    <i class="{{ $submenu->icono ?? 'fas fa-angle-right' }}"></i> {{ $submenu->nombre }}
-                                                </a>
-                                            </li>
-                                        @endif
+                                    @foreach($visibleSubmenus as $submenu)
+                                        <li>
+                                            <a href="{{ $submenu->url ? url($submenu->url) : '#' }}" class="{{ $submenu->url && request()->is(ltrim($submenu->url, '/').'*') ? 'active' : '' }}" style="padding: 8px 12px; font-size: 13px;">
+                                                <i class="{{ $submenu->icono ?? 'fas fa-angle-right' }}"></i> {{ $submenu->nombre }}
+                                            </a>
+                                        </li>
                                     @endforeach
                                 </ul>
                             @endif

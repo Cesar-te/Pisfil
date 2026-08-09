@@ -614,44 +614,49 @@ Login
   v
 Dashboard principal
   |
-  |--> Clientes
-  |--> Proveedores
-  |--> Productos
   |--> Inventario
   |      |--> Dashboard de inventario
+  |      |--> Productos
   |      |--> Movimientos Kardex
-  |      |--> Stock bajo
   |      |--> Movimiento manual
+  |      |--> Stock bajo
+  |      |--> Reporte de stock
+  |      |--> Clasificacion ABC
   |
-  |--> Entradas de compra
-  |      |--> Registrar compra
-  |      |--> Agregar detalle
-  |      |--> Cambiar estado
-  |      |--> Registrar pago
+  |--> Compras
+  |      |--> Proveedores
+  |      |--> Entradas de compra
+  |             |--> Registrar compra
+  |             |--> Agregar detalle
+  |             |--> Cambiar estado
+  |             |--> Registrar pago
   |
   |--> Ventas
-  |      |--> Registrar venta
-  |      |--> Ver venta
-  |      |--> Registrar cobro
+  |      |--> Clientes
+  |      |--> Comprobantes
+  |             |--> Registrar venta
+  |             |--> Ver venta
+  |             |--> Registrar cobro
   |
-  |--> Caja y bancos
-  |      |--> Registrar cuenta
-  |      |--> Registrar ingreso/egreso
-  |      |--> Registrar transferencia
-  |
-  |--> Contabilidad
-  |      |--> Resumen mensual
+  |--> Finanzas
+  |      |--> Caja y bancos
+  |      |      |--> Registrar cuenta
+  |      |      |--> Registrar ingreso/egreso
+  |      |      |--> Registrar transferencia
+  |      |--> Resumen contable
   |      |--> Plan de cuentas
   |      |--> Libro Diario
-  |      |--> Cuentas contables
   |
   |--> Produccion
-  |      |--> Ordenes
-  |      |--> Tareas
-  |      |--> Consumo de materiales
+  |      |--> Ordenes de produccion
+  |             |--> Tareas
+  |             |--> Consumo de materiales
   |
-  |--> Usuarios y roles
   |--> Reportes
+  |
+  |--> Administracion
+         |--> Usuarios
+         |--> Roles y permisos
 ```
 
 ---
