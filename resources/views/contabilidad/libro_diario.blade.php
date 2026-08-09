@@ -30,6 +30,9 @@
         <a href="{{ route('contabilidad.index', ['mes' => $mes, 'anio' => $anio]) }}" class="pill cursor-pointer text-decoration-none" style="border: 1px solid var(--line); color: var(--text); margin-left: auto;">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
+        <a href="{{ route('contabilidad.libro_diario.exportar', ['mes' => $mes, 'anio' => $anio]) }}" class="pill cursor-pointer text-decoration-none" style="border: 1px solid var(--line); color: var(--success);">
+            <i class="fas fa-file-excel"></i> Excel/CSV
+        </a>
         <button type="button" class="pill pending cursor-pointer" onclick="window.print()" style="border: none; background: rgba(37,99,235,0.1); color: var(--primary);">
             <i class="fas fa-file-export"></i> Imprimir / PDF
         </button>

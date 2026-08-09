@@ -10,6 +10,7 @@ use App\Models\TransaccionFinanciera;
 use App\Models\AsientoContable;
 use App\Models\DetalleAsientoContable;
 use Carbon\Carbon;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ContabilidadController extends Controller
 {
@@ -198,5 +199,126 @@ class ContabilidadController extends Controller
             'totalSaldoDeudor',
             'totalSaldoAcreedor'
         ));
+    }
+
+    public function exportLibroDiario(Request $request): StreamedResponse
+    {
+        $mes = $request->input('mes', date('m'));
+        $anio = $request->input('anio', date('Y'));
+        $fechaInicio = Carbon::createFromDate($anio, $mes, 1)->startOfMonth();
+        $fechaFin = $fechaInicio->copy()->endOfMonth();
+
+        $asientos = AsientoContable::with(['detalles.cuentaContable'])
+            ->whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->orderBy('fecha')
+            ->orderBy('numero')
+            ->get();
+
+        return response()->streamDownload(function () use ($asientos) {
+            $output = fopen('php://output', 'w');
+            fputcsv($output, ['Fecha', 'Numero', 'Descripcion', 'Cuenta', 'Nombre cuenta', 'Glosa', 'Debe', 'Haber'], ';');
+
+            foreach ($asientos as $asiento) {
+                foreach ($asiento->detalles as $detalle) {
+                    fputcsv($output, [
+                        $asiento->fecha->format('d/m/Y'),
+                        $asiento->numero,
+                        $asiento->descripcion,
+                        $detalle->cuentaContable->codigo,
+                        $detalle->cuentaContable->descripcion,
+                        $detalle->glosa,
+                        $detalle->tipo_movimiento === 'debe' ? number_format((float) $detalle->monto, 2, '.', '') : '',
+                        $detalle->tipo_movimiento === 'haber' ? number_format((float) $detalle->monto, 2, '.', '') : '',
+                    ], ';');
+                }
+            }
+
+            fclose($output);
+        }, "libro-diario-{$anio}-{$mes}.csv", ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function exportLibroMayor(Request $request): StreamedResponse
+    {
+        $mes = $request->input('mes', date('m'));
+        $anio = $request->input('anio', date('Y'));
+        $fechaInicio = Carbon::createFromDate($anio, $mes, 1)->startOfMonth();
+        $fechaFin = $fechaInicio->copy()->endOfMonth();
+
+        $detalles = DetalleAsientoContable::with(['cuentaContable', 'asiento'])
+            ->whereHas('asiento', function ($query) use ($fechaInicio, $fechaFin) {
+                $query->whereBetween('fecha', [$fechaInicio, $fechaFin]);
+            })
+            ->get()
+            ->sortBy(fn ($detalle) => $detalle->cuentaContable->codigo . '|'
+                . $detalle->asiento->fecha->format('Ymd') . '|'
+                . $detalle->asiento->numero);
+
+        return response()->streamDownload(function () use ($detalles) {
+            $output = fopen('php://output', 'w');
+            fputcsv($output, ['Cuenta', 'Nombre cuenta', 'Fecha', 'Asiento', 'Glosa', 'Debe', 'Haber'], ';');
+
+            foreach ($detalles as $detalle) {
+                fputcsv($output, [
+                    $detalle->cuentaContable->codigo,
+                    $detalle->cuentaContable->descripcion,
+                    $detalle->asiento->fecha->format('d/m/Y'),
+                    $detalle->asiento->numero,
+                    $detalle->glosa ?: $detalle->asiento->descripcion,
+                    $detalle->tipo_movimiento === 'debe' ? number_format((float) $detalle->monto, 2, '.', '') : '',
+                    $detalle->tipo_movimiento === 'haber' ? number_format((float) $detalle->monto, 2, '.', '') : '',
+                ], ';');
+            }
+
+            fclose($output);
+        }, "libro-mayor-{$anio}-{$mes}.csv", ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function exportBalanceComprobacion(Request $request): StreamedResponse
+    {
+        $mes = $request->input('mes', date('m'));
+        $anio = $request->input('anio', date('Y'));
+        $fechaInicio = Carbon::createFromDate($anio, $mes, 1)->startOfMonth();
+        $fechaFin = $fechaInicio->copy()->endOfMonth();
+
+        $detalles = DetalleAsientoContable::with(['cuentaContable', 'asiento'])
+            ->whereHas('asiento', function ($query) use ($fechaInicio, $fechaFin) {
+                $query->whereBetween('fecha', [$fechaInicio, $fechaFin]);
+            })
+            ->get();
+
+        $cuentasBalance = $detalles
+            ->groupBy('cuenta_contable_id')
+            ->map(function ($movimientos) {
+                $totalDebe = $movimientos->where('tipo_movimiento', 'debe')->sum('monto');
+                $totalHaber = $movimientos->where('tipo_movimiento', 'haber')->sum('monto');
+                $saldo = $totalDebe - $totalHaber;
+
+                return [
+                    'cuenta' => $movimientos->first()->cuentaContable,
+                    'totalDebe' => $totalDebe,
+                    'totalHaber' => $totalHaber,
+                    'saldoDeudor' => $saldo > 0 ? $saldo : 0,
+                    'saldoAcreedor' => $saldo < 0 ? abs($saldo) : 0,
+                ];
+            })
+            ->sortBy(fn ($item) => $item['cuenta']->codigo);
+
+        return response()->streamDownload(function () use ($cuentasBalance) {
+            $output = fopen('php://output', 'w');
+            fputcsv($output, ['Cuenta', 'Descripcion', 'Debe', 'Haber', 'Saldo deudor', 'Saldo acreedor'], ';');
+
+            foreach ($cuentasBalance as $grupo) {
+                fputcsv($output, [
+                    $grupo['cuenta']->codigo,
+                    $grupo['cuenta']->descripcion,
+                    number_format((float) $grupo['totalDebe'], 2, '.', ''),
+                    number_format((float) $grupo['totalHaber'], 2, '.', ''),
+                    $grupo['saldoDeudor'] > 0 ? number_format((float) $grupo['saldoDeudor'], 2, '.', '') : '',
+                    $grupo['saldoAcreedor'] > 0 ? number_format((float) $grupo['saldoAcreedor'], 2, '.', '') : '',
+                ], ';');
+            }
+
+            fclose($output);
+        }, "balance-comprobacion-{$anio}-{$mes}.csv", ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 }

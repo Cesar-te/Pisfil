@@ -104,8 +104,11 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/contabilidad', [App\Http\Controllers\ContabilidadController::class, 'index'])->name('contabilidad.index');
     Route::get('/contabilidad/plan-cuentas', [App\Http\Controllers\ContabilidadController::class, 'planCuentas'])->name('contabilidad.plan_cuentas');
     Route::get('/contabilidad/libro-diario', [App\Http\Controllers\ContabilidadController::class, 'libroDiario'])->name('contabilidad.libro_diario');
+    Route::get('/contabilidad/libro-diario/exportar', [App\Http\Controllers\ContabilidadController::class, 'exportLibroDiario'])->name('contabilidad.libro_diario.exportar');
     Route::get('/contabilidad/libro-mayor', [App\Http\Controllers\ContabilidadController::class, 'libroMayor'])->name('contabilidad.libro_mayor');
+    Route::get('/contabilidad/libro-mayor/exportar', [App\Http\Controllers\ContabilidadController::class, 'exportLibroMayor'])->name('contabilidad.libro_mayor.exportar');
     Route::get('/contabilidad/balance-comprobacion', [App\Http\Controllers\ContabilidadController::class, 'balanceComprobacion'])->name('contabilidad.balance_comprobacion');
+    Route::get('/contabilidad/balance-comprobacion/exportar', [App\Http\Controllers\ContabilidadController::class, 'exportBalanceComprobacion'])->name('contabilidad.balance_comprobacion.exportar');
     Route::resource('cuentas-contables', CuentaContableController::class);
 
     // ========== GESTIÓN ADMINISTRATIVA ==========
