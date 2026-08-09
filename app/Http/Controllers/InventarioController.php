@@ -129,8 +129,10 @@ class InventarioController extends Controller
         $acumulado = 0;
 
         foreach ($productos as $producto) {
-            $porcentaje = ($producto->valor_stock / $totalValor) * 100;
+            $porcentaje = $totalValor > 0 ? ($producto->valor_stock / $totalValor) * 100 : 0;
             $acumulado += $porcentaje;
+            $producto->porcentaje_valor = $porcentaje;
+            $producto->porcentaje_acumulado = $acumulado;
 
             if ($acumulado <= 80) {
                 $producto->clasificacion = 'A';
@@ -141,7 +143,7 @@ class InventarioController extends Controller
             }
         }
 
-        return view('inventario.clasificacion_abc', compact('productos'));
+        return view('inventario.clasificacion_abc', compact('productos', 'totalValor'));
     }
 
     /**
