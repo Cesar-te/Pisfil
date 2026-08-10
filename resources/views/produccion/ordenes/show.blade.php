@@ -46,6 +46,8 @@
     
     @php
         $costoTotalMateriales = $ordenProduccion->consumoMateriales->sum('costo_total');
+        $costoTotalAdicional = $ordenProduccion->costosAdicionales->sum('monto');
+        $costoTotalOrden = $costoTotalMateriales + $costoTotalAdicional;
         $tareasCompletadas = $ordenProduccion->tareas->where('estado', 'completada')->count();
         $totalTareas = $ordenProduccion->tareas->count();
         $progreso = $totalTareas > 0 ? round(($tareasCompletadas / $totalTareas) * 100) : 0;
@@ -191,7 +193,7 @@
                         @forelse($ordenProduccion->consumoMateriales as $consumo)
                         <tr>
                             <td>{{ $consumo->producto->nombre ?? 'N/A' }}</td>
-                            <td class="mono" style="font-size: 12px;">{{ number_format($consumo->cantidad, 2) }}</td>
+                            <td class="mono" style="font-size: 12px;">{{ number_format($consumo->cantidad_consumida, 2) }}</td>
                             <td class="mono" style="font-size: 12px;">S/ {{ number_format($consumo->costo_total, 2) }}</td>
                         </tr>
                         @empty
@@ -246,7 +248,78 @@
             </form>
         </section>
         @endif
-        
+
+        <section class="panel table-panel" style="border-color: rgba(79,174,122,0.3);">
+            <div class="panel-head" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="color: var(--success);">Costos Adicionales</h2>
+                <span class="hint">Total orden: S/ {{ number_format($costoTotalOrden, 2) }}</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Descripcion</th>
+                            <th style="text-align: right;">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($ordenProduccion->costosAdicionales as $costo)
+                        <tr>
+                            <td class="mono" style="font-size: 12px;">{{ $costo->fecha->format('d/m/Y') }}</td>
+                            <td>{{ str_replace('_', ' ', ucfirst($costo->tipo)) }}</td>
+                            <td>{{ $costo->descripcion }}</td>
+                            <td class="mono" style="font-size: 12px; text-align: right;">S/ {{ number_format($costo->monto, 2) }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: var(--muted); padding: 20px; font-size: 13px;">
+                                No hay mano de obra, servicios o gastos indirectos registrados.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        @if($ordenProduccion->estado !== 'completada' && $ordenProduccion->estado !== 'cancelada')
+        <section class="panel" style="border-color: rgba(79,174,122,0.3);">
+            <div class="panel-head mb-4">
+                <h2 style="font-size: 16px; color: var(--success);">Registrar Costo Adicional</h2>
+            </div>
+            <form action="{{ route('costos-produccion.store', ['ordenProduccion' => $ordenProduccion->id]) }}" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+                @csrf
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Tipo</label>
+                        <select name="tipo" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                            <option value="mano_obra">Mano de obra</option>
+                            <option value="gasto_indirecto">Gasto indirecto</option>
+                            <option value="servicio">Servicio tercero</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Fecha</label>
+                        <input type="date" name="fecha" required value="{{ date('Y-m-d') }}" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Descripcion</label>
+                    <input type="text" name="descripcion" required placeholder="Soldadura, traslado, horas hombre..." style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Monto</label>
+                    <input type="number" name="monto" step="0.01" min="0.01" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                </div>
+                <button type="submit" class="pill ok cursor-pointer" style="border: none; justify-content: center;">
+                    <i class="fas fa-plus"></i> Agregar costo
+                </button>
+            </form>
+        </section>
+        @endif
+
     </div>
 </div>
 @endsection

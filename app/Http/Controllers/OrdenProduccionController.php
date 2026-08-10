@@ -52,7 +52,7 @@ class OrdenProduccionController extends Controller
 
     public function show(OrdenProduccion $ordenProduccion): View
     {
-        $ordenProduccion->load(['tareas.usuarioResponsable', 'tareas.proceso', 'consumoMateriales.producto', 'usuarioCreador', 'usuarioAsignado']);
+        $ordenProduccion->load(['tareas.usuarioResponsable', 'tareas.proceso', 'consumoMateriales.producto', 'costosAdicionales.usuario', 'usuarioCreador', 'usuarioAsignado']);
         
         $usuarios = User::where('estado', true)->get();
         $procesos = ProcesoProduccion::where('estado', true)->get();

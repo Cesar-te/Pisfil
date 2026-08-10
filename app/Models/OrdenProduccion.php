@@ -75,6 +75,11 @@ class OrdenProduccion extends Model
         return $this->hasMany(ConsumoMaterial::class);
     }
 
+    public function costosAdicionales(): HasMany
+    {
+        return $this->hasMany(CostoProduccion::class);
+    }
+
     /**
      * Relación con Procesos de Producción
      */

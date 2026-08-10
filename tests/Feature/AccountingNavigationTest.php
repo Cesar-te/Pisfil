@@ -60,6 +60,7 @@ class AccountingNavigationTest extends TestCase
             'reportes.exportar.stock',
             'reportes.exportar.kardex',
             'reportes.exportar.caja',
+            'costos-produccion.store',
         ];
 
         foreach ($routes as $route) {

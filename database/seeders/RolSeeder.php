@@ -27,6 +27,7 @@ class RolSeeder extends Seeder
             ['codigo' => 'produccion.view', 'descripcion' => 'Acceso a modulo de produccion'],
             ['codigo' => 'produccion.create', 'descripcion' => 'Crear ordenes de produccion'],
             ['codigo' => 'produccion.consume', 'descripcion' => 'Registrar consumo de materiales'],
+            ['codigo' => 'produccion.cost', 'descripcion' => 'Registrar costos adicionales de produccion'],
             ['codigo' => 'tareas.view', 'descripcion' => 'Ver tareas de produccion'],
             ['codigo' => 'tareas.update_avance', 'descripcion' => 'Actualizar avance de tareas'],
             ['codigo' => 'reportes.view', 'descripcion' => 'Ver reportes gerenciales'],
@@ -66,6 +67,7 @@ class RolSeeder extends Seeder
                 'permisos' => [
                     'produccion.view',
                     'produccion.consume',
+                    'produccion.cost',
                     'tareas.view',
                     'tareas.update_avance',
                     'reportes.view',

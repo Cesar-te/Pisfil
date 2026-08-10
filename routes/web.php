@@ -10,6 +10,7 @@ use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\OrdenProduccionController;
 use App\Http\Controllers\TareaProduccionController;
 use App\Http\Controllers\ConsumoMaterialController;
+use App\Http\Controllers\CostoProduccionController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\CajaBancosController;
@@ -85,6 +86,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     
     // Consumo de Materiales
     Route::post('/ordenes-produccion/{ordenProduccion}/consumo', [ConsumoMaterialController::class, 'store'])->name('consumos-material.store')->middleware('permission:produccion.consume');
+    Route::post('/ordenes-produccion/{ordenProduccion}/costos', [CostoProduccionController::class, 'store'])->name('costos-produccion.store')->middleware('permission:produccion.cost');
 
     // ========== GESTIÓN DE CAJA Y BANCOS (TESORERÍA) ==========
     Route::get('/caja-bancos', [CajaBancosController::class, 'dashboard'])->name('caja-bancos.dashboard');
