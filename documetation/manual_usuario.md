@@ -76,7 +76,19 @@ Desde **Finanzas** se accede a:
 
 Los reportes contables incluyen boton de impresion/PDF desde el navegador y descarga CSV compatible con Excel.
 
-## 8. Produccion
+## 8. Reportes y exportaciones
+
+Desde **Reportes** se pueden descargar archivos CSV compatibles con Excel para:
+
+- Ventas.
+- Compras.
+- Stock.
+- Kardex.
+- Caja y bancos.
+
+Estas exportaciones permiten revisar informacion fuera del sistema o adjuntarla como evidencia.
+
+## 9. Produccion
 
 El modulo **Produccion** permite registrar ordenes de trabajo metalmecanico.
 
@@ -87,19 +99,35 @@ Flujo recomendado:
 3. Actualizar avance de tareas.
 4. Registrar consumo de materiales.
 5. El sistema descuenta inventario por Kardex y genera el asiento contable del consumo.
+6. Registrar costos adicionales como mano de obra, servicios y gastos indirectos.
+7. Revisar el costo total de la orden sumando materiales y costos adicionales.
 
-## 9. Administracion
+## 10. Administracion
 
 Desde **Administracion** se gestionan usuarios, roles y permisos. El rol define los modulos visibles y las acciones permitidas para cada usuario.
 
-## 10. Mensajes del sistema
+Tambien se puede ingresar a **Auditoria**, donde se revisan operaciones importantes del sistema, filtrando por accion, entidad y fecha.
+
+## 11. Copias de seguridad
+
+El sistema incluye el comando:
+
+```bash
+php artisan backup:database
+```
+
+Este comando genera una copia de seguridad en `storage/app/backups`. Para MySQL requiere que `mysqldump` este disponible en el equipo.
+
+## 12. Mensajes del sistema
 
 Los mensajes de inicio de sesion, rol, validacion y operaciones exitosas se muestran temporalmente. El usuario tambien puede cerrarlos manualmente con el boton de cierre.
 
-## 11. Recomendaciones de uso
+## 13. Recomendaciones de uso
 
 - Registrar primero catalogos base: productos, clientes, proveedores, cuentas financieras y cuentas contables.
 - Validar compras antes de revisar Kardex.
 - Revisar stock bajo antes de registrar ventas o consumos de produccion.
 - Usar Libro Diario, Libro Mayor y Balance de Comprobacion para verificar cuadre contable.
 - Exportar CSV cuando se necesite revisar informacion en Excel.
+- Revisar auditoria cuando se necesite confirmar quien realizo una operacion.
+- Ejecutar backups antes de cambios importantes o entregas finales.

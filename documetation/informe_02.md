@@ -33,7 +33,7 @@ Los principales componentes implementados son:
 | :--- | :--- | :--- |
 | Configuracion del proyecto Laravel | Finalizado | Se configuro la aplicacion web, rutas, controladores, modelos, vistas Blade, dependencias de Composer, NPM y Vite. |
 | Autenticacion de usuarios | Finalizado | Se implemento inicio y cierre de sesion con validacion de correo y contraseña. |
-| Gestion de usuarios y roles | En proceso | Se implementaron usuarios, roles y permisos mediante tablas `users`, `roles`, `permisos` y `rol_permiso`. |
+| Gestion de usuarios y roles | En proceso avanzado | Se implementaron usuarios, roles, permisos generales y permisos finos por accion mediante middleware. |
 | Gestion de clientes | Finalizado | Permite registrar, actualizar y listar clientes, validando documento unico y correo valido. |
 | Gestion de proveedores | Finalizado | Permite administrar proveedores, RUC, datos de contacto, condicion de pago y estado. |
 | Gestion de productos | Finalizado | Permite registrar productos con categoria, unidad de medida, precio, stock minimo y stock actual. |
@@ -42,11 +42,12 @@ Los principales componentes implementados son:
 | Ventas | En proceso | Permite registrar ventas al contado o credito, agregar productos, descontar inventario y registrar cobros. |
 | Caja y bancos | En proceso | Permite registrar cuentas financieras, ingresos, egresos y transferencias entre cuentas de la misma moneda. |
 | Contabilidad y PCGE | En proceso avanzado | Se implemento el catalogo de cuentas contables, asientos automaticos, Libro Diario, Libro Mayor, Balance de Comprobacion y exportacion CSV. |
-| Produccion | En proceso avanzado | Se implementaron ordenes de produccion, tareas, avances, consumos de materiales y asiento contable por consumo. |
-| Dashboard operativo y reportes | En proceso avanzado | El dashboard principal usa datos reales de ventas, compras, caja, inventario, produccion y contabilidad; ademas se agregaron reportes de inventario. |
+| Produccion | En proceso avanzado | Se implementaron ordenes, tareas, avances, consumos de materiales, asiento contable por consumo y costos adicionales por orden. |
+| Dashboard operativo y reportes | En proceso avanzado | El dashboard principal usa datos reales; ademas se agregaron reportes de inventario y exportaciones CSV de ventas, compras, stock, Kardex y caja. |
 | Navegacion e interfaz | En proceso avanzado | Se alineo el menu lateral con las rutas reales, se corrigio la persistencia de tema claro/oscuro y los mensajes del sistema ahora desaparecen automaticamente. |
+| Auditoria y respaldo | En proceso avanzado | Se agrego registro de operaciones importantes y comando `php artisan backup:database` para respaldar la base de datos. |
 
-El porcentaje aproximado de avance del proyecto es de **90 %**, considerando que la estructura de datos, los modulos principales, la navegacion validada, el dashboard operativo con datos reales, los reportes de inventario, los libros contables principales, las exportaciones CSV y la generacion de asientos contables ya se encuentran implementados. Aun falta fortalecer permisos por accion, costos avanzados de produccion, pruebas end-to-end, auditoria, copias de seguridad y documentacion final con capturas.
+El porcentaje aproximado de avance del proyecto es de **96 %**, considerando que la estructura de datos, los modulos principales, permisos por accion, auditoria, respaldo de base de datos, navegacion validada, dashboard operativo, reportes de inventario, libros contables, exportaciones CSV, costos de produccion y asientos contables ya se encuentran implementados. Aun faltan capturas finales del sistema, pruebas end-to-end con navegador y funcionalidades tributarias avanzadas como formatos SUNAT o facturacion electronica.
 
 #### 1.3 Tecnologias utilizadas
 
@@ -81,9 +82,10 @@ El porcentaje aproximado de avance del proyecto es de **90 %**, considerando que
 | Ventas | En proceso | Registro de ventas, detalles, cobros y salida de inventario. |
 | Caja y bancos | En proceso | Cuentas, ingresos, egresos y transferencias implementadas. |
 | Contabilidad y PCGE | En proceso avanzado | Catalogo PCGE, resumen mensual, asientos automaticos, Libro Diario, Libro Mayor, Balance de Comprobacion y exportacion CSV implementados. |
-| Produccion | En proceso avanzado | Ordenes, tareas, consumos de materiales y contabilizacion inicial de consumos implementados. |
-| Reportes finales | En proceso avanzado | Se implementaron dashboard operativo, reportes de inventario, Libro Diario, Libro Mayor, Balance de Comprobacion y exportaciones CSV; faltan reportes SUNAT avanzados y formatos finales. |
-| Pruebas integrales | En proceso avanzado | Se validaron rutas de inventario, dashboard, cache de vistas y pruebas PHPUnit para rutas/vistas contables; faltan pruebas end-to-end completas con navegador. |
+| Produccion | En proceso avanzado | Ordenes, tareas, consumos de materiales, contabilizacion inicial de consumos y costos adicionales por orden implementados. |
+| Reportes finales | En proceso avanzado | Se implementaron dashboard operativo, reportes de inventario, libros contables y exportaciones CSV ampliadas; faltan reportes SUNAT avanzados y formatos finales. |
+| Auditoria y respaldo | En proceso avanzado | Registro de operaciones importantes y comando de backup implementados. |
+| Pruebas integrales | En proceso avanzado | Se validaron rutas de inventario, dashboard, cache de vistas, rutas contables, exportaciones, auditoria, backup y costos de produccion; faltan pruebas end-to-end completas con navegador. |
 | Manual de usuario | En proceso | Se elaboro una guia base de uso; faltan capturas finales por pantalla. |
 
 #### 1.5 Evidencias del avance
@@ -802,6 +804,10 @@ sequenceDiagram
 | Falta de reportes contables finales. | Se implementaron Libro Mayor y Balance de Comprobacion a partir de los asientos registrados. | El sistema permite revisar movimientos por cuenta, saldos y cuadre contable. |
 | Necesidad de exportar informacion contable. | Se agregaron descargas CSV para Libro Diario, Libro Mayor y Balance de Comprobacion. | Los reportes pueden abrirse en Excel para revision y entrega. |
 | Faltaba reflejar costo de ventas y consumos en contabilidad. | Se agregaron asientos automaticos para costo de ventas y consumo de materiales de produccion. | La trazabilidad contable del inventario y produccion queda fortalecida. |
+| Necesidad de trazabilidad sobre cambios y operaciones. | Se implemento una tabla de auditoria, servicio de registro y pantalla de consulta filtrable. | Las operaciones importantes quedan asociadas a usuario, fecha, entidad e IP. |
+| Requerimiento de permisos mas especificos. | Se agrego middleware `permission` y permisos por accion para exportar, aprobar, cobrar, consumir materiales y auditar. | El sistema puede restringir acciones concretas segun rol. |
+| Falta de respaldo operativo de base de datos. | Se agrego el comando `php artisan backup:database`. | El proyecto cuenta con una forma basica de generar copias de seguridad. |
+| Costos de produccion limitados solo a materiales. | Se agrego registro de mano de obra, gastos indirectos y servicios por orden de produccion. | El costo total por orden queda mas completo para analizar rentabilidad. |
 
 ---
 
@@ -827,7 +833,11 @@ sequenceDiagram
 
 10. La automatizacion de costo de ventas y consumo de materiales mejora la trazabilidad entre inventario, produccion y contabilidad.
 
-11. El prototipo desarrollado mejora la trazabilidad de las operaciones de PISFIL EMSAC y establece una base tecnica adecuada para completar permisos finos, auditoria, pruebas end-to-end, copias de seguridad y documentacion final con capturas.
+11. La auditoria de operaciones y los permisos finos fortalecen el control interno, ya que permiten restringir acciones y revisar quien ejecuto operaciones relevantes.
+
+12. El registro de costos adicionales de produccion permite complementar los consumos de materiales con mano de obra, servicios y gastos indirectos.
+
+13. El prototipo desarrollado mejora la trazabilidad de las operaciones de PISFIL EMSAC y establece una base tecnica adecuada para completar pruebas end-to-end, capturas finales, reportes SUNAT avanzados y facturacion electronica.
 
 ---
 
@@ -838,13 +848,11 @@ El sistema desarrollado constituye una version funcional inicial. Para fortalece
 | Funcionalidad propuesta | Descripcion | Beneficio esperado |
 | :--- | :--- | :--- |
 | Reportes SUNAT avanzados | Preparar formatos oficiales adicionales para compras, ventas y libros electronicos. | Facilita cumplimiento tributario futuro. |
-| Exportacion ampliada | Permitir exportar ventas, compras, Kardex, caja e inventario, ademas de los libros contables ya implementados. | Mejora la presentacion y analisis de informacion. |
 | Integracion con facturacion electronica SUNAT | Preparar emision de comprobantes electronicos. | Reduce riesgo tributario y facilita cumplimiento normativo. |
 | Indicadores gerenciales avanzados | Ampliar el dashboard con rentabilidad por proyecto, tendencias comparativas, margenes y filtros por periodo. | Apoya una toma de decisiones mas detallada por parte de gerencia. |
-| Control de costos por orden de produccion | Asociar consumos, mano de obra y gastos indirectos a cada proyecto. | Permite calcular rentabilidad por trabajo metalmecanico. |
-| Auditoria de operaciones | Registrar usuario, fecha, accion y cambios realizados en registros clave. | Mejora la trazabilidad y control interno. |
-| Copias de seguridad automaticas | Implementar respaldos periodicos de la base de datos. | Protege la informacion ante fallas o perdida de datos. |
-| Refinamiento de permisos por accion | Completar restricciones finas para crear, editar, eliminar, aprobar y exportar segun cada rol. | Incrementa la seguridad y separacion de funciones. |
+| Rentabilidad por orden de produccion | Vincular ordenes de produccion con ventas/proyectos para comparar costo total contra ingreso. | Permite calcular utilidad por trabajo metalmecanico. |
+| Copias de seguridad automaticas programadas | Programar respaldos periodicos usando el comando de backup ya implementado. | Protege la informacion ante fallas o perdida de datos. |
+| Refinamiento visual de permisos por accion | Ocultar o deshabilitar botones de acciones restringidas segun rol en cada vista. | Mejora la experiencia del usuario y evita intentos de acceso no autorizados. |
 | Conciliacion bancaria | Comparar movimientos registrados con extractos bancarios. | Mejora el control de caja y bancos. |
 | Centro de notificaciones | Registrar alertas importantes como stock bajo, cuentas vencidas y operaciones pendientes. | Permite hacer seguimiento a eventos relevantes aun despues de cerrar los mensajes temporales. |
 | Pruebas end-to-end con navegador | Automatizar recorridos completos de login, compras, ventas, inventario, reportes y contabilidad. | Reduce regresiones en navegacion y flujos criticos. |
