@@ -16,10 +16,13 @@ class ProductoController extends Controller
     public function index(): View
     {
         $productos = Producto::with(['categoria', 'unidadMedida'])
+            ->withExists('movimientosKardex')
             ->orderBy('nombre')
             ->paginate(15);
+        $categorias = \App\Models\Categoria::where('estado', true)->orderBy('nombre')->get();
+        $unidades = \App\Models\UnidadMedida::where('estado', true)->orderBy('nombre')->get();
 
-        return view('productos.index', compact('productos'));
+        return view('productos.index', compact('productos', 'categorias', 'unidades'));
     }
 
     /**
