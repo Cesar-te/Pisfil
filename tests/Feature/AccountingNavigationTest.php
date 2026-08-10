@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class AccountingNavigationTest extends TestCase
@@ -53,10 +54,23 @@ class AccountingNavigationTest extends TestCase
             'reportes.dashboard',
             'ordenes-produccion.index',
             'cuentas-contables.index',
+            'auditorias.index',
+            'reportes.exportar.ventas',
+            'reportes.exportar.compras',
+            'reportes.exportar.stock',
+            'reportes.exportar.kardex',
+            'reportes.exportar.caja',
         ];
 
         foreach ($routes as $route) {
             $this->assertTrue(Route::has($route), "La ruta {$route} debe existir.");
         }
+    }
+
+    public function test_backup_database_command_is_registered(): void
+    {
+        $commands = Artisan::all();
+
+        $this->assertArrayHasKey('backup:database', $commands);
     }
 }
