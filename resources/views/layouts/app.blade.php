@@ -208,12 +208,14 @@
         .user-chip div strong { display: block; font-size: 14px; font-weight: 600; color: var(--text); }
         .user-chip div span { display: block; font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-top: 2px; text-transform: uppercase; }
 
-        .role-context { margin: 24px 32px 0; padding: 14px 20px; background: rgba(63, 167, 218, 0.08); border: 1px solid rgba(63, 167, 218, 0.25); border-radius: var(--radius-md); font-size: 13px; color: var(--text); display: flex; gap: 12px; align-items: center; }
-        [data-theme="light"] .role-context { background: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.2); }
-        .dismissible-message { position: relative; transition: opacity 0.45s ease, transform 0.45s ease, margin 0.45s ease, padding 0.45s ease, max-height 0.45s ease; max-height: 180px; overflow: hidden; }
-        .dismissible-message.is-hiding { opacity: 0; transform: translateY(-8px); margin-top: 0 !important; margin-bottom: 0 !important; padding-top: 0 !important; padding-bottom: 0 !important; max-height: 0; pointer-events: none; }
+        .toast-layer { position: fixed; top: 88px; right: 28px; display: flex; flex-direction: column; gap: 12px; width: min(420px, calc(100vw - 32px)); z-index: 80; pointer-events: none; }
+        .role-context { padding: 14px 18px; background: var(--glass-bg); backdrop-filter: blur(14px); border: 1px solid rgba(63, 167, 218, 0.28); border-left: 4px solid var(--primary); border-radius: var(--radius-md); font-size: 13px; color: var(--text); display: flex; gap: 12px; align-items: center; box-shadow: var(--shadow-md); pointer-events: auto; }
+        [data-theme="light"] .role-context { border-color: rgba(37, 99, 235, 0.22); border-left-color: var(--primary); }
+        .dismissible-message { transition: opacity 0.45s ease, transform 0.45s ease; overflow: hidden; }
+        .dismissible-message.is-hiding { opacity: 0; transform: translateY(-10px) scale(0.98); pointer-events: none; }
         .dismiss-message-btn { margin-left: auto; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); flex-shrink: 0; }
         .dismiss-message-btn:hover { background: var(--surface-2); color: var(--text); }
+        .floating-toast { position: fixed !important; top: var(--toast-top, 88px); right: 28px; width: min(420px, calc(100vw - 32px)); z-index: 85; margin: 0 !important; box-shadow: var(--shadow-md); backdrop-filter: blur(14px); pointer-events: auto; }
 
         .content { padding: 32px; display: flex; flex-direction: column; gap: 40px; }
 
@@ -367,11 +369,12 @@
             </div>
         </header>
 
-        <!-- Role Context Banner -->
         @auth
-        <div class="role-context stagger-1" data-auto-dismiss="6500">
-            <i class="fas fa-info-circle" style="color: var(--primary); font-size: 16px;"></i>
-            <span>{{ Auth::user()->rol->descripcion ?? 'Acceso al sistema.' }}</span>
+        <div class="toast-layer">
+            <div class="role-context" data-auto-dismiss="5200">
+                <i class="fas fa-info-circle" style="color: var(--primary); font-size: 16px;"></i>
+                <span>{{ Auth::user()->rol->descripcion ?? 'Acceso al sistema.' }}</span>
+            </div>
         </div>
         @endauth
 
@@ -472,10 +475,16 @@
             window.setTimeout(() => message.remove(), 500);
         };
 
+        let floatingToastIndex = 0;
         document.querySelectorAll(autoDismissSelectors.join(',')).forEach((message) => {
             if (message.dataset.persistent === 'true' || message.classList.contains('kpi-card')) return;
 
             message.classList.add('dismissible-message');
+            if (!message.classList.contains('role-context') && !message.closest('.toast-layer')) {
+                message.classList.add('floating-toast');
+                message.style.setProperty('--toast-top', `${88 + (floatingToastIndex * 78)}px`);
+                floatingToastIndex += 1;
+            }
 
             if (!message.querySelector('.dismiss-message-btn')) {
                 const button = document.createElement('button');
