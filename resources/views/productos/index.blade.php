@@ -117,14 +117,18 @@
         display: none;
         inset: 0;
         justify-content: center;
-        padding: 24px;
+        overflow-y: auto;
+        padding: 28px;
         position: fixed;
-        z-index: 1200;
+        z-index: 2000;
     }
 
     .product-modal {
+        box-sizing: border-box;
+        margin: auto;
         max-height: calc(100vh - 64px);
         max-width: 840px;
+        overflow-x: hidden;
         overflow-y: auto;
         padding: 22px;
         width: min(840px, 100%);
@@ -170,6 +174,7 @@
         background: var(--surface-2);
         border: 1px solid var(--line);
         border-radius: 6px;
+        box-sizing: border-box;
         color: var(--text);
         outline: none;
         padding: 9px 10px;
@@ -379,7 +384,12 @@
     function abrirModalProducto(id) {
         const modal = document.getElementById(id);
         if (modal) {
+            document.body.appendChild(modal);
             modal.style.display = 'flex';
+            const modalPanel = modal.querySelector('.product-modal');
+            if (modalPanel) {
+                modalPanel.scrollTop = 0;
+            }
         }
     }
 

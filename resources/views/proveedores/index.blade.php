@@ -88,14 +88,18 @@
         display: none;
         inset: 0;
         justify-content: center;
-        padding: 24px;
+        overflow-y: auto;
+        padding: 28px;
         position: fixed;
-        z-index: 1200;
+        z-index: 2000;
     }
 
     .provider-modal {
+        box-sizing: border-box;
+        margin: auto;
         max-height: calc(100vh - 64px);
         max-width: 820px;
+        overflow-x: hidden;
         overflow-y: auto;
         padding: 22px;
         width: min(820px, 100%);
@@ -134,6 +138,7 @@
         background: var(--surface-2);
         border: 1px solid var(--line);
         border-radius: 6px;
+        box-sizing: border-box;
         color: var(--text);
         outline: none;
         padding: 9px 10px;
@@ -323,7 +328,12 @@
     function abrirModalProveedor(id) {
         const modal = document.getElementById(id);
         if (modal) {
+            document.body.appendChild(modal);
             modal.style.display = 'flex';
+            const modalPanel = modal.querySelector('.provider-modal');
+            if (modalPanel) {
+                modalPanel.scrollTop = 0;
+            }
         }
     }
 
