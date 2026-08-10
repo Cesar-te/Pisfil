@@ -7,6 +7,27 @@
 <!-- Importar Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<section class="panel mb-8" style="background: var(--surface-2); padding: 15px 20px; border-bottom: 2px solid var(--primary);">
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <span class="hint" style="margin-right: auto;">Exportaciones CSV</span>
+        <a href="{{ route('reportes.exportar.ventas') }}" class="pill text-decoration-none" style="border: 1px solid var(--line); color: var(--success);">
+            <i class="fas fa-file-excel"></i> Ventas
+        </a>
+        <a href="{{ route('reportes.exportar.compras') }}" class="pill text-decoration-none" style="border: 1px solid var(--line); color: var(--success);">
+            <i class="fas fa-file-excel"></i> Compras
+        </a>
+        <a href="{{ route('reportes.exportar.stock') }}" class="pill text-decoration-none" style="border: 1px solid var(--line); color: var(--success);">
+            <i class="fas fa-file-excel"></i> Stock
+        </a>
+        <a href="{{ route('reportes.exportar.kardex') }}" class="pill text-decoration-none" style="border: 1px solid var(--line); color: var(--success);">
+            <i class="fas fa-file-excel"></i> Kardex
+        </a>
+        <a href="{{ route('reportes.exportar.caja') }}" class="pill text-decoration-none" style="border: 1px solid var(--line); color: var(--success);">
+            <i class="fas fa-file-excel"></i> Caja
+        </a>
+    </div>
+</section>
+
 <!-- KPIs Principales -->
 <div class="kpi-grid stagger-1 mb-8">
     <div class="kpi-card" style="border-color: rgba(37,99,235,0.3);">

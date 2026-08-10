@@ -100,6 +100,11 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
     // ========== REPORTES GERENCIALES ==========
     Route::get('/reportes', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
+    Route::get('/reportes/exportar/ventas', [ReporteController::class, 'exportVentas'])->name('reportes.exportar.ventas')->middleware('permission:reportes.export');
+    Route::get('/reportes/exportar/compras', [ReporteController::class, 'exportCompras'])->name('reportes.exportar.compras')->middleware('permission:reportes.export');
+    Route::get('/reportes/exportar/stock', [ReporteController::class, 'exportStock'])->name('reportes.exportar.stock')->middleware('permission:reportes.export');
+    Route::get('/reportes/exportar/kardex', [ReporteController::class, 'exportKardex'])->name('reportes.exportar.kardex')->middleware('permission:reportes.export');
+    Route::get('/reportes/exportar/caja', [ReporteController::class, 'exportCaja'])->name('reportes.exportar.caja')->middleware('permission:reportes.export');
 
     // ========== CONTABILIDAD ==========
     Route::get('/contabilidad', [App\Http\Controllers\ContabilidadController::class, 'index'])->name('contabilidad.index');
