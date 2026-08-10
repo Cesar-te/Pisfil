@@ -8,6 +8,42 @@
 @endpush
 
 @section('content')
+<style>
+    .kpi-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 172px;
+    }
+    .kpi-card > span,
+    .kpi-card > div:not(.mini-chart) {
+        position: relative;
+        z-index: 2;
+    }
+    .mini-chart {
+        position: absolute;
+        right: 14px;
+        bottom: 10px;
+        width: 46%;
+        height: 72px;
+        min-width: 135px;
+        opacity: 0.95;
+        pointer-events: none;
+        z-index: 1;
+    }
+    .mini-chart.is-donut {
+        width: 92px;
+        height: 92px;
+        right: 18px;
+        bottom: 14px;
+    }
+    @media (max-width: 900px) {
+        .mini-chart {
+            width: 42%;
+            min-width: 120px;
+        }
+    }
+</style>
+
 <section class="kpi-grid stagger-1">
     <a href="{{ route('ventas.index') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
         <span class="kpi-label">Ventas del mes</span>
@@ -19,12 +55,14 @@
                 <i class="fas fa-arrow-{{ $variacionVentas >= 0 ? 'up' : 'down' }}"></i> {{ number_format(abs($variacionVentas), 1) }}% vs. mes anterior
             </span>
         @endif
+        <div id="miniVentas" class="mini-chart"></div>
     </a>
 
     <a href="{{ route('ventas.index') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
         <span class="kpi-label">Cuentas por cobrar</span>
         <span class="kpi-value mono">S/ {{ number_format($cuentasPorCobrar, 2) }}</span>
         <span class="kpi-delta" style="color: var(--muted);"><i class="fas fa-clock"></i> {{ $clientesConDeuda }} cliente(s) con saldo</span>
+        <div id="miniCobrar" class="mini-chart"></div>
     </a>
 
     <a href="{{ route('entradas-compra.index') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
@@ -33,6 +71,7 @@
         <span class="kpi-delta {{ $cuentasPorPagar > 0 ? 'warn' : 'up' }}">
             <i class="fas fa-file-invoice-dollar"></i> {{ $proveedoresConDeuda }} proveedor(es) pendientes
         </span>
+        <div id="miniPagar" class="mini-chart"></div>
     </a>
 
     <a href="{{ route('inventario.stock_bajo') }}" class="kpi-card" style="text-decoration: none; color: inherit; {{ $productosStockBajo > 0 ? 'border-color: rgba(226,114,46,0.3);' : '' }}">
@@ -41,6 +80,7 @@
         <span class="kpi-delta {{ $productosStockBajo > 0 ? 'warn' : 'up' }}">
             <i class="fas fa-triangle-exclamation"></i> {{ $productosStockBajo > 0 ? 'Requiere revision' : 'Inventario saludable' }}
         </span>
+        <div id="miniStock" class="mini-chart is-donut"></div>
     </a>
 </section>
 
@@ -49,6 +89,7 @@
         <span class="kpi-label">Valor inventario</span>
         <span class="kpi-value mono">S/ {{ number_format($valorTotalInventario, 2) }}</span>
         <span class="kpi-delta"><i class="fas fa-boxes-stacked"></i> {{ $productosActivos }} producto(s) activo(s)</span>
+        <div id="miniInventario" class="mini-chart"></div>
     </a>
 
     <a href="{{ route('caja-bancos.dashboard') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
@@ -57,18 +98,21 @@
         <span class="kpi-delta {{ ($ingresosMes - $egresosMes) >= 0 ? 'up' : 'danger' }}">
             <i class="fas fa-wallet"></i> Ingresos S/ {{ number_format($ingresosMes, 0) }} | Egresos S/ {{ number_format($egresosMes, 0) }}
         </span>
+        <div id="miniFlujo" class="mini-chart"></div>
     </a>
 
     <a href="{{ route('ordenes-produccion.index') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
         <span class="kpi-label">Produccion</span>
         <span class="kpi-value">{{ $ordenesEnProceso }} / {{ $ordenesTotales }}</span>
         <span class="kpi-delta"><i class="fas fa-industry"></i> En proceso / total de ordenes</span>
+        <div id="miniProduccion" class="mini-chart is-donut"></div>
     </a>
 
     <a href="{{ route('contabilidad.libro_diario') }}" class="kpi-card" style="text-decoration: none; color: inherit;">
         <span class="kpi-label">Asientos del mes</span>
         <span class="kpi-value">{{ $asientosMes }}</span>
         <span class="kpi-delta up"><i class="fas fa-book-open"></i> Libro Diario actualizado</span>
+        <div id="miniAsientos" class="mini-chart"></div>
     </a>
 </section>
 
@@ -229,6 +273,12 @@
         labels: @json($mesesLabels),
         ventas: @json($ventasChart),
         compras: @json($comprasChart),
+        cobrar: @json($cuentasCobrarChart),
+        pagar: @json($cuentasPagarChart),
+        flujo: @json($flujoCajaChart),
+        asientos: @json($asientosChart),
+        stockSalud: @json($stockSaludSeries),
+        produccion: @json($produccionSeries),
         abcLabels: @json($abcLabels),
         abcSeries: @json($abcSeries),
     };
@@ -247,6 +297,97 @@
 
     let barChartInstance = null;
     let donutChartInstance = null;
+    let miniCharts = [];
+
+    const destroyMiniCharts = () => {
+        miniCharts.forEach(chart => chart.destroy());
+        miniCharts = [];
+    };
+
+    const miniAreaOptions = (selector, data, color, colors) => ({
+        series: [{ data }],
+        chart: {
+            type: 'area',
+            height: 72,
+            sparkline: { enabled: true },
+            animations: { enabled: true, speed: 450 },
+            toolbar: { show: false },
+            fontFamily: 'Inter, sans-serif'
+        },
+        stroke: { curve: 'smooth', width: 2.5 },
+        fill: {
+            type: 'gradient',
+            gradient: { shadeIntensity: 0.2, opacityFrom: 0.35, opacityTo: 0.03, stops: [0, 90, 100] }
+        },
+        colors: [color],
+        tooltip: {
+            theme: document.documentElement.getAttribute('data-theme'),
+            x: { show: false },
+            y: { formatter: value => Number(value).toLocaleString('es-PE', { maximumFractionDigits: 2 }) }
+        },
+        grid: { show: false }
+    });
+
+    const miniBarOptions = (data, color) => ({
+        series: [{ data }],
+        chart: {
+            type: 'bar',
+            height: 72,
+            sparkline: { enabled: true },
+            animations: { enabled: true, speed: 450 },
+            toolbar: { show: false }
+        },
+        colors: [color],
+        plotOptions: { bar: { columnWidth: '55%', borderRadius: 3 } },
+        tooltip: {
+            theme: document.documentElement.getAttribute('data-theme'),
+            x: { show: false },
+            y: { formatter: value => Number(value).toLocaleString('es-PE') }
+        }
+    });
+
+    const miniDonutOptions = (data, labels, colorsSet) => ({
+        series: data.some(value => Number(value) > 0) ? data : [1],
+        labels: data.some(value => Number(value) > 0) ? labels : ['Sin datos'],
+        chart: {
+            type: 'donut',
+            height: 92,
+            sparkline: { enabled: true },
+            animations: { enabled: true, speed: 450 }
+        },
+        colors: data.some(value => Number(value) > 0) ? colorsSet : ['rgba(148,163,184,0.25)'],
+        stroke: { show: false },
+        tooltip: {
+            theme: document.documentElement.getAttribute('data-theme'),
+            y: { formatter: value => Number(value).toLocaleString('es-PE') }
+        },
+        plotOptions: { pie: { donut: { size: '68%' } } },
+        legend: { show: false },
+        dataLabels: { enabled: false }
+    });
+
+    function renderMiniCharts() {
+        destroyMiniCharts();
+        const colors = getChartThemeColors();
+        const configs = [
+            ['#miniVentas', miniAreaOptions('#miniVentas', dashboardData.ventas, colors.primary, colors)],
+            ['#miniCobrar', miniAreaOptions('#miniCobrar', dashboardData.cobrar, colors.accent, colors)],
+            ['#miniPagar', miniAreaOptions('#miniPagar', dashboardData.pagar, colors.secondary, colors)],
+            ['#miniStock', miniDonutOptions(dashboardData.stockSalud, ['Saludable', 'Bajo'], [colors.success, colors.secondary])],
+            ['#miniInventario', miniBarOptions(dashboardData.abcSeries, colors.primary)],
+            ['#miniFlujo', miniAreaOptions('#miniFlujo', dashboardData.flujo, colors.success, colors)],
+            ['#miniProduccion', miniDonutOptions(dashboardData.produccion, ['En proceso', 'Completadas', 'Otras'], [colors.secondary, colors.success, colors.primary])],
+            ['#miniAsientos', miniBarOptions(dashboardData.asientos, colors.success)],
+        ];
+
+        configs.forEach(([selector, options]) => {
+            const element = document.querySelector(selector);
+            if (!element) return;
+            const chart = new ApexCharts(element, options);
+            miniCharts.push(chart);
+            chart.render();
+        });
+    }
 
     function renderMainCharts() {
         const colors = getChartThemeColors();
@@ -290,6 +431,7 @@
             tooltip: { theme: theme, y: { formatter: value => hasAbcData ? 'S/ ' + Number(value).toLocaleString('es-PE', { minimumFractionDigits: 2 }) : 'Sin datos' } }
         });
         donutChartInstance.render();
+        renderMiniCharts();
     }
 
     document.addEventListener('DOMContentLoaded', renderMainCharts);

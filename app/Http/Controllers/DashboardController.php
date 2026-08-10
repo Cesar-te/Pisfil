@@ -103,6 +103,10 @@ class DashboardController extends Controller
         $mesesLabels = [];
         $ventasChart = [];
         $comprasChart = [];
+        $cuentasCobrarChart = [];
+        $cuentasPagarChart = [];
+        $flujoCajaChart = [];
+        $asientosChart = [];
 
         for ($i = 5; $i >= 0; $i--) {
             $mes = Carbon::now()->subMonths($i);
@@ -117,7 +121,36 @@ class DashboardController extends Controller
                 ->withSum('detalles as total_compra', 'costo_total')
                 ->get()
                 ->sum('total_compra');
+            $cuentasCobrarChart[] = (float) Venta::where('estado_pago', '!=', 'pagado')
+                ->whereBetween('fecha_venta', [$start, $end])
+                ->selectRaw('SUM(total - monto_cobrado) as saldo')
+                ->value('saldo') ?? 0;
+            $cuentasPagarChart[] = (float) EntradaCompra::where('estado_pago', '!=', 'pagado')
+                ->whereBetween('fecha_emision', [$start, $end])
+                ->withSum('detalles as total_compra', 'costo_total')
+                ->get()
+                ->sum(fn ($compra) => max(($compra->total_compra ?? 0) - $compra->monto_pagado, 0));
+
+            $ingresosPeriodo = (float) TransaccionFinanciera::where('tipo', 'ingreso')
+                ->whereBetween('fecha_transaccion', [$start, $end])
+                ->sum('monto');
+            $egresosPeriodo = (float) TransaccionFinanciera::where('tipo', 'egreso')
+                ->whereBetween('fecha_transaccion', [$start, $end])
+                ->sum('monto');
+            $flujoCajaChart[] = $ingresosPeriodo - $egresosPeriodo;
+            $asientosChart[] = AsientoContable::whereBetween('fecha', [$start, $end])->count();
         }
+
+        $stockSaludSeries = [
+            max($productosActivos - $productosStockBajo, 0),
+            $productosStockBajo,
+        ];
+
+        $produccionSeries = [
+            $ordenesEnProceso,
+            $ordenesCompletadas,
+            max($ordenesTotales - $ordenesEnProceso - $ordenesCompletadas, 0),
+        ];
 
         $productosAbc = Producto::where('estado', 'activo')
             ->select('id', 'nombre', 'stock_actual', 'precio_unitario')
@@ -193,6 +226,12 @@ class DashboardController extends Controller
             'mesesLabels',
             'ventasChart',
             'comprasChart',
+            'cuentasCobrarChart',
+            'cuentasPagarChart',
+            'flujoCajaChart',
+            'asientosChart',
+            'stockSaludSeries',
+            'produccionSeries',
             'abcSeries',
             'abcLabels',
             'abcTotales',
