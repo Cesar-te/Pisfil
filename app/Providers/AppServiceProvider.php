@@ -21,9 +21,12 @@ class AppServiceProvider extends ServiceProvider
     {
         \Illuminate\Support\Facades\View::composer('layouts.app', function ($view) {
             $menus = \App\Models\Menu::whereNull('padre_id')
-                ->with(['submenus' => function ($query) {
-                    $query->orderBy('orden');
-                }])
+                ->with([
+                    'permiso',
+                    'submenus.permiso',
+                    'submenus.submenus.permiso',
+                    'submenus.submenus.submenus.permiso',
+                ])
                 ->orderBy('orden')
                 ->get();
             $view->with('global_menus', $menus);

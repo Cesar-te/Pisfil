@@ -9,7 +9,9 @@
             const savedTheme = localStorage.getItem('pisfil-theme');
             const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
             const initialTheme = savedTheme || (prefersLight ? 'light' : 'dark');
+            const sidebarState = localStorage.getItem('pisfil-sidebar') || 'expanded';
             document.documentElement.setAttribute('data-theme', initialTheme);
+            document.documentElement.setAttribute('data-sidebar', sidebarState);
         })();
     </script>
 
@@ -152,13 +154,25 @@
         .nav li { margin-bottom: 4px; }
         .nav li a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-md); font-size: 14px; color: var(--text); text-decoration: none; font-weight: 500; transition: var(--transition); border-left: 3px solid transparent; }
         .nav li a i { font-size: 16px; width: 24px; text-align: center; color: var(--muted); transition: var(--transition); }
+        .nav-text { transition: var(--transition); }
         .nav li a:hover { background: var(--surface-2); transform: translateX(4px); }
         .nav li a.active { background: var(--surface-2); color: var(--primary); border-left-color: var(--primary); }
         .nav li a.active i { color: var(--primary); }
         .submenu { display: none; margin-left: 20px; border-left: 1px solid var(--line); padding-left: 10px; margin-top: 5px; }
+        .submenu .submenu { margin-left: 12px; padding-left: 8px; }
         .submenu.show { display: block; }
         .nav-toggle-icon { margin-left: auto !important; width: auto !important; transition: transform 0.3s ease; font-size: 12px !important; }
         .nav-toggle-icon.rotated { transform: rotate(90deg); }
+        [data-sidebar="collapsed"] .sidebar { width: 86px; }
+        [data-sidebar="collapsed"] .brand { justify-content: center; padding: 18px 10px; }
+        [data-sidebar="collapsed"] .brand-logo { width: 54px; height: 54px; border-radius: 14px; }
+        [data-sidebar="collapsed"] .brand-text,
+        [data-sidebar="collapsed"] .nav-text,
+        [data-sidebar="collapsed"] .nav-toggle-icon { display: none !important; }
+        [data-sidebar="collapsed"] .nav ul { padding: 0 10px; }
+        [data-sidebar="collapsed"] .nav li a { justify-content: center; gap: 0; padding: 12px 10px; border-left-width: 0; }
+        [data-sidebar="collapsed"] .nav li a:hover { transform: translateX(0); }
+        [data-sidebar="collapsed"] .submenu { display: none !important; }
 
         /* ---------- Main Content ---------- */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; scroll-behavior: smooth; position: relative; }
@@ -179,6 +193,9 @@
         }
         .topbar-left .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--primary); text-transform: uppercase; margin-bottom: 4px; }
         .topbar-left h1 { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin: 0; }
+        .topbar-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .topbar-title-stack { min-width: 0; }
+        .menu-toggle { flex-shrink: 0; }
         
         .topbar-right { display: flex; align-items: center; gap: 20px; }
         
@@ -292,43 +309,7 @@
         <nav class="nav">
             <ul>
                 @foreach($global_menus as $menu)
-                    @php
-                        $canViewMenu = !$menu->permiso_id || (auth()->user() && $menu->permiso && auth()->user()->hasPermission($menu->permiso->codigo));
-                        $visibleSubmenus = $menu->submenus->filter(function ($submenu) {
-                            return !$submenu->permiso_id || (auth()->user() && $submenu->permiso && auth()->user()->hasPermission($submenu->permiso->codigo));
-                        });
-                        $hasSubmenus = $visibleSubmenus->count() > 0;
-                        $isMenuExpanded = false;
-                        if ($hasSubmenus) {
-                            foreach($visibleSubmenus as $sub) {
-                                if ($sub->url && request()->is(ltrim($sub->url, '/').'*')) {
-                                    $isMenuExpanded = true;
-                                    break;
-                                }
-                            }
-                        }
-                    @endphp
-                    @if($canViewMenu || $hasSubmenus)
-                        <li>
-                            <a href="{{ $hasSubmenus ? '#' : ($menu->url ? url($menu->url) : '#') }}" class="{{ (!$hasSubmenus && $menu->url && request()->is(ltrim($menu->url, '/').'*')) ? 'active' : '' }} {{ $hasSubmenus ? 'toggle-submenu' : '' }}">
-                                <i class="{{ $menu->icono }}"></i> {{ $menu->nombre }}
-                                @if($hasSubmenus)
-                                    <i class="fas fa-chevron-right nav-toggle-icon {{ $isMenuExpanded ? 'rotated' : '' }}"></i>
-                                @endif
-                            </a>
-                            @if($hasSubmenus)
-                                <ul class="submenu {{ $isMenuExpanded ? 'show' : '' }}">
-                                    @foreach($visibleSubmenus as $submenu)
-                                        <li>
-                                            <a href="{{ $submenu->url ? url($submenu->url) : '#' }}" class="{{ $submenu->url && request()->is(ltrim($submenu->url, '/').'*') ? 'active' : '' }}" style="padding: 8px 12px; font-size: 13px;">
-                                                <i class="{{ $submenu->icono ?? 'fas fa-angle-right' }}"></i> {{ $submenu->nombre }}
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @endif
-                        </li>
-                    @endif
+                    @include('layouts.partials.menu-item', ['menu' => $menu, 'level' => 0])
                 @endforeach
             </ul>
         </nav>
@@ -340,8 +321,13 @@
         <!-- Topbar -->
         <header class="topbar">
             <div class="topbar-left">
-                <p class="eyebrow"><i class="fas fa-terminal"></i> Terminal Activa</p>
-                <h1>@yield('header_title', 'Panel de Control')</h1>
+                <button class="icon-btn menu-toggle" id="sidebarToggle" title="Contraer / expandir menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="topbar-title-stack">
+                    <p class="eyebrow"><i class="fas fa-terminal"></i> Terminal Activa</p>
+                    <h1>@yield('header_title', 'Panel de Control')</h1>
+                </div>
             </div>
 
             <div class="topbar-right">
@@ -397,7 +383,24 @@
     <script>
         // --- Lógica del Modo Oscuro/Claro (Theme Toggle) ---
         const themeToggle = document.getElementById('themeToggle');
+        const sidebarToggle = document.getElementById('sidebarToggle');
         const html = document.documentElement;
+
+        if (sidebarToggle) {
+            const sidebarIcon = sidebarToggle.querySelector('i');
+            const setSidebarIcon = () => {
+                sidebarIcon.className = html.getAttribute('data-sidebar') === 'collapsed' ? 'fas fa-bars-staggered' : 'fas fa-bars';
+            };
+            setSidebarIcon();
+
+            sidebarToggle.addEventListener('click', () => {
+                const isCollapsed = html.getAttribute('data-sidebar') === 'collapsed';
+                const nextState = isCollapsed ? 'expanded' : 'collapsed';
+                html.setAttribute('data-sidebar', nextState);
+                localStorage.setItem('pisfil-sidebar', nextState);
+                setSidebarIcon();
+            });
+        }
         
         if (themeToggle) {
             const themeIcon = themeToggle.querySelector('i');

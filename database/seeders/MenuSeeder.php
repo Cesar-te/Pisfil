@@ -151,11 +151,19 @@ class MenuSeeder extends Seeder
             'permiso_id' => Permiso::where('codigo', 'caja_bancos.view')->value('id'),
         ]);
 
-        Menu::updateOrCreate(['nombre' => 'Resumen Contable'], [
-            'url' => '/contabilidad',
+        $resumenContable = Menu::updateOrCreate(['nombre' => 'Resumen Contable'], [
+            'url' => null,
             'icono' => 'fas fa-calculator',
             'orden' => 2,
             'padre_id' => $finanzas->id,
+            'permiso_id' => Permiso::where('codigo', 'plan_contable.view')->value('id'),
+        ]);
+
+        Menu::updateOrCreate(['nombre' => 'Vista General'], [
+            'url' => '/contabilidad',
+            'icono' => 'fas fa-chart-simple',
+            'orden' => 0,
+            'padre_id' => $resumenContable->id,
             'permiso_id' => Permiso::where('codigo', 'plan_contable.view')->value('id'),
         ]);
 
@@ -170,24 +178,24 @@ class MenuSeeder extends Seeder
         Menu::updateOrCreate(['nombre' => 'Libro Diario'], [
             'url' => '/contabilidad/libro-diario',
             'icono' => 'fas fa-book-open',
-            'orden' => 4,
-            'padre_id' => $finanzas->id,
+            'orden' => 1,
+            'padre_id' => $resumenContable->id,
             'permiso_id' => Permiso::where('codigo', 'plan_contable.view')->value('id'),
         ]);
 
         Menu::updateOrCreate(['nombre' => 'Libro Mayor'], [
             'url' => '/contabilidad/libro-mayor',
             'icono' => 'fas fa-book',
-            'orden' => 5,
-            'padre_id' => $finanzas->id,
+            'orden' => 2,
+            'padre_id' => $resumenContable->id,
             'permiso_id' => Permiso::where('codigo', 'plan_contable.view')->value('id'),
         ]);
 
         Menu::updateOrCreate(['nombre' => 'Balance de Comprobacion'], [
             'url' => '/contabilidad/balance-comprobacion',
             'icono' => 'fas fa-balance-scale',
-            'orden' => 6,
-            'padre_id' => $finanzas->id,
+            'orden' => 3,
+            'padre_id' => $resumenContable->id,
             'permiso_id' => Permiso::where('codigo', 'plan_contable.view')->value('id'),
         ]);
 
