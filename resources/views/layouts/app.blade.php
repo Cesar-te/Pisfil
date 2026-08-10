@@ -202,6 +202,22 @@
         .icon-btn { position: relative; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-md); width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: var(--text); transition: var(--transition); }
         .icon-btn:hover { border-color: var(--primary); color: var(--primary); }
         .badge { position: absolute; top: -6px; right: -6px; background: var(--secondary); color: #fff; font-family: var(--font-mono); font-size: 10px; font-weight: 700; border-radius: 12px; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid var(--surface); animation: pulse 2s infinite; }
+        .badge.is-empty { background: var(--muted); animation: none; }
+        .notification-center { position: relative; }
+        .notification-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 12px); width: min(360px, calc(100vw - 32px)); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-md); overflow: hidden; z-index: 70; }
+        .notification-dropdown.show { display: block; }
+        .notification-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+        .notification-header strong { font-size: 14px; }
+        .notification-header span { color: var(--muted); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; }
+        .notification-list { display: flex; flex-direction: column; max-height: 360px; overflow-y: auto; }
+        .notification-item { display: grid; grid-template-columns: 34px 1fr; gap: 10px; padding: 13px 16px; color: var(--text); text-decoration: none; border-bottom: 1px solid var(--line); transition: var(--transition); }
+        .notification-item:last-child { border-bottom: none; }
+        .notification-item:hover { background: var(--surface-2); color: var(--text); }
+        .notification-icon { width: 34px; height: 34px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: rgba(63, 167, 218, 0.12); color: var(--primary); }
+        .notification-icon.warn { background: rgba(226, 114, 46, 0.12); color: var(--secondary); }
+        .notification-icon.ok { background: rgba(79, 174, 122, 0.12); color: var(--success); }
+        .notification-copy strong { display: block; font-size: 13px; margin-bottom: 3px; }
+        .notification-copy span { color: var(--muted); display: block; font-size: 12px; line-height: 1.35; }
         
         .user-chip { display: flex; align-items: center; gap: 12px; padding-left: 20px; border-left: 1px solid var(--line); position: relative; }
         .avatar { width: 42px; height: 42px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 14px; font-weight: 600; color: var(--primary); text-transform: uppercase; }
@@ -339,10 +355,33 @@
                 </button>
 
                 <!-- Notifications -->
-                <button class="icon-btn" title="Alertas">
-                    <i class="far fa-bell"></i>
-                    <span class="badge">0</span>
-                </button>
+                @auth
+                <div class="notification-center" id="notificationCenter">
+                    <button type="button" class="icon-btn" id="notificationToggle" title="Alertas" aria-expanded="false" aria-controls="notificationDropdown">
+                        <i class="far fa-bell"></i>
+                        <span class="badge {{ $global_notifications_count === 0 ? 'is-empty' : '' }}">{{ $global_notifications_count }}</span>
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <strong>Notificaciones</strong>
+                            <span>{{ $global_notifications_count }} pendiente(s)</span>
+                        </div>
+                        <div class="notification-list">
+                            @foreach($global_notifications as $notification)
+                                <a href="{{ $notification['url'] }}" class="notification-item">
+                                    <span class="notification-icon {{ $notification['tone'] }}">
+                                        <i class="{{ $notification['icon'] }}"></i>
+                                    </span>
+                                    <span class="notification-copy">
+                                        <strong>{{ $notification['title'] }}</strong>
+                                        <span>{{ $notification['description'] }}</span>
+                                    </span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endauth
 
                 <!-- Perfil -->
                 @auth
@@ -425,12 +464,18 @@
         }
 
         // --- Lógica de Menú de Usuario ---
+        const notificationCenter = document.getElementById('notificationCenter');
+        const notificationToggle = document.getElementById('notificationToggle');
+        const notificationDropdown = document.getElementById('notificationDropdown');
         const userMenuToggle = document.getElementById('userMenuToggle');
         const userDropdown = document.getElementById('userDropdown');
         
         if (userMenuToggle && userDropdown) {
             userMenuToggle.addEventListener('click', (e) => {
                 userDropdown.classList.toggle('show');
+                if (notificationDropdown) {
+                    notificationDropdown.classList.remove('show');
+                }
                 e.stopPropagation();
             });
 
@@ -442,6 +487,32 @@
         }
 
         // --- Lógica de Menú Acordeón ---
+        // --- Logica de Notificaciones ---
+        if (notificationCenter && notificationToggle && notificationDropdown) {
+            notificationToggle.addEventListener('click', (e) => {
+                const isOpen = notificationDropdown.classList.toggle('show');
+                notificationToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                if (userDropdown) {
+                    userDropdown.classList.remove('show');
+                }
+                e.stopPropagation();
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!notificationCenter.contains(e.target)) {
+                    notificationDropdown.classList.remove('show');
+                    notificationToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    notificationDropdown.classList.remove('show');
+                    notificationToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+
         const toggleSubmenus = document.querySelectorAll('.toggle-submenu');
         toggleSubmenus.forEach(toggle => {
             toggle.addEventListener('click', (e) => {
