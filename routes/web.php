@@ -18,6 +18,7 @@ use App\Http\Controllers\VentaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ContabilidadController;
 use App\Http\Controllers\CuentaContableController;
+use App\Http\Controllers\AuditoriaController;
 
 // Ruta principal del sistema
 Route::get('/', function () {
@@ -50,8 +51,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('/clasificacion-abc', [InventarioController::class, 'clasificacionABC'])->name('clasificacion_abc');
         
         // Movimientos Manuales Kardex
-        Route::get('/create-movimiento', [InventarioController::class, 'createMovimiento'])->name('create_movimiento');
-        Route::post('/store-movimiento', [InventarioController::class, 'storeMovimiento'])->name('store_movimiento');
+        Route::get('/create-movimiento', [InventarioController::class, 'createMovimiento'])->name('create_movimiento')->middleware('permission:inventario.create');
+        Route::post('/store-movimiento', [InventarioController::class, 'storeMovimiento'])->name('store_movimiento')->middleware('permission:inventario.create');
     });
 
     // Gestión de Productos
@@ -68,9 +69,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::resource('entradas-compra', EntradaCompraController::class)->parameters([
         'entradas-compra' => 'entradaCompra'
     ]);
-    Route::post('/entradas-compra/{entradaCompra}/cambiar-estado', [EntradaCompraController::class, 'cambiarEstado'])->name('entradas-compra.cambiar-estado');
+    Route::post('/entradas-compra/{entradaCompra}/cambiar-estado', [EntradaCompraController::class, 'cambiarEstado'])->name('entradas-compra.cambiar-estado')->middleware('permission:entradas.approve');
     Route::post('/entradas-compra/{entradaCompra}/agregar-detalle', [EntradaCompraController::class, 'agregarDetalle'])->name('entradas-compra.agregar-detalle');
-    Route::post('/entradas-compra/{entradaCompra}/registrar-pago', [EntradaCompraController::class, 'registrarPago'])->name('entradas-compra.registrar-pago');
+    Route::post('/entradas-compra/{entradaCompra}/registrar-pago', [EntradaCompraController::class, 'registrarPago'])->name('entradas-compra.registrar-pago')->middleware('permission:entradas.pay');
 
     // ========== GESTIÓN DE PRODUCCIÓN ==========
     Route::resource('ordenes-produccion', OrdenProduccionController::class)->parameters([
@@ -83,19 +84,19 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::post('/tareas-produccion/{tareaProduccion}/avance', [TareaProduccionController::class, 'updateAvance'])->name('tareas-produccion.avance');
     
     // Consumo de Materiales
-    Route::post('/ordenes-produccion/{ordenProduccion}/consumo', [ConsumoMaterialController::class, 'store'])->name('consumos-material.store');
+    Route::post('/ordenes-produccion/{ordenProduccion}/consumo', [ConsumoMaterialController::class, 'store'])->name('consumos-material.store')->middleware('permission:produccion.consume');
 
     // ========== GESTIÓN DE CAJA Y BANCOS (TESORERÍA) ==========
     Route::get('/caja-bancos', [CajaBancosController::class, 'dashboard'])->name('caja-bancos.dashboard');
     Route::post('/caja-bancos/cuentas', [CajaBancosController::class, 'storeCuenta'])->name('caja-bancos.store-cuenta');
     Route::get('/caja-bancos/cuentas/{cuenta}', [CajaBancosController::class, 'showCuenta'])->name('caja-bancos.show-cuenta');
-    Route::post('/caja-bancos/cuentas/{cuenta}/movimiento', [CajaBancosController::class, 'registrarMovimiento'])->name('caja-bancos.movimiento');
-    Route::post('/caja-bancos/cuentas/{cuentaOrigen}/transferencia', [CajaBancosController::class, 'registrarTransferencia'])->name('caja-bancos.transferencia');
+    Route::post('/caja-bancos/cuentas/{cuenta}/movimiento', [CajaBancosController::class, 'registrarMovimiento'])->name('caja-bancos.movimiento')->middleware('permission:transacciones.create');
+    Route::post('/caja-bancos/cuentas/{cuentaOrigen}/transferencia', [CajaBancosController::class, 'registrarTransferencia'])->name('caja-bancos.transferencia')->middleware('permission:transacciones.create');
 
     // ========== VENTAS Y CLIENTES ==========
     Route::resource('clientes', ClienteController::class)->except(['show', 'create', 'edit', 'destroy']);
     Route::resource('ventas', VentaController::class)->only(['index', 'create', 'store', 'show']);
-    Route::post('/ventas/{venta}/registrar-cobro', [VentaController::class, 'registrarCobro'])->name('ventas.registrar-cobro');
+    Route::post('/ventas/{venta}/registrar-cobro', [VentaController::class, 'registrarCobro'])->name('ventas.registrar-cobro')->middleware('permission:ventas.collect');
 
     // ========== REPORTES GERENCIALES ==========
     Route::get('/reportes', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
@@ -104,14 +105,15 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/contabilidad', [App\Http\Controllers\ContabilidadController::class, 'index'])->name('contabilidad.index');
     Route::get('/contabilidad/plan-cuentas', [App\Http\Controllers\ContabilidadController::class, 'planCuentas'])->name('contabilidad.plan_cuentas');
     Route::get('/contabilidad/libro-diario', [App\Http\Controllers\ContabilidadController::class, 'libroDiario'])->name('contabilidad.libro_diario');
-    Route::get('/contabilidad/libro-diario/exportar', [App\Http\Controllers\ContabilidadController::class, 'exportLibroDiario'])->name('contabilidad.libro_diario.exportar');
+    Route::get('/contabilidad/libro-diario/exportar', [App\Http\Controllers\ContabilidadController::class, 'exportLibroDiario'])->name('contabilidad.libro_diario.exportar')->middleware('permission:contabilidad.export');
     Route::get('/contabilidad/libro-mayor', [App\Http\Controllers\ContabilidadController::class, 'libroMayor'])->name('contabilidad.libro_mayor');
-    Route::get('/contabilidad/libro-mayor/exportar', [App\Http\Controllers\ContabilidadController::class, 'exportLibroMayor'])->name('contabilidad.libro_mayor.exportar');
+    Route::get('/contabilidad/libro-mayor/exportar', [App\Http\Controllers\ContabilidadController::class, 'exportLibroMayor'])->name('contabilidad.libro_mayor.exportar')->middleware('permission:contabilidad.export');
     Route::get('/contabilidad/balance-comprobacion', [App\Http\Controllers\ContabilidadController::class, 'balanceComprobacion'])->name('contabilidad.balance_comprobacion');
-    Route::get('/contabilidad/balance-comprobacion/exportar', [App\Http\Controllers\ContabilidadController::class, 'exportBalanceComprobacion'])->name('contabilidad.balance_comprobacion.exportar');
+    Route::get('/contabilidad/balance-comprobacion/exportar', [App\Http\Controllers\ContabilidadController::class, 'exportBalanceComprobacion'])->name('contabilidad.balance_comprobacion.exportar')->middleware('permission:contabilidad.export');
     Route::resource('cuentas-contables', CuentaContableController::class);
 
     // ========== GESTIÓN ADMINISTRATIVA ==========
+    Route::get('/auditorias', [AuditoriaController::class, 'index'])->name('auditorias.index')->middleware('permission:auditoria.view');
     Route::resource('usuarios', App\Http\Controllers\UsuarioController::class)->except(['show', 'destroy']);
     Route::resource('roles', RolController::class)->except(['show', 'destroy']);
 

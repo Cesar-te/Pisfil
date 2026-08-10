@@ -6,6 +6,7 @@ use App\Models\ConsumoMaterial;
 use App\Models\OrdenProduccion;
 use App\Models\Kardex;
 use App\Services\AsientoContableService;
+use App\Services\AuditoriaService;
 use App\Services\KardexService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -63,6 +64,7 @@ class ConsumoMaterialController extends Controller
             ]);
 
             $asientoService->registrarConsumoProduccion($consumo, Auth::id());
+            AuditoriaService::registrar('produccion.consumo_material', $consumo, null, $consumo->toArray());
 
             DB::commit();
 

@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Services\AsientoContableService;
+use App\Services\AuditoriaService;
 
 class CajaBancosController extends Controller
 {
@@ -39,7 +40,8 @@ class CajaBancosController extends Controller
             'saldo_actual' => 'required|numeric|min:0'
         ]);
 
-        CuentaFinanciera::create($validated);
+        $cuenta = CuentaFinanciera::create($validated);
+        AuditoriaService::registrar('cuenta_financiera.creada', $cuenta, null, $cuenta->toArray());
 
         return redirect()->route('caja-bancos.dashboard')->with('success', 'Cuenta registrada exitosamente.');
     }
@@ -92,6 +94,7 @@ class CajaBancosController extends Controller
             }
 
             $asientoService->registrarMovimientoManual($transaccion);
+            AuditoriaService::registrar('tesoreria.movimiento_registrado', $transaccion, null, $transaccion->toArray());
 
             DB::commit();
             return back()->with('success', 'Movimiento registrado correctamente.');
@@ -147,6 +150,13 @@ class CajaBancosController extends Controller
             ]);
             $cuentaDestino->increment('saldo_actual', $validated['monto']);
             $asientoService->registrarTransferencia($salida, $entrada);
+            AuditoriaService::registrar('tesoreria.transferencia_registrada', $salida, null, [
+                'salida_id' => $salida->id,
+                'entrada_id' => $entrada->id,
+                'cuenta_origen_id' => $cuentaOrigen->id,
+                'cuenta_destino_id' => $cuentaDestino->id,
+                'monto' => $validated['monto'],
+            ]);
 
             DB::commit();
             return back()->with('success', 'Transferencia completada correctamente.');

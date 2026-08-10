@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Services\AuditoriaService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -26,7 +27,8 @@ class ClienteController extends Controller
             'email' => 'nullable|string|email|max:100',
         ]);
 
-        Cliente::create($validated);
+        $cliente = Cliente::create($validated);
+        AuditoriaService::registrar('cliente.creado', $cliente, null, $cliente->toArray());
         return back()->with('success', 'Cliente registrado correctamente.');
     }
 
@@ -41,7 +43,9 @@ class ClienteController extends Controller
             'estado' => 'required|boolean',
         ]);
 
+        $antes = $cliente->only(array_keys($validated));
         $cliente->update($validated);
+        AuditoriaService::registrar('cliente.actualizado', $cliente, $antes, $cliente->fresh()->only(array_keys($validated)));
         return back()->with('success', 'Cliente actualizado correctamente.');
     }
 }

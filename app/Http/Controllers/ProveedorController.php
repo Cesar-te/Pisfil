@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Proveedor;
+use App\Services\AuditoriaService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -48,7 +49,8 @@ class ProveedorController extends Controller
             'plazo_entrega' => 'nullable|integer|min:0',
         ]);
 
-        Proveedor::create($validated);
+        $proveedor = Proveedor::create($validated);
+        AuditoriaService::registrar('proveedor.creado', $proveedor, null, $proveedor->toArray());
 
         return redirect()->route('proveedores.index')
             ->with('success', 'Proveedor creado exitosamente');
@@ -94,7 +96,9 @@ class ProveedorController extends Controller
             'estado' => 'nullable|boolean',
         ]);
 
+        $antes = $proveedor->only(array_keys($validated));
         $proveedor->update($validated);
+        AuditoriaService::registrar('proveedor.actualizado', $proveedor, $antes, $proveedor->fresh()->only(array_keys($validated)));
 
         return redirect()->route('proveedores.index')
             ->with('success', 'Proveedor actualizado exitosamente');
@@ -105,7 +109,9 @@ class ProveedorController extends Controller
      */
     public function destroy(Proveedor $proveedor): RedirectResponse
     {
+        $antes = $proveedor->toArray();
         $proveedor->delete();
+        AuditoriaService::registrar('proveedor.eliminado', $proveedor, $antes, null);
 
         return redirect()->route('proveedores.index')
             ->with('success', 'Proveedor eliminado exitosamente');

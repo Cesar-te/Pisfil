@@ -2,40 +2,48 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Rol;
 use App\Models\Permiso;
+use App\Models\Rol;
+use Illuminate\Database\Seeder;
 
 class RolSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $permisosData = [
-            ['codigo' => '*', 'descripcion' => 'Acceso Total al Sistema'],
-            ['codigo' => 'dashboard.view', 'descripcion' => 'Ver Dashboard General'],
-            ['codigo' => 'inventario.view', 'descripcion' => 'Acceso a Módulo de Inventario'],
-            ['codigo' => 'kardex.view', 'descripcion' => 'Ver movimientos de Kárdex'],
-            ['codigo' => 'entradas.view', 'descripcion' => 'Ver listado de Entradas/Compras'],
-            ['codigo' => 'entradas.create', 'descripcion' => 'Crear nuevas Entradas/Compras'],
-            ['codigo' => 'ventas.view', 'descripcion' => 'Ver listado de Ventas'],
-            ['codigo' => 'ventas.create', 'descripcion' => 'Crear nuevas Ventas'],
-            ['codigo' => 'produccion.view', 'descripcion' => 'Acceso a Módulo de Producción'],
-            ['codigo' => 'tareas.view', 'descripcion' => 'Ver Tareas de Producción'],
+            ['codigo' => '*', 'descripcion' => 'Acceso total al sistema'],
+            ['codigo' => 'dashboard.view', 'descripcion' => 'Ver dashboard general'],
+            ['codigo' => 'inventario.view', 'descripcion' => 'Acceso a modulo de inventario'],
+            ['codigo' => 'inventario.create', 'descripcion' => 'Crear movimientos de inventario'],
+            ['codigo' => 'inventario.export', 'descripcion' => 'Exportar reportes de inventario'],
+            ['codigo' => 'kardex.view', 'descripcion' => 'Ver movimientos de Kardex'],
+            ['codigo' => 'entradas.view', 'descripcion' => 'Ver listado de entradas/compras'],
+            ['codigo' => 'entradas.create', 'descripcion' => 'Crear nuevas entradas/compras'],
+            ['codigo' => 'entradas.approve', 'descripcion' => 'Aprobar o cambiar estado de compras'],
+            ['codigo' => 'entradas.pay', 'descripcion' => 'Registrar pagos de compras'],
+            ['codigo' => 'ventas.view', 'descripcion' => 'Ver listado de ventas'],
+            ['codigo' => 'ventas.create', 'descripcion' => 'Crear nuevas ventas'],
+            ['codigo' => 'ventas.collect', 'descripcion' => 'Registrar cobros de ventas'],
+            ['codigo' => 'produccion.view', 'descripcion' => 'Acceso a modulo de produccion'],
+            ['codigo' => 'produccion.create', 'descripcion' => 'Crear ordenes de produccion'],
+            ['codigo' => 'produccion.consume', 'descripcion' => 'Registrar consumo de materiales'],
+            ['codigo' => 'tareas.view', 'descripcion' => 'Ver tareas de produccion'],
             ['codigo' => 'tareas.update_avance', 'descripcion' => 'Actualizar avance de tareas'],
             ['codigo' => 'reportes.view', 'descripcion' => 'Ver reportes gerenciales'],
             ['codigo' => 'reportes.create', 'descripcion' => 'Crear reportes'],
-            ['codigo' => 'caja_bancos.view', 'descripcion' => 'Acceso a Módulo de Caja y Bancos'],
+            ['codigo' => 'reportes.export', 'descripcion' => 'Exportar reportes'],
+            ['codigo' => 'caja_bancos.view', 'descripcion' => 'Acceso a modulo de caja y bancos'],
             ['codigo' => 'caja_bancos.create', 'descripcion' => 'Crear cuentas bancarias'],
             ['codigo' => 'caja_bancos.update', 'descripcion' => 'Editar cuentas bancarias'],
             ['codigo' => 'transacciones.view', 'descripcion' => 'Ver transacciones financieras'],
             ['codigo' => 'transacciones.create', 'descripcion' => 'Crear transacciones financieras'],
             ['codigo' => 'plan_contable.view', 'descripcion' => 'Ver plan contable'],
             ['codigo' => 'plan_contable.manage', 'descripcion' => 'Gestionar plan contable'],
-            ['codigo' => 'usuarios.manage', 'descripcion' => 'Gestionar Usuarios'],
-            ['codigo' => 'roles.manage', 'descripcion' => 'Gestionar Roles y Permisos'],
+            ['codigo' => 'contabilidad.export', 'descripcion' => 'Exportar libros contables'],
+            ['codigo' => 'auditoria.view', 'descripcion' => 'Ver auditoria de operaciones'],
+            ['codigo' => 'backup.run', 'descripcion' => 'Ejecutar copias de seguridad'],
+            ['codigo' => 'usuarios.manage', 'descripcion' => 'Gestionar usuarios'],
+            ['codigo' => 'roles.manage', 'descripcion' => 'Gestionar roles y permisos'],
         ];
 
         foreach ($permisosData as $permiso) {
@@ -53,10 +61,11 @@ class RolSeeder extends Seeder
             [
                 'codigo' => 'operario',
                 'nombre' => 'Operario',
-                'descripcion' => 'Operario de Producción - Acceso a tareas y reportes',
+                'descripcion' => 'Operario de Produccion - Acceso a tareas y reportes',
                 'estado' => true,
                 'permisos' => [
                     'produccion.view',
+                    'produccion.consume',
                     'tareas.view',
                     'tareas.update_avance',
                     'reportes.view',
@@ -65,14 +74,17 @@ class RolSeeder extends Seeder
             ],
             [
                 'codigo' => 'encargado_almacen',
-                'nombre' => 'Encargado de Almacén',
-                'descripcion' => 'Encargado de Almacén - Gestión de inventario',
+                'nombre' => 'Encargado de Almacen',
+                'descripcion' => 'Encargado de Almacen - Gestion de inventario',
                 'estado' => true,
                 'permisos' => [
                     'inventario.view',
+                    'inventario.create',
+                    'inventario.export',
                     'kardex.view',
                     'entradas.view',
                     'entradas.create',
+                    'entradas.approve',
                 ],
             ],
             [
@@ -87,7 +99,9 @@ class RolSeeder extends Seeder
                     'transacciones.view',
                     'transacciones.create',
                     'plan_contable.view',
+                    'contabilidad.export',
                     'reportes.view',
+                    'reportes.export',
                 ],
             ],
         ];
@@ -95,10 +109,8 @@ class RolSeeder extends Seeder
         foreach ($roles as $rolData) {
             $permisos = $rolData['permisos'];
             unset($rolData['permisos']);
-            
+
             $rol = Rol::updateOrCreate(['codigo' => $rolData['codigo']], $rolData);
-            
-            // Attach permissions
             $permisoIds = Permiso::whereIn('codigo', $permisos)->pluck('id')->toArray();
             $rol->permisos()->sync($permisoIds);
         }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kardex;
 use App\Models\Producto;
 use App\Models\EntradaCompra;
+use App\Services\AuditoriaService;
 use App\Services\KardexService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -174,7 +175,7 @@ class InventarioController extends Controller
                 return back()->withInput()->withErrors(['precio_unitario' => 'El precio unitario es obligatorio para entradas.']);
             }
 
-            $kardexService->registrarMovimiento(
+            $kardex = $kardexService->registrarMovimiento(
                 $validated['producto_id'],
                 $validated['tipo_movimiento'],
                 $validated['cantidad'],
@@ -184,6 +185,7 @@ class InventarioController extends Controller
                 null, // Referencia ID
                 $validated['observaciones']
             );
+            AuditoriaService::registrar('inventario.movimiento_manual', $kardex, null, $kardex->toArray());
 
             return redirect()->route('inventario.movimientos_kardex')
                 ->with('success', 'Movimiento registrado correctamente en el Kárdex.');

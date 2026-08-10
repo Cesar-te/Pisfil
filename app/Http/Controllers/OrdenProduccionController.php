@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\OrdenProduccion;
 use App\Models\User;
 use App\Models\ProcesoProduccion;
+use App\Services\AuditoriaService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -42,7 +43,8 @@ class OrdenProduccionController extends Controller
         $validated['usuario_creador_id'] = Auth::id();
         $validated['estado'] = OrdenProduccion::ESTADO_PLANIFICADA;
 
-        OrdenProduccion::create($validated);
+        $orden = OrdenProduccion::create($validated);
+        AuditoriaService::registrar('produccion.orden_creada', $orden, null, $orden->toArray());
 
         return redirect()->route('ordenes-produccion.index')
             ->with('success', 'Orden de Producción creada exitosamente');
@@ -72,7 +74,9 @@ class OrdenProduccionController extends Controller
             $ordenProduccion->fecha_fin_real = now();
         }
 
+        $antes = $ordenProduccion->only(['estado', 'fecha_inicio_real', 'fecha_fin_real']);
         $ordenProduccion->update(['estado' => $validated['estado']]);
+        AuditoriaService::registrar('produccion.estado_actualizado', $ordenProduccion, $antes, $ordenProduccion->fresh()->only(['estado', 'fecha_inicio_real', 'fecha_fin_real']));
 
         return back()->with('success', 'Estado de la orden actualizado.');
     }

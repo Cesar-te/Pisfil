@@ -11,6 +11,7 @@ use App\Models\TransaccionFinanciera;
 use App\Models\Kardex;
 use App\Services\KardexService;
 use App\Services\AsientoContableService;
+use App\Services\AuditoriaService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -147,6 +148,10 @@ class VentaController extends Controller
             $ventaActualizada = $venta->fresh(['cliente', 'cuentaFinanciera']);
             $asientoService->registrarVenta($ventaActualizada, Auth::id());
             $asientoService->registrarCostoVenta($ventaActualizada, Auth::id());
+            AuditoriaService::registrar('venta.creada', $ventaActualizada, null, [
+                'venta' => $ventaActualizada->toArray(),
+                'total' => $total,
+            ]);
 
             DB::commit();
 
@@ -214,6 +219,11 @@ class VentaController extends Controller
 
             $cuenta->increment('saldo_actual', $validated['monto']);
             $asientoService->registrarCobroVenta($venta->fresh('cliente'), $transaccion);
+            AuditoriaService::registrar('venta.cobro_registrado', $venta, null, [
+                'monto' => $validated['monto'],
+                'transaccion_id' => $transaccion->id,
+                'estado_pago' => $estadoPago,
+            ]);
 
             DB::commit();
             return back()->with('success', 'Cobro registrado exitosamente. Se ha ingresado el dinero a tesorería.');

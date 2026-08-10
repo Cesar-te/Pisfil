@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Producto;
+use App\Services\AuditoriaService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -49,7 +50,8 @@ class ProductoController extends Controller
             'estado' => 'nullable|string',
         ]);
 
-        Producto::create($validated);
+        $producto = Producto::create($validated);
+        AuditoriaService::registrar('producto.creado', $producto, null, $producto->toArray());
 
         return redirect()->route('productos.index')
             ->with('success', 'Producto creado exitosamente');
@@ -97,7 +99,9 @@ class ProductoController extends Controller
             unset($validated['stock_actual']);
         }
 
+        $antes = $producto->only(array_keys($validated));
         $producto->update($validated);
+        AuditoriaService::registrar('producto.actualizado', $producto, $antes, $producto->fresh()->only(array_keys($validated)));
 
         return redirect()->route('productos.index')
             ->with('success', 'Producto actualizado exitosamente');
@@ -108,7 +112,9 @@ class ProductoController extends Controller
      */
     public function destroy(Producto $producto): RedirectResponse
     {
+        $antes = $producto->toArray();
         $producto->delete();
+        AuditoriaService::registrar('producto.eliminado', $producto, $antes, null);
 
         return redirect()->route('productos.index')
             ->with('success', 'Producto eliminado exitosamente');

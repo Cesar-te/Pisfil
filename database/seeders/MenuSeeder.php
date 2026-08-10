@@ -241,5 +241,13 @@ class MenuSeeder extends Seeder
             'padre_id' => $admin->id,
             'permiso_id' => Permiso::where('codigo', 'roles.manage')->value('id'),
         ]);
+
+        Menu::updateOrCreate(['nombre' => 'Auditoria'], [
+            'url' => '/auditorias',
+            'icono' => 'fas fa-shield-alt',
+            'orden' => 3,
+            'padre_id' => $admin->id,
+            'permiso_id' => Permiso::where('codigo', 'auditoria.view')->value('id'),
+        ]);
     }
 }

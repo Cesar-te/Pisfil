@@ -9,6 +9,7 @@ use App\Models\Producto;
 use App\Models\Kardex;
 use App\Services\KardexService;
 use App\Services\AsientoContableService;
+use App\Services\AuditoriaService;
 use App\Models\CuentaFinanciera;
 use App\Models\TransaccionFinanciera;
 use Illuminate\Http\Request;
@@ -56,7 +57,8 @@ class EntradaCompraController extends Controller
         $validated['usuario_id'] = Auth::id();
         $validated['estado'] = 'pendiente';
 
-        EntradaCompra::create($validated);
+        $entrada = EntradaCompra::create($validated);
+        AuditoriaService::registrar('compra.creada', $entrada, null, $entrada->toArray());
 
         return redirect()->route('entradas-compra.index')
             ->with('success', 'Entrada de compra creada exitosamente');
@@ -96,7 +98,9 @@ class EntradaCompraController extends Controller
             'estado' => 'required|in:pendiente,recibida,validada,rechazada',
         ]);
 
+        $antes = $entradaCompra->only(array_keys($validated));
         $entradaCompra->update($validated);
+        AuditoriaService::registrar('compra.actualizada', $entradaCompra, $antes, $entradaCompra->fresh()->only(array_keys($validated)));
 
         return redirect()->route('entradas-compra.index')
             ->with('success', 'Entrada actualizada exitosamente');
@@ -139,7 +143,9 @@ class EntradaCompraController extends Controller
                 $asientoService->registrarCompra($entradaCompra->fresh(['proveedor', 'detalles']), Auth::id());
             }
 
+            $antes = $entradaCompra->only(array_keys($datosActualizacion));
             $entradaCompra->update($datosActualizacion);
+            AuditoriaService::registrar('compra.estado_actualizado', $entradaCompra, $antes, $entradaCompra->fresh()->only(array_keys($datosActualizacion)));
 
             DB::commit();
             return back()->with('success', 'Estado actualizado y Kárdex procesado (si aplica).');
@@ -198,6 +204,11 @@ class EntradaCompraController extends Controller
 
             $cuenta->decrement('saldo_actual', $validated['monto']);
             $asientoService->registrarPagoCompra($entradaCompra->fresh('proveedor'), $transaccion);
+            AuditoriaService::registrar('compra.pago_registrado', $entradaCompra, null, [
+                'monto' => $validated['monto'],
+                'transaccion_id' => $transaccion->id,
+                'estado_pago' => $estadoPago,
+            ]);
 
             DB::commit();
             return back()->with('success', 'Pago registrado exitosamente. Se ha descontado el saldo de tesorería.');
@@ -213,7 +224,9 @@ class EntradaCompraController extends Controller
      */
     public function destroy(EntradaCompra $entradaCompra): RedirectResponse
     {
+        $antes = $entradaCompra->toArray();
         $entradaCompra->delete();
+        AuditoriaService::registrar('compra.eliminada', $entradaCompra, $antes, null);
 
         return redirect()->route('entradas-compra.index')
             ->with('success', 'Entrada eliminada exitosamente');
@@ -240,6 +253,7 @@ class EntradaCompraController extends Controller
             'precio_unitario' => $validated['precio_unitario'],
             'costo_total' => $costo_total,
         ]);
+        AuditoriaService::registrar('compra.detalle_agregado', $entradaCompra, null, $detalle->toArray());
 
         return response()->json([
             'success' => true,
