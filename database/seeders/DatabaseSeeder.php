@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolSeeder::class,
             MenuSeeder::class,
+            PlanContableSeeder::class,
             CategoriaSeeder::class,
             UnidadMedidaSeeder::class,
             ProcesoProduccionSeeder::class,

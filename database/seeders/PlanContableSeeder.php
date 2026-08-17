@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\CuentaContable;
-use Illuminate\Support\Facades\DB;
 
 class PlanContableSeeder extends Seeder
 {
@@ -13,10 +12,6 @@ class PlanContableSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        CuentaContable::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
         $cuentas = [
             // ELEMENTO 1: ACTIVO DISPONIBLE Y EXIGIBLE
             ['codigo' => '10', 'descripcion' => 'Efectivo y equivalentes de efectivo', 'elemento' => '1', 'tipo' => 'Activo'],
@@ -138,13 +133,16 @@ class PlanContableSeeder extends Seeder
         $idMap = [];
         foreach ($cuentas as $cuentaData) {
             if (!isset($cuentaData['padre_codigo'])) {
-                $cuenta = CuentaContable::create([
+                $cuenta = CuentaContable::updateOrCreate([
+                    'codigo' => $cuentaData['codigo'],
+                ], [
                     'codigo' => $cuentaData['codigo'],
                     'descripcion' => $cuentaData['descripcion'],
                     'elemento' => $cuentaData['elemento'],
                     'nivel' => strlen($cuentaData['codigo']),
                     'tipo' => $cuentaData['tipo'],
-                    'estado' => true
+                    'padre_id' => null,
+                    'estado' => true,
                 ]);
                 $idMap[$cuenta->codigo] = $cuenta->id;
             }
@@ -168,14 +166,16 @@ class PlanContableSeeder extends Seeder
                         case '7': $padreTipo = 'Ingreso'; break;
                     }
 
-                    CuentaContable::create([
+                    CuentaContable::updateOrCreate([
+                        'codigo' => $cuentaData['codigo'],
+                    ], [
                         'codigo' => $cuentaData['codigo'],
                         'descripcion' => $cuentaData['descripcion'],
                         'elemento' => $padreElemento,
                         'nivel' => strlen($cuentaData['codigo']),
                         'tipo' => $padreTipo,
                         'padre_id' => $padreId,
-                        'estado' => true
+                        'estado' => true,
                     ]);
                 }
             }
