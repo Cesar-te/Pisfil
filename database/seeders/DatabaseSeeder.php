@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         // Ejecutar seeders en orden de dependencias
         $this->call([
             RolSeeder::class,
+            MenuSeeder::class,
             CategoriaSeeder::class,
             UnidadMedidaSeeder::class,
             ProcesoProduccionSeeder::class,
