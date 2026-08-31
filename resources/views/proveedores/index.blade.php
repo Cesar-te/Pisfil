@@ -178,8 +178,10 @@
             @csrf
             <div class="provider-form-grid">
                 <div class="provider-field">
-                    <label for="codigo">Codigo</label>
-                    <input type="text" id="codigo" name="codigo" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo" value="{{ old('codigo') }}">
+                    <label for="codigo">Codigo <span style="font-size: 10px; color: var(--success); font-family: var(--font-mono); margin-left: 4px;">AUTO</span></label>
+                    <input type="text" id="codigo" readonly
+                        value="{{ $codigoSugerido }}"
+                        style="color: var(--primary); font-family: var(--font-mono); font-weight: 600; cursor: not-allowed; opacity: 0.8;">
                 </div>
                 <div class="provider-field">
                     <label for="ruc">RUC</label>

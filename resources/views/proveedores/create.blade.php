@@ -31,8 +31,13 @@
         
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 20px;">
             <div>
-                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Código Interno</label>
-                <input type="text" name="codigo" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo" placeholder="PRV-001" value="{{ old('codigo') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); font-family: var(--font-mono); outline: none;">
+                <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">
+                    Código Interno
+                    <span style="margin-left: 6px; font-size: 10px; color: var(--success); font-family: var(--font-mono);">AUTO</span>
+                </label>
+                <input type="text" readonly
+                    value="{{ $codigoSugerido }}"
+                    style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); color: var(--primary); font-family: var(--font-mono); font-weight: 600; cursor: not-allowed; opacity: 0.8; outline: none;">
             </div>
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">RUC (Opcional)</label>

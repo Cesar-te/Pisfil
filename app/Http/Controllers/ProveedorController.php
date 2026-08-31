@@ -12,13 +12,26 @@ use Illuminate\Validation\Rule;
 class ProveedorController extends Controller
 {
     /**
+     * Genera el siguiente código de proveedor: PRV-001, PRV-002 ...
+     */
+    private function siguienteCodigo(): string
+    {
+        $max = Proveedor::where('codigo', 'like', 'PRV-%')
+            ->selectRaw('MAX(CAST(SUBSTRING(codigo, 5) AS UNSIGNED)) as max_num')
+            ->value('max_num');
+
+        return 'PRV-' . str_pad(($max ?? 0) + 1, 3, '0', STR_PAD_LEFT);
+    }
+
+    /**
      * Mostrar lista de proveedores
      */
     public function index(): View
     {
         $proveedores = Proveedor::orderBy('nombre_empresa')->paginate(15);
+        $codigoSugerido = $this->siguienteCodigo();
 
-        return view('proveedores.index', compact('proveedores'));
+        return view('proveedores.index', compact('proveedores', 'codigoSugerido'));
     }
 
     /**
@@ -26,7 +39,8 @@ class ProveedorController extends Controller
      */
     public function create(): View
     {
-        return view('proveedores.create');
+        $codigoSugerido = $this->siguienteCodigo();
+        return view('proveedores.create', compact('codigoSugerido'));
     }
 
     /**
@@ -35,20 +49,22 @@ class ProveedorController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'codigo' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9._-]+$/', Rule::unique('proveedores')],
-            'nombre_empresa' => 'required|string|max:150',
-            'nombre_contacto' => 'nullable|string|max:100',
+            'nombre_empresa'      => 'required|string|max:150',
+            'nombre_contacto'     => 'nullable|string|max:100',
             'documento_identidad' => ['nullable', 'digits:8'],
-            'ruc' => ['nullable', 'digits:11', Rule::unique('proveedores', 'ruc')],
-            'email' => 'nullable|email',
-            'telefono' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
-            'celular' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
-            'direccion' => 'nullable|string',
-            'ciudad' => 'nullable|string|max:100',
-            'pais' => 'nullable|string|max:100',
-            'condicion_pago' => 'nullable|string|max:50',
-            'plazo_entrega' => 'nullable|integer|min:0',
+            'ruc'                 => ['nullable', 'digits:11', Rule::unique('proveedores', 'ruc')],
+            'email'               => 'nullable|email',
+            'telefono'            => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
+            'celular'             => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
+            'direccion'           => 'nullable|string',
+            'ciudad'              => 'nullable|string|max:100',
+            'pais'                => 'nullable|string|max:100',
+            'condicion_pago'      => 'nullable|string|max:50',
+            'plazo_entrega'       => 'nullable|integer|min:0',
         ]);
+
+        // Código generado automáticamente (evita duplicados)
+        $validated['codigo'] = $this->siguienteCodigo();
 
         $proveedor = Proveedor::create($validated);
         AuditoriaService::registrar('proveedor.creado', $proveedor, null, $proveedor->toArray());
@@ -81,20 +97,20 @@ class ProveedorController extends Controller
     public function update(Request $request, Proveedor $proveedor): RedirectResponse
     {
         $validated = $request->validate([
-            'codigo' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9._-]+$/', Rule::unique('proveedores', 'codigo')->ignore($proveedor->id)],
-            'nombre_empresa' => 'required|string|max:150',
-            'nombre_contacto' => 'nullable|string|max:100',
+            'codigo'              => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9._-]+$/', Rule::unique('proveedores', 'codigo')->ignore($proveedor->id)],
+            'nombre_empresa'      => 'required|string|max:150',
+            'nombre_contacto'     => 'nullable|string|max:100',
             'documento_identidad' => ['nullable', 'digits:8'],
-            'ruc' => ['nullable', 'digits:11', Rule::unique('proveedores', 'ruc')->ignore($proveedor->id)],
-            'email' => 'nullable|email',
-            'telefono' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
-            'celular' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
-            'direccion' => 'nullable|string',
-            'ciudad' => 'nullable|string|max:100',
-            'pais' => 'nullable|string|max:100',
-            'condicion_pago' => 'nullable|string|max:50',
-            'plazo_entrega' => 'nullable|integer|min:0',
-            'estado' => 'nullable|boolean',
+            'ruc'                 => ['nullable', 'digits:11', Rule::unique('proveedores', 'ruc')->ignore($proveedor->id)],
+            'email'               => 'nullable|email',
+            'telefono'            => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
+            'celular'             => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
+            'direccion'           => 'nullable|string',
+            'ciudad'              => 'nullable|string|max:100',
+            'pais'                => 'nullable|string|max:100',
+            'condicion_pago'      => 'nullable|string|max:50',
+            'plazo_entrega'       => 'nullable|integer|min:0',
+            'estado'              => 'nullable|boolean',
         ]);
 
         $antes = $proveedor->only(array_keys($validated));
