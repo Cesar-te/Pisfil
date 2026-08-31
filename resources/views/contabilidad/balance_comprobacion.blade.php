@@ -64,7 +64,7 @@
 <section class="panel table-panel stagger-2">
     <div class="panel-head mb-4">
         <h2>Balance por cuenta contable</h2>
-        <span class="hint">Debe y Haber deben cuadrar</span>
+ 
     </div>
     <div style="overflow-x: auto;">
         <table class="table-sm">
