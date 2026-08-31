@@ -58,7 +58,7 @@
                     <div>
                         <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">
                             Serie
-                            <span style="margin-left: 6px; font-size: 10px; color: var(--success); font-family: var(--font-mono);">AUTO</span>
+
                         </label>
                         <input type="text" id="displaySerie" readonly
                             value="{{ $series['Factura'] }}"
