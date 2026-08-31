@@ -66,6 +66,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         ->name('productos.activos')
         ->middleware('permission:inventario.view');
 
+    // Categorías (AJAX)
+    Route::get('/categorias', [ProductoController::class, 'categoriasIndex'])->name('categorias.index')->middleware('permission:inventario.view');
+    Route::post('/categorias', [ProductoController::class, 'categoriasStore'])->name('categorias.store')->middleware('permission:inventario.create');
+
     Route::get('/proveedores', [ProveedorController::class, 'index'])->name('proveedores.index')->middleware('permission:entradas.view');
     Route::get('/proveedores/create', [ProveedorController::class, 'create'])->name('proveedores.create')->middleware('permission:entradas.create');
     Route::post('/proveedores', [ProveedorController::class, 'store'])->name('proveedores.store')->middleware('permission:entradas.create');
