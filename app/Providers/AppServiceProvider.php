@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Paginator::defaultView('vendor.pagination.pisfil');
         \Illuminate\Support\Facades\View::composer('layouts.app', function ($view) {
             $menus = \App\Models\Menu::whereNull('padre_id')
                 ->with([
