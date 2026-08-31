@@ -135,4 +135,37 @@ class ProductoController extends Controller
                 ->get()
         );
     }
+
+    /**
+     * Listar categorías activas (AJAX)
+     */
+    public function categoriasIndex()
+    {
+        return response()->json(\App\Models\Categoria::where('estado', true)->orderBy('nombre')->get(['id', 'nombre']));
+    }
+
+    /**
+     * Crear nueva categoría (AJAX desde modal de productos)
+     */
+    public function categoriasStore(Request $request)
+    {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:100|unique:categorias,nombre',
+        ]);
+
+        // Generar código automático: CAT-01, CAT-02 ...
+        $max = \App\Models\Categoria::where('codigo', 'like', 'CAT-%')
+            ->selectRaw('MAX(CAST(SUBSTRING(codigo, 5) AS UNSIGNED)) as max_num')
+            ->value('max_num');
+        $validated['codigo'] = 'CAT-' . str_pad(($max ?? 0) + 1, 2, '0', STR_PAD_LEFT);
+        $validated['estado'] = true;
+
+        try {
+            $cat = \App\Models\Categoria::create($validated);
+            AuditoriaService::registrar('categoria.creada', $cat, null, $cat->toArray());
+            return response()->json(['id' => $cat->id, 'nombre' => $cat->nombre]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al guardar: ' . $e->getMessage()], 500);
+        }
+    }
 }

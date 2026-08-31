@@ -248,13 +248,35 @@
                     <textarea id="descripcion" name="descripcion">{{ old('descripcion') }}</textarea>
                 </div>
                 <div class="product-field">
-                    <label for="categoria_id">Categoria</label>
+                    <label for="categoria_id" style="display:flex; justify-content:space-between; align-items:center;">
+                        Categoria
+                        <button type="button" id="btnNuevaCat" onclick="toggleNuevaCatForm()"
+                            style="font-size: 10px; color: var(--primary); background: none; border: none; cursor: pointer; font-family: var(--font-mono); display:flex; align-items:center; gap:4px;">
+                            <i class="fas fa-plus"></i> Nueva
+                        </button>
+                    </label>
                     <select id="categoria_id" name="categoria_id" required>
                         <option value="">Seleccione categoria</option>
                         @foreach($categorias as $cat)
                             <option value="{{ $cat->id }}" {{ old('categoria_id') == $cat->id ? 'selected' : '' }}>{{ $cat->nombre }}</option>
                         @endforeach
                     </select>
+                    {{-- Formulario inline para nueva categoría --}}
+                    <div id="nuevaCatForm" style="display:none; margin-top:8px; display:none;">
+                        <div style="display:flex; gap:6px;">
+                            <input type="text" id="nuevaCatNombre" placeholder="Nombre de la nueva categoría"
+                                style="flex:1; padding:7px 10px; border-radius:6px; border:1px solid var(--line); background:var(--surface-2); color:var(--text); font-size:13px;">
+                            <button type="button" onclick="crearCategoria()"
+                                style="padding:7px 12px; border-radius:6px; border:none; background:var(--primary); color:#fff; font-size:12px; cursor:pointer; white-space:nowrap;">
+                                <i class="fas fa-check"></i> Crear
+                            </button>
+                            <button type="button" onclick="toggleNuevaCatForm()"
+                                style="padding:7px 10px; border-radius:6px; border:1px solid var(--line); background:var(--surface-2); color:var(--muted); font-size:12px; cursor:pointer;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div id="nuevaCatMsg" style="font-size:11px; margin-top:4px;"></div>
+                    </div>
                 </div>
                 <div class="product-field">
                     <label for="unidad_medida_id">Unidad de medida</label>
@@ -444,5 +466,46 @@
             });
         }
     });
+    // ── Nueva Categoría inline ────────────────────────────────────
+    function toggleNuevaCatForm() {
+        const form = document.getElementById('nuevaCatForm');
+        if (!form) return;
+        const visible = form.style.display === 'flex';
+        form.style.display = visible ? 'none' : 'flex';
+        form.style.flexDirection = 'column';
+        if (!visible) document.getElementById('nuevaCatNombre').focus();
+    }
+
+    async function crearCategoria() {
+        const input = document.getElementById('nuevaCatNombre');
+        const msg   = document.getElementById('nuevaCatMsg');
+        const nombre = input.value.trim();
+
+        if (!nombre) { msg.style.color = 'var(--danger)'; msg.textContent = 'Escribe el nombre de la categoría.'; return; }
+
+        msg.style.color = 'var(--muted)'; msg.textContent = 'Guardando...';
+
+        try {
+            const res = await fetch('{{ route("categorias.store") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                body: JSON.stringify({ nombre })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                const err = data.errors?.nombre?.[0] || data.message || 'Error al crear.';
+                msg.style.color = 'var(--danger)'; msg.textContent = err; return;
+            }
+            // Agrega la opción al select y la selecciona
+            const select = document.getElementById('categoria_id');
+            const opt = new Option(data.nombre, data.id, true, true);
+            select.add(opt);
+            msg.style.color = 'var(--success)'; msg.textContent = '✓ Categoría "' + data.nombre + '" creada y seleccionada.';
+            input.value = '';
+            setTimeout(() => { document.getElementById('nuevaCatForm').style.display = 'none'; msg.textContent = ''; }, 1500);
+        } catch (e) {
+            msg.style.color = 'var(--danger)'; msg.textContent = 'Error de conexión.';
+        }
+    }
 </script>
 @endsection
