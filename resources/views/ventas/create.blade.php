@@ -49,22 +49,48 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                     <div>
                         <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Tipo Comprobante</label>
-                        <select name="tipo_comprobante" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                        <select name="tipo_comprobante" id="tipoComprobante" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
                             <option value="Factura">Factura</option>
                             <option value="Boleta">Boleta</option>
                             <option value="Ticket">Ticket de Venta</option>
                         </select>
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Serie</label>
-                        <input type="text" name="serie_comprobante" value="F001" pattern="[A-Za-z0-9-]+" maxlength="10" title="Use solo letras, numeros o guion" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                        <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">
+                            Serie
+                            <span style="margin-left: 6px; font-size: 10px; color: var(--success); font-family: var(--font-mono);">AUTO</span>
+                        </label>
+                        <input type="text" id="displaySerie" readonly
+                            value="{{ $series['Factura'] }}"
+                            style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--primary); font-family: var(--font-mono); font-weight: 600; cursor: not-allowed; opacity: 0.8;">
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Correlativo (Número)</label>
-                        <input type="text" name="numero_comprobante" inputmode="numeric" pattern="[0-9]{1,20}" maxlength="20" title="Ingrese solo numeros" placeholder="0000001" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                        <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">
+                            Correlativo (Número)
+
+                        </label>
+                        <input type="text" id="displayCorrelativo" readonly
+                            value="{{ str_pad($correlativos['Factura'], 7, '0', STR_PAD_LEFT) }}"
+                            style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--primary); font-family: var(--font-mono); font-weight: 600; cursor: not-allowed; opacity: 0.8;">
                     </div>
                 </div>
             </section>
+
+
+            @push('scripts')
+            <script>
+                const SERIES = @json($series);
+                const CORRELATIVOS = @json($correlativos);
+
+                document.getElementById('tipoComprobante').addEventListener('change', function () {
+                    const tipo = this.value;
+                    const serie = SERIES[tipo] || '';
+                    const num  = String(CORRELATIVOS[tipo] || 1).padStart(7, '0');
+                    document.getElementById('displaySerie').value = serie;
+                    document.getElementById('displayCorrelativo').value = num;
+                });
+            </script>
+            @endpush
 
             <!-- Carrito de Productos -->
             <section class="panel table-panel">

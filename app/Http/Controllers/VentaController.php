@@ -26,15 +26,43 @@ class VentaController extends Controller
         return view('ventas.index', compact('ventas'));
     }
 
+    /** Mapa de series por tipo de comprobante */
+    private const SERIES = [
+        'Factura' => 'F001',
+        'Boleta'  => 'B001',
+        'Ticket'  => 'T001',
+    ];
+
+    /**
+     * Devuelve el siguiente correlativo disponible para un tipo de comprobante.
+     * Usa MAX + 1 para no depender de auto-increment y ser seguro ante anulaciones.
+     */
+    private function siguienteCorrelativo(string $tipo): int
+    {
+        $serie = self::SERIES[$tipo] ?? 'X001';
+        $max = Venta::where('tipo_comprobante', $tipo)
+            ->where('serie_comprobante', $serie)
+            ->max(DB::raw('CAST(numero_comprobante AS UNSIGNED)'));
+
+        return ($max ?? 0) + 1;
+    }
+
     public function create(): View
     {
         $clientes = Cliente::where('estado', true)->orderBy('nombre')->get();
-        // Solo productos terminados o disponibles para la venta. Asumiremos todos por ahora.
         $productos = Producto::where('estado', 'activo')->get();
         $cuentas = CuentaFinanciera::where('estado', true)->get();
         $cuentasContables = \App\Models\CuentaContable::orderBy('codigo')->get();
 
-        return view('ventas.create', compact('clientes', 'productos', 'cuentas', 'cuentasContables'));
+        // Pre-calcular siguiente correlativo para cada tipo (para mostrarlo en el form)
+        $correlativos = [
+            'Factura' => $this->siguienteCorrelativo('Factura'),
+            'Boleta'  => $this->siguienteCorrelativo('Boleta'),
+            'Ticket'  => $this->siguienteCorrelativo('Ticket'),
+        ];
+        $series = self::SERIES;
+
+        return view('ventas.create', compact('clientes', 'productos', 'cuentas', 'cuentasContables', 'correlativos', 'series'));
     }
 
     public function store(Request $request, KardexService $kardexService, AsientoContableService $asientoService): RedirectResponse
@@ -60,15 +88,21 @@ class VentaController extends Controller
         try {
             DB::beginTransaction();
 
+            // Generar serie y correlativo de forma atómica (bloquea la tabla para evitar duplicados)
+            Venta::lockForUpdate()->max('id'); // adquirir lock
+            $tipoComprobante  = $request->tipo_comprobante;
+            $serieAuto        = self::SERIES[$tipoComprobante] ?? 'X001';
+            $correlativoAuto  = $this->siguienteCorrelativo($tipoComprobante);
+
             $total = 0;
             $detallesToInsert = [];
 
             // 1. Crear cabecera de la venta en estado BORRADOR
             $venta = Venta::create([
                 'cliente_id' => $request->cliente_id,
-                'tipo_comprobante' => $request->tipo_comprobante,
-                'serie_comprobante' => $request->serie_comprobante,
-                'numero_comprobante' => $request->numero_comprobante,
+                'tipo_comprobante' => $tipoComprobante,
+                'serie_comprobante' => $serieAuto,
+                'numero_comprobante' => $correlativoAuto,
                 'fecha_venta' => $request->fecha_venta,
                 'moneda' => $request->moneda,
                 'total' => 0,
