@@ -68,7 +68,7 @@
                         <td class="mono">{{ $producto->codigo }}</td>
                         <td style="font-weight: 600;">{{ $producto->nombre }}</td>
                         <td>{{ $producto->categoria->nombre ?? 'N/A' }}</td>
-                        <td>{{ $producto->unidadMedida->abreviatura ?? 'N/A' }}</td>
+                        <td>{{ $producto->unidadMedida->simbolo ?? 'N/A' }}</td>
                         <td style="text-align: right;" class="mono">{{ number_format($producto->stock_actual, 2) }}</td>
                         <td style="text-align: right;" class="mono">S/ {{ number_format($producto->precio_unitario, 2) }}</td>
                         <td style="text-align: right; font-weight: bold;" class="mono">S/ {{ number_format($valorStock, 2) }}</td>

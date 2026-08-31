@@ -70,7 +70,9 @@ class EntradaCompraController extends Controller
     public function show(EntradaCompra $entradaCompra): View
     {
         $entradaCompra->load('detalles.producto', 'proveedor', 'usuario');
-        $cuentasFinancieras = \App\Models\CuentaFinanciera::where('estado', true)->get();
+        $cuentasFinancieras = \App\Models\CuentaFinanciera::where('estado', true)
+            ->where('moneda', 'PEN')
+            ->get();
         $cuentasContables = \App\Models\CuentaContable::orderBy('codigo')->get();
 
         return view('entradas_compra.show', compact('entradaCompra', 'cuentasFinancieras', 'cuentasContables'));
@@ -177,6 +179,10 @@ class EntradaCompraController extends Controller
             }
 
             $cuenta = CuentaFinanciera::findOrFail($validated['cuenta_financiera_id']);
+            if ($cuenta->moneda !== 'PEN') {
+                throw new Exception('La cuenta de pago debe estar en PEN para compras registradas en soles.');
+            }
+
             if ($cuenta->saldo_actual < $validated['monto']) {
                 throw new Exception('Saldo insuficiente en la cuenta/caja seleccionada.');
             }

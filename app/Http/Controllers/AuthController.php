@@ -25,7 +25,7 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt([...$credentials, 'estado' => true])) {
             $request->session()->regenerate();
 
             return redirect()->intended('dashboard');

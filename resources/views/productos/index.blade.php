@@ -52,7 +52,7 @@
                             <div style="font-size: 11px; color: var(--muted); font-weight: normal; margin-top: 2px;">{{ Str::limit($prod->descripcion, 30) }}</div>
                         @endif
                     </td>
-                    <td>{{ optional($prod->unidadMedida)->abreviatura ?? 'UN' }}</td>
+                    <td>{{ optional($prod->unidadMedida)->simbolo ?? 'UN' }}</td>
                     <td class="font-mono">
                         @if($prod->stock_actual <= $prod->stock_minimo)
                             <span style="color: var(--danger); font-weight: bold;">{{ number_format($prod->stock_actual, 2) }}</span>
@@ -261,7 +261,7 @@
                     <select id="unidad_medida_id" name="unidad_medida_id" required>
                         <option value="">Seleccione unidad</option>
                         @foreach($unidades as $uni)
-                            <option value="{{ $uni->id }}" {{ old('unidad_medida_id') == $uni->id ? 'selected' : '' }}>{{ $uni->nombre }} ({{ $uni->abreviatura }})</option>
+                            <option value="{{ $uni->id }}" {{ old('unidad_medida_id') == $uni->id ? 'selected' : '' }}>{{ $uni->nombre }} ({{ $uni->simbolo }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -279,7 +279,7 @@
                     </div>
                     <div class="product-field">
                         <label for="stock_minimo">Stock minimo</label>
-                        <input type="number" id="stock_minimo" name="stock_minimo" step="1" min="0" required value="{{ old('stock_minimo', 5) }}">
+                        <input type="number" id="stock_minimo" name="stock_minimo" step="0.01" min="0" required value="{{ old('stock_minimo', 5) }}">
                     </div>
                 </div>
                 <div class="product-field">
@@ -341,7 +341,7 @@
                     <select id="edit_unidad_medida_id" name="unidad_medida_id" required>
                         <option value="">Seleccione unidad</option>
                         @foreach($unidades as $uni)
-                            <option value="{{ $uni->id }}">{{ $uni->nombre }} ({{ $uni->abreviatura }})</option>
+                            <option value="{{ $uni->id }}">{{ $uni->nombre }} ({{ $uni->simbolo }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -360,7 +360,7 @@
                     </div>
                     <div class="product-field">
                         <label for="edit_stock_minimo">Stock minimo</label>
-                        <input type="number" id="edit_stock_minimo" name="stock_minimo" step="1" min="0" required>
+                        <input type="number" id="edit_stock_minimo" name="stock_minimo" step="0.01" min="0" required>
                     </div>
                 </div>
                 <div class="product-field">

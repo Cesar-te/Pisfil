@@ -47,7 +47,7 @@
                             {{ $producto->categoria ? $producto->categoria->nombre : '-' }}
                         </td>
                         <td style="padding: 12px 15px; color: var(--muted); font-size: 13px;">
-                            {{ $producto->unidadMedida ? $producto->unidadMedida->abreviatura : '-' }}
+                            {{ $producto->unidadMedida ? $producto->unidadMedida->simbolo : '-' }}
                         </td>
                         <td style="padding: 12px 15px; color: var(--text); font-size: 13px; text-align: right;">
                             S/ {{ number_format($producto->precio_unitario, 2) }}

@@ -65,6 +65,7 @@ class RolSeeder extends Seeder
                 'descripcion' => 'Operario de Produccion - Acceso a tareas y reportes',
                 'estado' => true,
                 'permisos' => [
+                    'dashboard.view',
                     'produccion.view',
                     'produccion.consume',
                     'produccion.cost',
@@ -80,6 +81,7 @@ class RolSeeder extends Seeder
                 'descripcion' => 'Encargado de Almacen - Gestion de inventario',
                 'estado' => true,
                 'permisos' => [
+                    'dashboard.view',
                     'inventario.view',
                     'inventario.create',
                     'inventario.export',
@@ -95,6 +97,7 @@ class RolSeeder extends Seeder
                 'descripcion' => 'Encargado del control de efectivo, cuentas bancarias y transacciones financieras',
                 'estado' => true,
                 'permisos' => [
+                    'dashboard.view',
                     'caja_bancos.view',
                     'caja_bancos.create',
                     'caja_bancos.update',

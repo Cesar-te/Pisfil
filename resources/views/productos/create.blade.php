@@ -63,7 +63,7 @@
                     <option value="">-- Seleccione unidad --</option>
                     @if(isset($unidades))
                         @foreach($unidades as $uni)
-                            <option value="{{ $uni->id }}" {{ old('unidad_medida_id') == $uni->id ? 'selected' : '' }}>{{ $uni->nombre }} ({{ $uni->abreviatura }})</option>
+                            <option value="{{ $uni->id }}" {{ old('unidad_medida_id') == $uni->id ? 'selected' : '' }}>{{ $uni->nombre }} ({{ $uni->simbolo }})</option>
                         @endforeach
                     @endif
                 </select>

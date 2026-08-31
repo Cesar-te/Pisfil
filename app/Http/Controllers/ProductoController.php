@@ -49,7 +49,7 @@ class ProductoController extends Controller
             'unidad_medida_id' => 'required|exists:unidades_medida,id',
             'precio_unitario' => 'required|numeric|min:0',
             'stock_actual' => 'required|numeric|min:0',
-            'stock_minimo' => 'required|integer|min:0',
+            'stock_minimo' => 'required|numeric|min:0',
             'estado' => 'nullable|string',
         ]);
 
@@ -94,7 +94,7 @@ class ProductoController extends Controller
             'unidad_medida_id' => 'required|exists:unidades_medida,id',
             'precio_unitario' => 'required|numeric|min:0',
             'stock_actual' => 'required|numeric|min:0',
-            'stock_minimo' => 'required|integer|min:0',
+            'stock_minimo' => 'required|numeric|min:0',
             'estado' => 'nullable|string',
         ]);
 

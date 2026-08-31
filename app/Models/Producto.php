@@ -29,9 +29,9 @@ class Producto extends Model
 
     protected $casts = [
         'precio_unitario' => 'decimal:2',
-        'stock_minimo' => 'integer',
-        'stock_maximo' => 'integer',
-        'stock_actual' => 'integer',
+        'stock_minimo' => 'decimal:2',
+        'stock_maximo' => 'decimal:2',
+        'stock_actual' => 'decimal:2',
     ];
 
     /**

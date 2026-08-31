@@ -170,7 +170,9 @@ class VentaController extends Controller
     public function show(Venta $venta): View
     {
         $venta->load(['cliente', 'detalles.producto', 'cuentaFinanciera', 'usuarioRegistra']);
-        $cuentasFinancieras = \App\Models\CuentaFinanciera::where('estado', true)->get();
+        $cuentasFinancieras = \App\Models\CuentaFinanciera::where('estado', true)
+            ->where('moneda', $venta->moneda)
+            ->get();
         $cuentasContables = \App\Models\CuentaContable::orderBy('codigo')->get();
 
         return view('ventas.show', compact('venta', 'cuentasFinancieras', 'cuentasContables'));
@@ -205,6 +207,9 @@ class VentaController extends Controller
             ]);
 
             $cuenta = CuentaFinanciera::findOrFail($validated['cuenta_financiera_id']);
+            if ($cuenta->moneda !== $venta->moneda) {
+                throw new \Exception("La cuenta destino debe tener la misma moneda que la venta ({$venta->moneda}).");
+            }
 
             $transaccion = TransaccionFinanciera::create([
                 'cuenta_financiera_id' => $cuenta->id,
