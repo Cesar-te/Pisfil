@@ -343,7 +343,7 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="topbar-title-stack">
-                    <p class="eyebrow"><i class="fas fa-terminal"></i> Terminal Activa</p>
+
                     <h1>@yield('header_title', 'Panel de Control')</h1>
                 </div>
             </div>
