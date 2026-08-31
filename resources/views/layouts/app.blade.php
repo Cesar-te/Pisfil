@@ -570,6 +570,41 @@
             const delay = Number(message.dataset.autoDismiss || 5200);
             window.setTimeout(() => dismissMessage(message), delay);
         });
+
+        // Normaliza en vivo los campos con patrones de tipo de dato.
+        document.addEventListener('input', (event) => {
+            if (!(event.target instanceof HTMLInputElement)) return;
+
+            const input = event.target;
+            const pattern = input.getAttribute('pattern');
+            if (!pattern) return;
+
+            const maxLength = Number(input.getAttribute('maxlength')) || null;
+            const originalValue = input.value;
+            let cleanValue = originalValue;
+
+            if (pattern === '[0-9]{8}|[0-9]{11}' || /^\[0-9\]\{\d+(,\d+)?\}$/.test(pattern)) {
+                cleanValue = originalValue.replace(/\D/g, '');
+            } else if (pattern === '[0-9+() -]{6,20}') {
+                cleanValue = originalValue.replace(/[^0-9+() -]/g, '');
+            } else if (pattern === '[0-9 -]{4,50}') {
+                cleanValue = originalValue.replace(/[^0-9 -]/g, '');
+            } else if (pattern === '[A-Za-z0-9._-]+') {
+                cleanValue = originalValue.replace(/[^A-Za-z0-9._-]/g, '');
+            } else if (pattern === '[A-Za-z0-9-]+') {
+                cleanValue = originalValue.replace(/[^A-Za-z0-9-]/g, '');
+            } else if (pattern === '[A-Za-z0-9 ._#/-]+') {
+                cleanValue = originalValue.replace(/[^A-Za-z0-9 ._#\/-]/g, '');
+            }
+
+            if (maxLength && cleanValue.length > maxLength) {
+                cleanValue = cleanValue.slice(0, maxLength);
+            }
+
+            if (cleanValue !== originalValue) {
+                input.value = cleanValue;
+            }
+        });
     </script>
     
     @stack('scripts')

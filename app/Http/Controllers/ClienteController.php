@@ -21,9 +21,9 @@ class ClienteController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'documento_identidad' => 'required|string|max:20|unique:clientes',
+            'documento_identidad' => ['required', 'regex:/^[0-9]{8}([0-9]{3})?$/', Rule::unique('clientes')],
             'direccion' => 'nullable|string|max:255',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
             'email' => 'nullable|string|email|max:100',
         ]);
 
@@ -36,9 +36,9 @@ class ClienteController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'documento_identidad' => ['required', 'string', 'max:20', Rule::unique('clientes')->ignore($cliente->id)],
+            'documento_identidad' => ['required', 'regex:/^[0-9]{8}([0-9]{3})?$/', Rule::unique('clientes')->ignore($cliente->id)],
             'direccion' => 'nullable|string|max:255',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
             'email' => 'nullable|string|email|max:100',
             'estado' => 'required|boolean',
         ]);

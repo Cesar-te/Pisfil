@@ -57,11 +57,11 @@
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Serie</label>
-                        <input type="text" name="serie_comprobante" value="F001" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                        <input type="text" name="serie_comprobante" value="F001" pattern="[A-Za-z0-9-]+" maxlength="10" title="Use solo letras, numeros o guion" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Correlativo (Número)</label>
-                        <input type="text" name="numero_comprobante" placeholder="0000001" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                        <input type="text" name="numero_comprobante" inputmode="numeric" pattern="[0-9]{1,20}" maxlength="20" title="Ingrese solo numeros" placeholder="0000001" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
                     </div>
                 </div>
             </section>

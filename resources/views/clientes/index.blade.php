@@ -98,7 +98,7 @@
             </div>
             <div>
                 <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">RUC / DNI</label>
-                <input type="text" name="documento_identidad" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                <input type="text" name="documento_identidad" required inputmode="numeric" pattern="[0-9]{8}|[0-9]{11}" minlength="8" maxlength="11" title="Ingrese DNI de 8 digitos o RUC de 11 digitos" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
             </div>
             <div>
                 <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Dirección</label>
@@ -107,7 +107,7 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
                     <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Teléfono</label>
-                    <input type="text" name="telefono" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                    <input type="text" name="telefono" inputmode="tel" pattern="[0-9+() -]{6,20}" maxlength="20" title="Solo numeros y signos telefonicos" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Email</label>
@@ -139,7 +139,7 @@
             </div>
             <div>
                 <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">RUC / DNI</label>
-                <input type="text" name="documento_identidad" id="edit_documento_identidad" required style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                <input type="text" name="documento_identidad" id="edit_documento_identidad" required inputmode="numeric" pattern="[0-9]{8}|[0-9]{11}" minlength="8" maxlength="11" title="Ingrese DNI de 8 digitos o RUC de 11 digitos" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
             </div>
             <div>
                 <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Dirección</label>
@@ -148,7 +148,7 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
                     <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Teléfono</label>
-                    <input type="text" name="telefono" id="edit_telefono" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                    <input type="text" name="telefono" id="edit_telefono" inputmode="tel" pattern="[0-9+() -]{6,20}" maxlength="20" title="Solo numeros y signos telefonicos" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Email</label>

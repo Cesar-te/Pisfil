@@ -179,11 +179,11 @@
             <div class="provider-form-grid">
                 <div class="provider-field">
                     <label for="codigo">Codigo</label>
-                    <input type="text" id="codigo" name="codigo" required value="{{ old('codigo') }}">
+                    <input type="text" id="codigo" name="codigo" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo" value="{{ old('codigo') }}">
                 </div>
                 <div class="provider-field">
                     <label for="ruc">RUC</label>
-                    <input type="text" id="ruc" name="ruc" value="{{ old('ruc') }}">
+                    <input type="text" id="ruc" name="ruc" inputmode="numeric" pattern="[0-9]{11}" minlength="11" maxlength="11" title="Ingrese RUC de 11 digitos" value="{{ old('ruc') }}">
                 </div>
                 <div class="provider-field full">
                     <label for="nombre_empresa">Razon social / empresa</label>
@@ -195,7 +195,7 @@
                 </div>
                 <div class="provider-field">
                     <label for="documento_identidad">Documento</label>
-                    <input type="text" id="documento_identidad" name="documento_identidad" value="{{ old('documento_identidad') }}">
+                    <input type="text" id="documento_identidad" name="documento_identidad" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" title="Ingrese DNI de 8 digitos" value="{{ old('documento_identidad') }}">
                 </div>
                 <div class="provider-field">
                     <label for="email">Email</label>
@@ -203,11 +203,11 @@
                 </div>
                 <div class="provider-field">
                     <label for="telefono">Telefono</label>
-                    <input type="text" id="telefono" name="telefono" value="{{ old('telefono') }}">
+                    <input type="text" id="telefono" name="telefono" inputmode="tel" pattern="[0-9+() -]{6,20}" maxlength="20" title="Solo numeros y signos telefonicos" value="{{ old('telefono') }}">
                 </div>
                 <div class="provider-field">
                     <label for="celular">Celular</label>
-                    <input type="text" id="celular" name="celular" value="{{ old('celular') }}">
+                    <input type="text" id="celular" name="celular" inputmode="tel" pattern="[0-9+() -]{6,20}" maxlength="20" title="Solo numeros y signos telefonicos" value="{{ old('celular') }}">
                 </div>
                 <div class="provider-field">
                     <label for="ciudad">Ciudad</label>
@@ -257,11 +257,11 @@
             <div class="provider-form-grid">
                 <div class="provider-field">
                     <label for="edit_codigo">Codigo</label>
-                    <input type="text" id="edit_codigo" name="codigo" required>
+                    <input type="text" id="edit_codigo" name="codigo" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo">
                 </div>
                 <div class="provider-field">
                     <label for="edit_ruc">RUC</label>
-                    <input type="text" id="edit_ruc" name="ruc">
+                    <input type="text" id="edit_ruc" name="ruc" inputmode="numeric" pattern="[0-9]{11}" minlength="11" maxlength="11" title="Ingrese RUC de 11 digitos">
                 </div>
                 <div class="provider-field full">
                     <label for="edit_nombre_empresa">Razon social / empresa</label>
@@ -273,7 +273,7 @@
                 </div>
                 <div class="provider-field">
                     <label for="edit_documento_identidad">Documento</label>
-                    <input type="text" id="edit_documento_identidad" name="documento_identidad">
+                    <input type="text" id="edit_documento_identidad" name="documento_identidad" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" title="Ingrese DNI de 8 digitos">
                 </div>
                 <div class="provider-field">
                     <label for="edit_email">Email</label>
@@ -281,11 +281,11 @@
                 </div>
                 <div class="provider-field">
                     <label for="edit_telefono">Telefono</label>
-                    <input type="text" id="edit_telefono" name="telefono">
+                    <input type="text" id="edit_telefono" name="telefono" inputmode="tel" pattern="[0-9+() -]{6,20}" maxlength="20" title="Solo numeros y signos telefonicos">
                 </div>
                 <div class="provider-field">
                     <label for="edit_celular">Celular</label>
-                    <input type="text" id="edit_celular" name="celular">
+                    <input type="text" id="edit_celular" name="celular" inputmode="tel" pattern="[0-9+() -]{6,20}" maxlength="20" title="Solo numeros y signos telefonicos">
                 </div>
                 <div class="provider-field">
                     <label for="edit_ciudad">Ciudad</label>

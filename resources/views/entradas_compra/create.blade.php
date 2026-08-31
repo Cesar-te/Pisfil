@@ -38,7 +38,7 @@
 
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Número de Documento (Factura/Boleta/Guía)</label>
-            <input type="text" name="numero_documento" required placeholder="Ej. F001-000451" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none; font-family: var(--font-mono);">
+            <input type="text" name="numero_documento" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo" placeholder="Ej. F001-000451" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none; font-family: var(--font-mono);">
         </div>
 
         <div style="margin-bottom: 25px;">

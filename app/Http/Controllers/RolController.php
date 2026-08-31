@@ -31,6 +31,7 @@ class RolController extends Controller
             'descripcion' => 'nullable|string',
             'estado' => 'required|boolean',
             'permisos' => 'nullable|array',
+            'permisos.*' => 'string|exists:permisos,codigo',
             'permiso_total' => 'nullable|boolean'
         ]);
 
@@ -70,6 +71,7 @@ class RolController extends Controller
             'descripcion' => 'nullable|string',
             'estado' => 'required|boolean',
             'permisos' => 'nullable|array',
+            'permisos.*' => 'string|exists:permisos,codigo',
             'permiso_total' => 'nullable|boolean'
         ]);
 

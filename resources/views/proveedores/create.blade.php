@@ -32,11 +32,11 @@
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Código Interno</label>
-                <input type="text" name="codigo" required placeholder="PRV-001" value="{{ old('codigo') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); font-family: var(--font-mono); outline: none;">
+                <input type="text" name="codigo" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo" placeholder="PRV-001" value="{{ old('codigo') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); font-family: var(--font-mono); outline: none;">
             </div>
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">RUC (Opcional)</label>
-                <input type="text" name="ruc" placeholder="1045..." value="{{ old('ruc') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                <input type="text" name="ruc" inputmode="numeric" pattern="[0-9]{11}" minlength="11" maxlength="11" title="Ingrese RUC de 11 digitos" placeholder="1045..." value="{{ old('ruc') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
             </div>
         </div>
 
@@ -52,7 +52,7 @@
             </div>
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">DNI de Contacto</label>
-                <input type="text" name="documento_identidad" placeholder="..." value="{{ old('documento_identidad') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                <input type="text" name="documento_identidad" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" title="Ingrese DNI de 8 digitos" placeholder="..." value="{{ old('documento_identidad') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
             </div>
         </div>
 
@@ -63,11 +63,11 @@
             </div>
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Teléfono Fijo</label>
-                <input type="text" name="telefono" placeholder="..." value="{{ old('telefono') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                <input type="text" name="telefono" inputmode="tel" pattern="[0-9+() -]{6,20}" maxlength="20" title="Solo numeros y signos telefonicos" placeholder="..." value="{{ old('telefono') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
             </div>
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Celular / WhatsApp</label>
-                <input type="text" name="celular" placeholder="..." value="{{ old('celular') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                <input type="text" name="celular" inputmode="tel" pattern="[0-9+() -]{6,20}" maxlength="20" title="Solo numeros y signos telefonicos" placeholder="..." value="{{ old('celular') }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
             </div>
         </div>
 

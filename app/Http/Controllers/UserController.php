@@ -39,8 +39,8 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'rol_id' => ['required', 'exists:roles,id'],
-            'documento_identidad' => ['nullable', 'string', 'max:20'],
-            'telefono' => ['nullable', 'string', 'max:20'],
+            'documento_identidad' => ['nullable', 'digits_between:8,12'],
+            'telefono' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
         ]);
 
         if ($validator->fails()) {
@@ -78,8 +78,8 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($usuario->id)],
             'rol_id' => ['required', 'exists:roles,id'],
-            'documento_identidad' => ['nullable', 'string', 'max:20'],
-            'telefono' => ['nullable', 'string', 'max:20'],
+            'documento_identidad' => ['nullable', 'digits_between:8,12'],
+            'telefono' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
         ]);
 
         if ($validator->fails()) {

@@ -31,11 +31,11 @@ class CuentaContableController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'codigo' => 'required|string|max:20|unique:cuentas_contables,codigo',
+            'codigo' => 'required|digits_between:2,20|unique:cuentas_contables,codigo',
             'descripcion' => 'required|string|max:255',
-            'elemento' => 'required|string|max:5',
+            'elemento' => 'required|digits_between:1,5',
             'nivel' => 'required|integer|min:2|max:6',
-            'tipo' => 'nullable|string|max:50',
+            'tipo' => 'nullable|in:Activo,Pasivo,Patrimonio,Gasto,Ingreso',
             'padre_id' => 'nullable|exists:cuentas_contables,id',
             'estado' => 'boolean'
         ]);
@@ -75,11 +75,11 @@ class CuentaContableController extends Controller
     public function update(Request $request, CuentaContable $cuentaContable)
     {
         $request->validate([
-            'codigo' => 'required|string|max:20|unique:cuentas_contables,codigo,' . $cuentaContable->id,
+            'codigo' => 'required|digits_between:2,20|unique:cuentas_contables,codigo,' . $cuentaContable->id,
             'descripcion' => 'required|string|max:255',
-            'elemento' => 'required|string|max:5',
+            'elemento' => 'required|digits_between:1,5',
             'nivel' => 'required|integer|min:2|max:6',
-            'tipo' => 'nullable|string|max:50',
+            'tipo' => 'nullable|in:Activo,Pasivo,Patrimonio,Gasto,Ingreso',
             'padre_id' => 'nullable|exists:cuentas_contables,id',
             'estado' => 'boolean'
         ]);

@@ -237,7 +237,7 @@
             <div class="product-form-grid">
                 <div class="product-field">
                     <label for="codigo">Codigo SKU</label>
-                    <input type="text" id="codigo" name="codigo" required value="{{ old('codigo') }}" placeholder="MAT-001">
+                    <input type="text" id="codigo" name="codigo" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo" value="{{ old('codigo') }}" placeholder="MAT-001">
                 </div>
                 <div class="product-field">
                     <label for="nombre">Nombre</label>
@@ -317,7 +317,7 @@
             <div class="product-form-grid">
                 <div class="product-field">
                     <label for="edit_codigo">Codigo SKU</label>
-                    <input type="text" id="edit_codigo" name="codigo" required>
+                    <input type="text" id="edit_codigo" name="codigo" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo">
                 </div>
                 <div class="product-field">
                     <label for="edit_nombre">Nombre</label>

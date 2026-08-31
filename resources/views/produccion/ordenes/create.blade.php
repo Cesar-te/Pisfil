@@ -25,7 +25,7 @@
         
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Número de Orden (Interno)</label>
-            <input type="text" name="numero_orden" required placeholder="Ej. OP-001" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none; font-family: var(--font-mono);">
+            <input type="text" name="numero_orden" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo" placeholder="Ej. OP-001" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none; font-family: var(--font-mono);">
         </div>
 
         <div style="margin-bottom: 20px;">

@@ -42,7 +42,7 @@ class ProductoController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'codigo' => 'required|string|max:50|unique:productos',
+            'codigo' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9._-]+$/', 'unique:productos'],
             'nombre' => 'required|string|max:150',
             'descripcion' => 'nullable|string',
             'categoria_id' => 'required|exists:categorias,id',
@@ -50,7 +50,7 @@ class ProductoController extends Controller
             'precio_unitario' => 'required|numeric|min:0',
             'stock_actual' => 'required|numeric|min:0',
             'stock_minimo' => 'required|numeric|min:0',
-            'estado' => 'nullable|string',
+            'estado' => 'nullable|in:activo,inactivo',
         ]);
 
         $producto = Producto::create($validated);
@@ -87,7 +87,7 @@ class ProductoController extends Controller
     public function update(Request $request, Producto $producto): RedirectResponse
     {
         $validated = $request->validate([
-            'codigo' => 'required|string|max:50|unique:productos,codigo,' . $producto->id,
+            'codigo' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9._-]+$/', 'unique:productos,codigo,' . $producto->id],
             'nombre' => 'required|string|max:150',
             'descripcion' => 'nullable|string',
             'categoria_id' => 'required|exists:categorias,id',
@@ -95,7 +95,7 @@ class ProductoController extends Controller
             'precio_unitario' => 'required|numeric|min:0',
             'stock_actual' => 'required|numeric|min:0',
             'stock_minimo' => 'required|numeric|min:0',
-            'estado' => 'nullable|string',
+            'estado' => 'nullable|in:activo,inactivo',
         ]);
 
         if ($producto->movimientosKardex()->exists()) {

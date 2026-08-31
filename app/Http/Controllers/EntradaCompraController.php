@@ -49,7 +49,7 @@ class EntradaCompraController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'numero_documento' => 'required|string|max:50|unique:entradas_compra',
+            'numero_documento' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9._-]+$/', 'unique:entradas_compra'],
             'proveedor_id' => 'required|exists:proveedores,id',
             'fecha_emision' => 'required|date',
         ]);
@@ -94,7 +94,7 @@ class EntradaCompraController extends Controller
     public function update(Request $request, EntradaCompra $entradaCompra): RedirectResponse
     {
         $validated = $request->validate([
-            'numero_documento' => 'required|string|max:50|unique:entradas_compra,numero_documento,' . $entradaCompra->id,
+            'numero_documento' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9._-]+$/', 'unique:entradas_compra,numero_documento,' . $entradaCompra->id],
             'proveedor_id' => 'required|exists:proveedores,id',
             'fecha_emision' => 'required|date',
             'estado' => 'required|in:pendiente,recibida,validada,rechazada',

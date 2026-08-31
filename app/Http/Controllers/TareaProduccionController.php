@@ -16,6 +16,7 @@ class TareaProduccionController extends Controller
                 'required',
                 'string',
                 'max:50',
+                'regex:/^[A-Za-z0-9._-]+$/',
                 \Illuminate\Validation\Rule::unique('tareas_produccion')->where(function ($query) use ($ordenProduccion) {
                     return $query->where('orden_produccion_id', $ordenProduccion->id);
                 })

@@ -127,7 +127,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 15px;">
                     <div>
                         <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Cod. Tarea</label>
-                        <input type="text" name="numero_tarea" required placeholder="T-01" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                        <input type="text" name="numero_tarea" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo" placeholder="T-01" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Nombre de Tarea</label>

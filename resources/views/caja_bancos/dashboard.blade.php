@@ -101,7 +101,7 @@
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Número de Cuenta</label>
-                        <input type="text" name="numero_cuenta" placeholder="193-..." style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                        <input type="text" name="numero_cuenta" inputmode="numeric" pattern="[0-9 -]{4,50}" maxlength="50" title="Use solo numeros, espacios o guiones" placeholder="193-..." style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
                     </div>
                 </div>
 

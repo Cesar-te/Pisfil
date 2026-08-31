@@ -19,7 +19,7 @@
         
         <div style="margin-bottom: 15px;">
             <label style="display: block; margin-bottom: 5px; font-size: 13px; color: var(--muted);">Código</label>
-            <input type="text" name="codigo" required value="{{ old('codigo', $cuentaContable->codigo) }}" style="width: 100%; padding: 10px; background-color: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 6px;">
+            <input type="text" name="codigo" required inputmode="numeric" pattern="[0-9]{2,20}" maxlength="20" title="Ingrese solo numeros" value="{{ old('codigo', $cuentaContable->codigo) }}" style="width: 100%; padding: 10px; background-color: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 6px;">
             @error('codigo') <span style="color: var(--danger); font-size: 12px;">{{ $message }}</span> @enderror
         </div>
 
@@ -32,7 +32,7 @@
         <div style="display: flex; gap: 15px; margin-bottom: 15px;">
             <div style="flex: 1;">
                 <label style="display: block; margin-bottom: 5px; font-size: 13px; color: var(--muted);">Elemento</label>
-                <input type="text" name="elemento" required value="{{ old('elemento', $cuentaContable->elemento) }}" style="width: 100%; padding: 10px; background-color: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 6px;">
+                <input type="text" name="elemento" required inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" title="Ingrese solo numeros" value="{{ old('elemento', $cuentaContable->elemento) }}" style="width: 100%; padding: 10px; background-color: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 6px;">
                 @error('elemento') <span style="color: var(--danger); font-size: 12px;">{{ $message }}</span> @enderror
             </div>
             <div style="flex: 1;">
@@ -57,7 +57,12 @@
         
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 5px; font-size: 13px; color: var(--muted);">Tipo</label>
-            <input type="text" name="tipo" value="{{ old('tipo', $cuentaContable->tipo) }}" style="width: 100%; padding: 10px; background-color: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 6px;">
+            <select name="tipo" style="width: 100%; padding: 10px; background-color: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 6px;">
+                <option value="">-- Seleccione tipo --</option>
+                @foreach(['Activo', 'Pasivo', 'Patrimonio', 'Gasto', 'Ingreso'] as $tipo)
+                    <option value="{{ $tipo }}" {{ old('tipo', $cuentaContable->tipo) === $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
+                @endforeach
+            </select>
             @error('tipo') <span style="color: var(--danger); font-size: 12px;">{{ $message }}</span> @enderror
         </div>
 

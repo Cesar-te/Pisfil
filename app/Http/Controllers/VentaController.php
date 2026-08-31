@@ -42,17 +42,19 @@ class VentaController extends Controller
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'tipo_comprobante' => 'required|in:Factura,Boleta,Ticket',
-            'serie_comprobante' => 'nullable|string|max:10',
-            'numero_comprobante' => 'nullable|string|max:20',
+            'serie_comprobante' => ['nullable', 'string', 'max:10', 'regex:/^[A-Za-z0-9-]+$/'],
+            'numero_comprobante' => ['nullable', 'digits_between:1,20'],
             'fecha_venta' => 'required|date',
             'moneda' => 'required|in:PEN,USD',
             'condicion_pago' => 'required|in:contado,credito',
             'cuenta_financiera_id' => 'nullable|required_if:condicion_pago,contado|exists:cuentas_financieras,id',
             'cuenta_contable_id' => 'nullable|exists:cuentas_contables,id',
             'productos' => 'required|array|min:1',
-            'productos.*' => 'exists:productos,id',
+            'productos.*' => 'required|exists:productos,id',
             'cantidades' => 'required|array|min:1',
+            'cantidades.*' => 'required|numeric|min:0.01',
             'precios' => 'required|array|min:1',
+            'precios.*' => 'required|numeric|min:0',
         ]);
 
         try {

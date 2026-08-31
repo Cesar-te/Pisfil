@@ -18,7 +18,7 @@
 
         <div>
             <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Numero de documento</label>
-            <input type="text" name="numero_documento" value="{{ old('numero_documento', $entradaCompra->numero_documento) }}" required style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+            <input type="text" name="numero_documento" value="{{ old('numero_documento', $entradaCompra->numero_documento) }}" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
         </div>
 
         <div>

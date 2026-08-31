@@ -29,8 +29,8 @@ class UsuarioController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'documento_identidad' => 'required|string|max:20|unique:users',
-            'telefono' => 'nullable|string|max:20',
+            'documento_identidad' => ['required', 'digits_between:8,12', Rule::unique('users')],
+            'telefono' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
             'rol_id' => 'required|exists:roles,id',
             'password' => 'required|string|min:8',
         ]);
@@ -54,8 +54,8 @@ class UsuarioController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($usuario->id)],
-            'documento_identidad' => ['required', 'string', 'max:20', Rule::unique('users')->ignore($usuario->id)],
-            'telefono' => 'nullable|string|max:20',
+            'documento_identidad' => ['required', 'digits_between:8,12', Rule::unique('users')->ignore($usuario->id)],
+            'telefono' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
             'rol_id' => 'required|exists:roles,id',
             'estado' => 'required|boolean',
         ]);

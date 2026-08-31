@@ -7,6 +7,7 @@ use App\Services\AuditoriaService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\Rule;
 
 class ProveedorController extends Controller
 {
@@ -34,14 +35,14 @@ class ProveedorController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'codigo' => 'required|string|max:50|unique:proveedores',
+            'codigo' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9._-]+$/', Rule::unique('proveedores')],
             'nombre_empresa' => 'required|string|max:150',
             'nombre_contacto' => 'nullable|string|max:100',
-            'documento_identidad' => 'nullable|string|max:30',
-            'ruc' => 'nullable|string|max:15|unique:proveedores,ruc',
+            'documento_identidad' => ['nullable', 'digits:8'],
+            'ruc' => ['nullable', 'digits:11', Rule::unique('proveedores', 'ruc')],
             'email' => 'nullable|email',
-            'telefono' => 'nullable|string|max:20',
-            'celular' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
+            'celular' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
             'direccion' => 'nullable|string',
             'ciudad' => 'nullable|string|max:100',
             'pais' => 'nullable|string|max:100',
@@ -80,14 +81,14 @@ class ProveedorController extends Controller
     public function update(Request $request, Proveedor $proveedor): RedirectResponse
     {
         $validated = $request->validate([
-            'codigo' => 'required|string|max:50|unique:proveedores,codigo,' . $proveedor->id,
+            'codigo' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9._-]+$/', Rule::unique('proveedores', 'codigo')->ignore($proveedor->id)],
             'nombre_empresa' => 'required|string|max:150',
             'nombre_contacto' => 'nullable|string|max:100',
-            'documento_identidad' => 'nullable|string|max:30',
-            'ruc' => 'nullable|string|max:15|unique:proveedores,ruc,' . $proveedor->id,
+            'documento_identidad' => ['nullable', 'digits:8'],
+            'ruc' => ['nullable', 'digits:11', Rule::unique('proveedores', 'ruc')->ignore($proveedor->id)],
             'email' => 'nullable|email',
-            'telefono' => 'nullable|string|max:20',
-            'celular' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
+            'celular' => ['nullable', 'regex:/^[0-9+()\s-]{6,20}$/'],
             'direccion' => 'nullable|string',
             'ciudad' => 'nullable|string|max:100',
             'pais' => 'nullable|string|max:100',

@@ -33,7 +33,7 @@
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Código (SKU)</label>
-                <input type="text" name="codigo" required value="{{ old('codigo', $producto->codigo) }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); font-family: var(--font-mono); outline: none;">
+                <input type="text" name="codigo" required pattern="[A-Za-z0-9._-]+" maxlength="50" title="Use solo letras, numeros, punto, guion o guion bajo" value="{{ old('codigo', $producto->codigo) }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); font-family: var(--font-mono); outline: none;">
             </div>
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Nombre del Producto</label>
@@ -76,20 +76,20 @@
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Precio Unitario</label>
                 <div style="display: flex; align-items: center; background: var(--surface-1); border: 1px solid var(--line); border-radius: 8px; padding-left: 15px;">
                     <span style="color: var(--muted);">S/</span>
-                    <input type="number" step="0.01" name="precio_unitario" value="{{ old('precio_unitario', $producto->precio_unitario) }}" style="width: 100%; padding: 10px; border: none; background: transparent; color: var(--text); outline: none;">
+                    <input type="number" step="0.01" min="0" name="precio_unitario" value="{{ old('precio_unitario', $producto->precio_unitario) }}" style="width: 100%; padding: 10px; border: none; background: transparent; color: var(--text); outline: none;">
                 </div>
             </div>
             <div>
                 @php $tieneMovimientos = $producto->movimientosKardex()->exists(); @endphp
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Stock Actual</label>
-                <input type="number" step="0.01" name="stock_actual" value="{{ old('stock_actual', $producto->stock_actual) }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;" {{ $tieneMovimientos ? 'readonly' : '' }}>
+                <input type="number" step="0.01" min="0" name="stock_actual" value="{{ old('stock_actual', $producto->stock_actual) }}" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;" {{ $tieneMovimientos ? 'readonly' : '' }}>
                 @if($tieneMovimientos)
                     <div style="font-size: 11px; color: var(--warning); margin-top: 4px;"><i class="fas fa-lock"></i> Gestionado por Kárdex</div>
                 @endif
             </div>
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Stock Mín. (Alerta)</label>
-                <input type="number" step="0.01" name="stock_minimo" value="{{ old('stock_minimo', $producto->stock_minimo) }}" required style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                <input type="number" step="0.01" min="0" name="stock_minimo" value="{{ old('stock_minimo', $producto->stock_minimo) }}" required style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
             </div>
         </div>
         

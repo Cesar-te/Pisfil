@@ -161,7 +161,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div>
                         <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Referencia / N° Op</label>
-                        <input type="text" name="referencia" placeholder="Opcional" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
+                        <input type="text" name="referencia" pattern="[A-Za-z0-9 ._#/-]+" maxlength="100" title="Use solo letras, numeros, espacios, punto, guion, barra o numeral" placeholder="Opcional" style="width: 100%; padding: 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text);">
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px;">Fecha</label>

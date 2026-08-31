@@ -30,7 +30,7 @@
             </div>
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">DNI / Carnet</label>
-                <input type="text" name="documento_identidad" required placeholder="Ej. 12345678" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                <input type="text" name="documento_identidad" required inputmode="numeric" pattern="[0-9]{8,12}" minlength="8" maxlength="12" title="Ingrese solo numeros, entre 8 y 12 digitos" placeholder="Ej. 12345678" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
             </div>
         </div>
 
@@ -41,7 +41,7 @@
             </div>
             <div>
                 <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 13px;">Teléfono</label>
-                <input type="text" name="telefono" placeholder="Ej. 987654321" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
+                <input type="text" name="telefono" inputmode="tel" pattern="[0-9+() -]{6,20}" maxlength="20" title="Solo numeros y signos telefonicos" placeholder="Ej. 987654321" style="width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--line); color: var(--text); outline: none;">
             </div>
         </div>
 

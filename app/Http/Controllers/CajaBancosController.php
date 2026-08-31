@@ -35,7 +35,7 @@ class CajaBancosController extends Controller
             'nombre' => 'required|string|max:100',
             'tipo' => 'required|in:caja,banco',
             'banco' => 'nullable|string|max:50',
-            'numero_cuenta' => 'nullable|string|max:50',
+            'numero_cuenta' => ['nullable', 'regex:/^[0-9\s-]{4,50}$/'],
             'moneda' => 'required|in:PEN,USD',
             'saldo_actual' => 'required|numeric|min:0'
         ]);
@@ -70,7 +70,7 @@ class CajaBancosController extends Controller
             'tipo' => 'required|in:ingreso,egreso',
             'monto' => 'required|numeric|min:0.01',
             'motivo' => 'required|string|max:255',
-            'referencia' => 'nullable|string|max:100',
+            'referencia' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9 ._#\/-]+$/'],
             'fecha_transaccion' => 'required|date',
             'cuenta_contable_id' => 'nullable|exists:cuentas_contables,id',
         ]);

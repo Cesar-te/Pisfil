@@ -32,7 +32,7 @@ class OrdenProduccionController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'numero_orden' => 'required|string|max:50|unique:ordenes_produccion',
+            'numero_orden' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9._-]+$/', 'unique:ordenes_produccion'],
             'cliente' => 'required|string|max:255',
             'descripcion_trabajo' => 'required|string',
             'fecha_inicio_planificada' => 'required|date',
